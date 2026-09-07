@@ -146,7 +146,7 @@ nav.tabs::-webkit-scrollbar{display:none}
    DIAGRAMA DE ARGUMENTO (SVG)
 ============================================================ */
 .arg-svg{width:100%;height:auto;display:block}
-#argHead path{fill:var(--ink)}
+#argHead1 path, #argHead2 path{fill:var(--ink)}
 .arg-box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
 .arg-box.premisa{stroke:var(--pine-soft)}
 .arg-box.conclusion{stroke:var(--terra)}
@@ -155,7 +155,7 @@ nav.tabs::-webkit-scrollbar{display:none}
 .arg-label.conclusion{fill:var(--terra)}
 .arg-text{font-family:'Instrument Sans',sans-serif;font-size:12.5px;fill:var(--ink)}
 .arg-conn{font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;fill:var(--muted);text-anchor:middle}
-.arg-arrow{stroke:var(--ink);stroke-width:1.6;fill:none;marker-end:url(#argHead);
+.arg-arrow{stroke:var(--ink);stroke-width:1.6;fill:none;
   stroke-dasharray:260;stroke-dashoffset:260;animation:drawArrow 1s .3s ease forwards}
 @keyframes drawArrow{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.arg-arrow{animation:none;stroke-dashoffset:0}}
@@ -306,6 +306,7 @@ nav.tabs::-webkit-scrollbar{display:none}
 .pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
 .pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
 .pending-item.ok svg{color:var(--pine)}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ============================================================
    TOASTS / FOOTER
@@ -640,8 +641,8 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
             </div>
             <div id="ticketForm" hidden>
               <div class="ticket-grid" style="margin-bottom:12px">
-                <div class="field"><label for="tP1">Premisa 1</label><input id="tP1" type="text" placeholder="Ej. El cielo está despejado"></div>
-                <div class="field"><label for="tP2">Premisa 2</label><input id="tP2" type="text" placeholder="Ej. El pronóstico no anuncia lluvia"></div>
+                <div class="field"><label for="tP1">Premisa 1</label><input id="tP1" type="text" maxlength="140" placeholder="Ej. El cielo está despejado"></div>
+                <div class="field"><label for="tP2">Premisa 2</label><input id="tP2" type="text" maxlength="140" placeholder="Ej. El pronóstico no anuncia lluvia"></div>
               </div>
               <div class="field" style="margin-bottom:12px">
                 <label for="tConn">Conector de conclusión</label>
@@ -655,7 +656,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
               </div>
               <div class="field" style="margin-bottom:6px">
                 <label for="tC">Conclusión</label>
-                <input id="tC" type="text" placeholder="Ej. no llevaré paraguas">
+                <input id="tC" type="text" maxlength="140" placeholder="Ej. no llevaré paraguas">
               </div>
               <p class="hint" style="margin-bottom:4px">Vista previa:</p>
               <div class="ticket-preview" id="ticketPreview">Escribe tus premisas y tu conclusión arriba.</div>
@@ -680,7 +681,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
   <div class="wrap">
     <div class="view-head">
       <p class="overline">Registro individual</p>
-      <h2>Registro y mointoreo de avance</h2>
+      <h2>Registro y monitoreo de avance</h2>
       <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
     </div>
 
@@ -755,6 +756,8 @@ function showView(v){
 document.addEventListener('click', e=>{
   const editBtn = e.target.closest('[data-action="edit-perfil"]');
   if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
   const vw = e.target.closest('[data-view]');
   if(vw){
     if(vw.tagName==='A') e.preventDefault();
@@ -982,8 +985,10 @@ $('#btnGrade').addEventListener('click', async ()=>{
   const unanswered = QUIZ.some((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`));
   if(unanswered){ toast('Responde todas las preguntas antes de calificar.','err'); return; }
   let score=0;
+  const answers=[];
   $$('#quizList .quiz-q').forEach((art,i)=>{
     const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    answers.push(+sel.value);
     if(+sel.value===QUIZ[i].ans) score++;
     art.querySelectorAll('.opt').forEach(l=>{
       const inp=l.querySelector('input'); inp.disabled=true; l.classList.add('locked');
@@ -997,7 +1002,7 @@ $('#btnGrade').addEventListener('click', async ()=>{
   $('#quizResult').innerHTML=`<strong>${score} / ${QUIZ.length}</strong> ${msg}`;
   toast(`Diagnóstico exprés: ${score} de ${QUIZ.length} aciertos.`);
 
-  await saveJSON('progresoQuiz', {score, total:QUIZ.length, ts:Date.now()});
+  await saveJSON('progresoQuiz', {score, total:QUIZ.length, answers, ts:Date.now()});
   updateHomeStat();
   if(!$('#v-perfil').hidden) renderPerfil();
 });
@@ -1132,7 +1137,10 @@ async function renderPerfil(){
     <div class="panel">
       <div class="panel-head" style="justify-content:space-between">
         <span style="display:inline-flex;align-items:center;gap:9px"><i data-lucide="award"></i>Resultados de la sesión</span>
-        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i><span>Editar registro</span></button>
+        <div class="panel-head-actions">
+          <button class="btn ghost sm" data-action="download-evidence"><i data-lucide="image-down"></i><span>Descargar evidencia (PNG)</span></button>
+          <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i><span>Editar registro</span></button>
+        </div>
       </div>
       <div class="panel-body">
         <div class="result-id">
@@ -1147,7 +1155,7 @@ async function renderPerfil(){
         </div>
         <div class="result-total"><span>Nota registrada en esta herramienta</span><strong>${st.nota.toFixed(1)} / 75</strong></div>
         <p class="note">Faltan 25 puntos del criterio <strong>Ser</strong> (disposición al autoanálisis), que evalúa tu docente en clase y esta herramienta no puede medir. Esta nota es una referencia propia calculada con la ponderación propuesta en Actividades; no sustituye la calificación oficial.</p>
-        <p class="hint">Consejo: toma una captura de esta tarjeta (Cmd/Ctrl + Shift + 4 en Mac, Herramienta Recortes en Windows) para compartirla con tu docente.</p>
+        <p class="hint">El botón "Descargar evidencia" genera una imagen PNG con tu nota, tus respuestas del diagnóstico y tus compromisos, lista para subir a Moodle.</p>
       </div>
     </div>
     <div class="panel" style="margin-top:20px">
@@ -1179,6 +1187,196 @@ $('#formPerfil') && $('#formPerfil').addEventListener('submit', async e=>{
   await refreshTicketPanel();
   await updateHomeStat();
 });
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG): nota + diagnóstico (preguntas y
+   respuestas) + compromisos + ticket de salida, si existe.
+============================================================ */
+function wrapCanvasText(ctx, text, maxWidth){
+  const words = String(text).split(' ');
+  const lines = [];
+  let line = '';
+  for(const w of words){
+    const test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line); line = w;
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+async function generateEvidenceImage(){
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){ toast('Regístrate primero en "Registro y nota del alumno".','err'); showView('perfil'); return; }
+
+  toast('Generando tu evidencia…');
+
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+
+  const st = await computeNota();
+  const quiz = await loadJSON('progresoQuiz', null);
+  const done = await loadJSON('compromisos', {});
+  const ticket = await loadJSON('ticket', null);
+
+  const INK='#1c2b25', PINE='#1e4636', TERRA='#c2542f', MUTED='#5c6b62', PAPER='#f7f3eb', LINE='rgba(28,43,37,.3)';
+  const FONT_H1 = '700 24px Fraunces, Georgia, serif';
+  const FONT_H2 = '700 15px "Instrument Sans", Arial, sans-serif';
+  const FONT_BIG = '700 38px Fraunces, Georgia, serif';
+  const FONT_BODY = '400 13px "Instrument Sans", Arial, sans-serif';
+  const FONT_BODY_B = '700 13px "Instrument Sans", Arial, sans-serif';
+  const FONT_SMALL = '400 11.5px "Instrument Sans", Arial, sans-serif';
+  const FONT_NAME = '700 17px "Instrument Sans", Arial, sans-serif';
+  const FONT_TICKET = 'italic 400 14px Fraunces, Georgia, serif';
+
+  const SCALE = 2;
+  const W = 900, PAD = 46;
+  const contentW = W - PAD*2;
+  const placeholderH = 2800;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W*SCALE; canvas.height = placeholderH*SCALE;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+  ctx.fillStyle = PAPER; ctx.fillRect(0,0,W,placeholderH);
+  ctx.textBaseline = 'alphabetic';
+
+  let y = PAD;
+  const divider = ()=>{
+    ctx.strokeStyle = LINE; ctx.setLineDash([4,3]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
+    ctx.setLineDash([]);
+    y += 22;
+  };
+
+  // Encabezado
+  ctx.fillStyle = INK; ctx.font = FONT_H1;
+  ctx.fillText('Evidencia de trabajo individual', PAD, y+22); y += 32;
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  ctx.fillText('Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1 · Sesión 1', PAD, y+11); y += 24;
+  ctx.strokeStyle = INK; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke(); y += 26;
+
+  // Identidad
+  ctx.fillStyle = INK; ctx.font = FONT_NAME;
+  wrapCanvasText(ctx, perfil.nombre, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+15); y += 21; });
+  y += 1;
+  ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+  const fecha = new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  wrapCanvasText(ctx, `Matrícula ${perfil.matricula} · ${fecha}`, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+12); y += 17; });
+  y += 17;
+
+  // Nota
+  ctx.fillStyle = PINE; ctx.font = FONT_H2;
+  ctx.fillText('NOTA DE LA SESIÓN', PAD, y+13); y += 12;
+  ctx.font = FONT_BIG;
+  ctx.fillText(`${st.nota.toFixed(1)} / 75`, PAD, y+38); y += 46;
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  wrapCanvasText(ctx, `Detector de argumentos: ${st.hits}/${st.total} oraciones (${st.detectorPts.toFixed(1)}/40) · Diagnóstico exprés: ${quiz?quiz.score+'/'+quiz.total:'sin resolver'} (${st.quizPts.toFixed(1)}/20) · Ticket de salida: ${st.ticketDone?'entregado':'pendiente'} (${st.ticketPts}/15).`, contentW)
+    .forEach(l=>{ ctx.fillText(l, PAD, y+11); y+=16; });
+  y += 4;
+  wrapCanvasText(ctx, 'Faltan 25 puntos del criterio Ser, evaluados por el docente en clase. Esta nota es una referencia propia, no la calificación oficial.', contentW)
+    .forEach(l=>{ ctx.fillText(l, PAD, y+11); y+=16; });
+  y += 14;
+  divider();
+
+  // Diagnóstico exprés
+  ctx.fillStyle = PINE; ctx.font = FONT_H2;
+  ctx.fillText('DIAGNÓSTICO EXPRÉS' + (quiz?` · ${quiz.score}/${quiz.total} aciertos`:' · sin resolver'), PAD, y+13); y += 24;
+
+  if(quiz && quiz.answers){
+    QUIZ.forEach((q,i)=>{
+      const chosen = quiz.answers[i];
+      ctx.fillStyle = INK; ctx.font = FONT_BODY_B;
+      wrapCanvasText(ctx, `${i+1}. ${q.q}`, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+12); y+=18; });
+      y += 3;
+      q.opts.forEach((opt,j)=>{
+        const isCorrect = j===q.ans;
+        const isChosenWrong = j===chosen && !isCorrect;
+        const isChosenRight = j===chosen && isCorrect;
+        let color = MUTED, filled = false;
+        if(isCorrect){ color = PINE; filled = true; }
+        if(isChosenWrong){ color = TERRA; filled = true; }
+
+        const bx = PAD+2, by = y+3, bsize=9;
+        ctx.strokeStyle = color; ctx.lineWidth = 1.4;
+        if(filled){ ctx.fillStyle = color; ctx.fillRect(bx,by,bsize,bsize); }
+        ctx.strokeRect(bx+0.5,by+0.5,bsize,bsize);
+
+        let suffix = '';
+        if(isChosenRight) suffix = '  (tu respuesta — correcta)';
+        else if(isChosenWrong) suffix = '  (tu respuesta)';
+        else if(isCorrect) suffix = '  (respuesta correcta)';
+
+        ctx.font = (isChosenRight||isChosenWrong||isCorrect) ? FONT_BODY_B : FONT_BODY;
+        ctx.fillStyle = (isChosenRight||isCorrect) ? PINE : (isChosenWrong ? TERRA : MUTED);
+        const optText = `${'ABCD'[j]}. ${opt}${suffix}`;
+        const lines = wrapCanvasText(ctx, optText, contentW-20);
+        lines.forEach((l,k)=>{ ctx.fillText(l, PAD+20, y+11); y+=16; });
+      });
+      y += 8;
+    });
+  } else {
+    ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+    ctx.fillText('Aún no se ha resuelto el diagnóstico exprés.', PAD, y+12); y += 20;
+  }
+
+  y += 4;
+  divider();
+
+  // Compromisos
+  ctx.fillStyle = PINE; ctx.font = FONT_H2;
+  ctx.fillText('COMPROMISOS DE APRENDIZAJE', PAD, y+13); y += 24;
+  COMPROMISOS.forEach((c,i)=>{
+    const checked = !!done[i];
+    const bx = PAD+1, by = y+2, bsize=11;
+    ctx.strokeStyle = checked ? PINE : MUTED; ctx.lineWidth = 1.4;
+    if(checked){ ctx.fillStyle = PINE; ctx.fillRect(bx,by,bsize,bsize);
+      ctx.strokeStyle = PAPER; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(bx+2,by+6); ctx.lineTo(bx+4.5,by+9); ctx.lineTo(bx+9,by+2.5); ctx.stroke();
+    }
+    ctx.strokeStyle = checked ? PINE : MUTED; ctx.lineWidth=1.4;
+    ctx.strokeRect(bx+0.5,by+0.5,bsize,bsize);
+    ctx.fillStyle = checked ? INK : MUTED; ctx.font = checked ? FONT_BODY_B : FONT_BODY;
+    const lines = wrapCanvasText(ctx, c, contentW-24);
+    lines.forEach((l,k)=>{ ctx.fillText(l, PAD+24, y+11); y+=17; });
+    y += 6;
+  });
+
+  // Ticket de salida (si existe)
+  if(ticket && ticket.p1 && ticket.p2 && ticket.c){
+    y += 4; divider();
+    ctx.fillStyle = PINE; ctx.font = FONT_H2;
+    ctx.fillText('TICKET DE SALIDA', PAD, y+13); y += 24;
+    ctx.fillStyle = INK; ctx.font = FONT_TICKET;
+    const ticketTxt = `${ticket.p1}. ${ticket.p2}. ${ticket.conn}, ${ticket.c}.`;
+    wrapCanvasText(ctx, ticketTxt, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+13); y+=20; });
+  }
+
+  y += 8;
+  divider();
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  wrapCanvasText(ctx, 'Evidencia generada por el propio alumno dentro de la herramienta interactiva de la sesión.', contentW).forEach(l=>{ ctx.fillText(l, PAD, y+10); y += 15; });
+  ctx.fillText(`Generado el ${new Date().toLocaleString('es-MX')}`, PAD, y+10); y += 18;
+
+  const finalH = Math.min(y + PAD, placeholderH);
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = W*SCALE; finalCanvas.height = finalH*SCALE;
+  const fctx = finalCanvas.getContext('2d');
+  fctx.drawImage(canvas, 0,0,W*SCALE,finalH*SCALE, 0,0,W*SCALE,finalH*SCALE);
+
+  finalCanvas.toBlob(blob=>{
+    if(!blob){ toast('No se pudo generar la imagen. Intenta de nuevo.','err'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = (perfil.matricula||'alumno').replace(/[^A-Za-z0-9_-]/g,'');
+    a.href = url; a.download = `evidencia_sesion1_${safeName}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('Evidencia descargada.');
+  }, 'image/png');
+}
 
 /* ============================================================
    ARRANQUE
