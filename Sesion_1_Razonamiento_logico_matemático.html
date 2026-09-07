@@ -360,7 +360,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
       <button class="nav-btn" data-view="detector"><i data-lucide="split"></i>Detector</button>
       <button class="nav-btn" data-view="diagnostico"><i data-lucide="clipboard-check"></i>Diagnóstico</button>
       <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
-      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Mi progreso</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del alumno</button>
     </nav>
   </div>
 </header>
@@ -385,33 +385,42 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
         <div><dt>Aprendizaje esperado</dt><dd>Reconoce el esqueleto de un argumento</dd></div>
       </dl>
     </div>
-    <figure class="hero-fig">
-      <div class="diagram-box">
-        <svg class="arg-svg" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <marker id="argHead" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z"></path>
-            </marker>
-          </defs>
-          <rect class="arg-box premisa" x="14" y="18" width="220" height="70" rx="10"></rect>
-          <text class="arg-label premisa" x="30" y="42">Premisa</text>
-          <text class="arg-text" x="30" y="66">Razón nº 1 a favor de algo</text>
+<figure class="hero-fig">
+  <div class="diagram-box">
+    <svg class="arg-svg" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Primera punta de flecha con rotación de 15 grados -->
+        <marker id="argHead1" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="15">
+          <path d="M0,0 L8,4 L0,8 Z"></path>
+        </marker>
+        
+        <!-- Segunda punta de flecha con rotación de 90 grados -->
+        <marker id="argHead2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="90">
+          <path d="M0,0 L8,4 L0,8 Z"></path>
+        </marker>
+      </defs>
+      
+      <rect class="arg-box premisa" x="14" y="18" width="220" height="70" rx="10"></rect>
+      <text class="arg-label premisa" x="30" y="42">Premisa</text>
+      <text class="arg-text" x="30" y="66">Razón nº 1 a favor de algo</text>
 
-          <rect class="arg-box premisa" x="286" y="18" width="220" height="70" rx="10"></rect>
-          <text class="arg-label premisa" x="302" y="42">Premisa</text>
-          <text class="arg-text" x="302" y="66">Razón nº 2 a favor de algo</text>
+      <rect class="arg-box premisa" x="286" y="18" width="220" height="70" rx="10"></rect>
+      <text class="arg-label premisa" x="302" y="42">Premisa</text>
+      <text class="arg-text" x="302" y="66">Razón nº 2 a favor de algo</text>
 
-          <path class="arg-arrow" d="M124,92 C124,150 245,150 250,170"></path>
-          <path class="arg-arrow" d="M396,92 C396,150 275,150 270,170"></path>
-          <text class="arg-conn" x="260" y="152">— por lo tanto —</text>
+      <!-- Se agrega marker-end para vincular cada trayectoria con su punta de flecha específica -->
+      <path class="arg-arrow" d="M124,92 C124,150 245,150 250,170" marker-end="url(#argHead1)"></path>
+      <path class="arg-arrow" d="M396,92 C396,150 275,150 270,170" marker-end="url(#argHead2)"></path>
+      
+      <text class="arg-conn" x="260" y="152">— por lo tanto —</text>
 
-          <rect class="arg-box conclusion" x="150" y="176" width="220" height="56" rx="10"></rect>
-          <text class="arg-label conclusion" x="166" y="198">Conclusión</text>
-          <text class="arg-text" x="166" y="218">Lo que el argumento sostiene</text>
-        </svg>
-      </div>
-      <figcaption><strong>Premisas → Conclusión.</strong> Todo argumento reparte sus oraciones en dos papeles: las que apoyan, y la que se sostiene con ellas. El orden en el texto no importa; el papel lógico, sí.</figcaption>
-    </figure>
+      <rect class="arg-box conclusion" x="150" y="176" width="220" height="56" rx="10"></rect>
+      <text class="arg-label conclusion" x="166" y="198">Conclusión</text>
+      <text class="arg-text" x="166" y="218">Lo que el argumento sostiene</text>
+    </svg>
+  </div>
+  <figcaption><strong>Premisas → Conclusión.</strong> Todo argumento reparte sus oraciones en dos papeles: las que apoyan, y la que se sostiene con ellas. El orden en el texto no importa; el papel lógico, sí.</figcaption>
+</figure>
   </div>
 
   <div class="wrap home-grid">
@@ -619,7 +628,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
     <!-- Ticket de salida -->
     <div class="act-block">
       <h3>Ticket de salida — construye tu propio argumento</h3>
-      <p class="act-desc">Cierra la sesión redactando un argumento breve, de tu autoría, con dos premisas y una conclusión. Se guarda junto con tu registro de Mi progreso.</p>
+      <p class="act-desc">Cierra la sesión redactando un argumento breve, de tu autoría, con dos premisas y una conclusión. Se guarda junto con tu registro.</p>
       <div class="task-panel">
         <div class="panel">
           <div class="panel-head"><i data-lucide="ticket"></i>Constructor de argumento</div>
@@ -670,9 +679,9 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
 <section class="view" id="v-perfil" hidden>
   <div class="wrap">
     <div class="view-head">
-      <p class="overline">Tu registro individual</p>
-      <h2>Mi progreso</h2>
-      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
+      <p class="overline">Registro individual</p>
+      <h2>Registro y mointoreo de avance</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
     </div>
 
     <div class="storage-note" id="storageNote">
@@ -1177,9 +1186,9 @@ $('#formPerfil') && $('#formPerfil').addEventListener('submit', async e=>{
 function setStorageNote(){
   const el = $('#storageNote'); if(!el) return;
   if(hasWS()){
-    el.innerHTML = '<i data-lucide="info"></i><span>Tu registro se guarda en el almacenamiento de este artefacto y persiste entre sesiones dentro de Claude. Si abres este archivo como HTML suelto fuera de Claude, tu registro solo dura mientras la pestaña esté abierta.</span>';
+    el.innerHTML = '<i data-lucide="info"></i><span>Tu registro se guarda en el almacenamiento de este artefacto. Si abres este archivo como HTML suelto fuera de Claude, tu registro solo dura mientras la pestaña esté abierta.</span>';
   }else{
-    el.innerHTML = '<i data-lucide="alert-triangle"></i><span>No se detectó almacenamiento persistente en este contexto: tu registro se conserva solo mientras esta pestaña permanezca abierta.</span>';
+    el.innerHTML = '<i data-lucide="alert-triangle"></i><span>No se detectó almacenamiento persistente: tu registro se conserva solo mientras esta pestaña permanezca abierta.</span>';
   }
   refreshIcons();
 }
