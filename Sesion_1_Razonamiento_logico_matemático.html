@@ -285,23 +285,27 @@ nav.tabs::-webkit-scrollbar{display:none}
 .empty svg{width:30px;height:30px;stroke-width:1.5}
 
 /* ============================================================
-   ALUMNOS
+   MI PROGRESO (perfil individual)
 ============================================================ */
-.al-grid{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
-.count-pill{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;letter-spacing:.05em;border:1.5px solid var(--ink);border-radius:999px;padding:6px 14px;background:var(--card)}
-.tbl-wrap{overflow-x:auto}
-.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
-.st-name{font-weight:600}
-.st-mail{font-size:12px;color:var(--muted)}
-.grupo-b{font-size:11px;font-weight:700;border:1px solid var(--line-strong);border-radius:6px;padding:2px 8px}
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
 .status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
 .status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
 .status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
-.del-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:transparent;color:var(--ink);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;transition:all .15s}
-.del-btn:hover{border-color:var(--terra);color:var(--terra)}
-.del-btn.confirm{background:var(--terra);border-color:var(--terra);color:#fff}
-.search-row{display:flex;gap:10px;margin-bottom:16px}
-.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
 
 /* ============================================================
    TOASTS / FOOTER
@@ -329,8 +333,9 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
   .toc-title{display:none}
   .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
   .toc a:hover{border-bottom-color:var(--pine)}
-  .task-panel,.al-grid{grid-template-columns:1fr}
+  .task-panel{grid-template-columns:1fr}
   .ticket-grid{grid-template-columns:1fr}
+  .result-row{grid-template-columns:1fr;gap:4px}
   .rub-row{grid-template-columns:1fr;gap:8px}
   .rub-pct{text-align:left}
   .meta-grid{max-width:none}
@@ -344,9 +349,9 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
   <div class="wrap topbar-row">
     <div class="brand">
       <span class="brand-ico"><i data-lucide="scale"></i></span>
-      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 1<br> Dr. J. Adrian Cerda</small></span>
+      <span>Razonamiento Lóg-Mat<small>Aula interactiva — Sesión 1</small></span>
     </div>
-    <div class="topbar-side"> UNITI<br>LPID · Módulo 1</div>
+    <div class="topbar-side">J. A. Cerda Rodríguez · UNITI<br>LPID · Módulo 1</div>
   </div>
   <div class="wrap">
     <nav class="tabs" id="mainNav">
@@ -355,7 +360,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
       <button class="nav-btn" data-view="detector"><i data-lucide="split"></i>Detector</button>
       <button class="nav-btn" data-view="diagnostico"><i data-lucide="clipboard-check"></i>Diagnóstico</button>
       <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
-      <button class="nav-btn" data-view="alumnos"><i data-lucide="users"></i>Alumnos</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Mi progreso</button>
     </nav>
   </div>
 </header>
@@ -431,7 +436,7 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
     <aside>
       <p class="overline" style="margin-bottom:14px">En un vistazo</p>
       <div class="side-stats">
-        <div class="stat"><div class="num" id="statAlumnos">0</div><div class="lbl">Alumnos inscritos</div></div>
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
         <div class="stat"><div class="num">3</div><div class="lbl">Fragmentos de fuente real</div></div>
         <div class="stat"><div class="num">6</div><div class="lbl">Preguntas del diagnóstico exprés</div></div>
         <div class="stat"><div class="num">12</div><div class="lbl">Sesiones del curso</div></div>
@@ -614,21 +619,17 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
     <!-- Ticket de salida -->
     <div class="act-block">
       <h3>Ticket de salida — construye tu propio argumento</h3>
-      <p class="act-desc">Cierra la sesión redactando un argumento breve, de tu autoría, con dos premisas y una conclusión. Selecciona tu nombre para que tu ticket quede vinculado a tu registro.</p>
+      <p class="act-desc">Cierra la sesión redactando un argumento breve, de tu autoría, con dos premisas y una conclusión. Se guarda junto con tu registro de Mi progreso.</p>
       <div class="task-panel">
         <div class="panel">
           <div class="panel-head"><i data-lucide="ticket"></i>Constructor de argumento</div>
           <div class="panel-body">
             <div id="ticketEmpty" class="empty">
               <i data-lucide="user-plus"></i>
-              <p>Aún no hay alumnos registrados.<br>Inscríbete para guardar tu ticket.</p>
-              <button class="btn sm" data-view="alumnos"><i data-lucide="users"></i>Ir al registro</button>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu ticket.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
             </div>
             <div id="ticketForm" hidden>
-              <div class="field" style="margin-bottom:14px">
-                <label for="ticketStudent">Alumno</label>
-                <select id="ticketStudent"></select>
-              </div>
               <div class="ticket-grid" style="margin-bottom:12px">
                 <div class="field"><label for="tP1">Premisa 1</label><input id="tP1" type="text" placeholder="Ej. El cielo está despejado"></div>
                 <div class="field"><label for="tP2">Premisa 2</label><input id="tP2" type="text" placeholder="Ej. El pronóstico no anuncia lluvia"></div>
@@ -665,13 +666,13 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
   </div>
 </section>
 
-<!-- ==================== ALUMNOS ==================== -->
-<section class="view" id="v-alumnos" hidden>
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
   <div class="wrap">
     <div class="view-head">
-      <p class="overline">Control del grupo</p>
-      <h2>Registro de alumnos</h2>
-      <p class="sub">Ficha de inscripción del grupo, usada para personalizar el acompañamiento según el diagnóstico y para vincular el ticket de salida de cada alumno.</p>
+      <p class="overline">Tu registro individual</p>
+      <h2>Mi progreso</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
     </div>
 
     <div class="storage-note" id="storageNote">
@@ -679,56 +680,26 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
       <span>Verificando almacenamiento disponible…</span>
     </div>
 
-    <div class="al-grid">
+    <div style="max-width:480px" id="perfilForm">
       <div class="panel">
-        <div class="panel-head"><i data-lucide="user-plus"></i>Ficha de inscripción</div>
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
         <div class="panel-body">
-          <form id="formAlumno" style="display:grid;gap:14px" novalidate>
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
             <div class="field">
-              <label for="alNombre">Nombre completo</label>
-              <input id="alNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+              <label for="pNombre">Nombre completo</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
             </div>
             <div class="field">
-              <label for="alMat">Matrícula</label>
-              <input id="alMat" type="text" placeholder="Ej. 20260315" autocomplete="off">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
             </div>
-            <div class="field">
-              <label for="alGrupo">Grupo</label>
-              <select id="alGrupo">
-                <option value="A">Grupo A</option>
-                <option value="B">Grupo B</option>
-                <option value="C">Grupo C</option>
-              </select>
-            </div>
-            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Inscribir alumno</button>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
           </form>
         </div>
       </div>
-
-      <div class="panel">
-        <div class="panel-head" style="justify-content:space-between">
-          <span style="display:inline-flex;align-items:center;gap:9px"><i data-lucide="users"></i>Lista del grupo</span>
-          <span class="count-pill"><i data-lucide="graduation-cap"></i><span id="alumnosCount">0</span>&nbsp;inscritos</span>
-        </div>
-        <div class="panel-body">
-          <div class="search-row">
-            <div class="field" style="flex:1">
-              <input id="alumnoSearch" type="text" placeholder="Buscar por nombre o matrícula…">
-            </div>
-          </div>
-          <div class="tbl-wrap">
-            <table class="tbl">
-              <thead><tr><th>Alumno</th><th>Matrícula</th><th>Grupo</th><th>Ticket de salida</th><th></th></tr></thead>
-              <tbody id="alumnosTbody"></tbody>
-            </table>
-          </div>
-          <div id="alumnosEmpty" class="empty">
-            <i data-lucide="users"></i>
-            <p>No hay alumnos inscritos todavía.<br>Usa la ficha de la izquierda para registrar al primero.</p>
-          </div>
-        </div>
-      </div>
     </div>
+
+    <div id="perfilDash" hidden></div>
   </div>
 </section>
 
@@ -769,13 +740,18 @@ function showView(v){
   $('#v-'+v).hidden = false;
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
   window.scrollTo({top:0, behavior:'smooth'});
-  if(v==='alumnos') renderAlumnos();
+  if(v==='perfil') renderPerfil();
   if(v==='actividades') refreshTicketPanel();
 }
-$$('[data-view]').forEach(el => el.addEventListener('click', e => {
-  if(el.tagName==='A'){ e.preventDefault(); }
-  showView(el.dataset.view);
-}));
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
 
 /* ============================================================
    ALMACENAMIENTO (window.storage con respaldo en memoria)
@@ -912,7 +888,7 @@ $('#fragList').addEventListener('click', e=>{
   const rst = e.target.closest('[data-reset]');
   if(rst){ resetFragment(rst.dataset.reset); return; }
 });
-function checkFragment(key){
+async function checkFragment(key){
   const f = FRAGS[key];
   const sents = $$(`.sent[data-frag="${key}"]`);
   let hits=0;
@@ -933,8 +909,14 @@ function checkFragment(key){
     <div class="frag-source"><i data-lucide="link-2"></i>Fuente (fragmento adaptado y resumido con fines didácticos): ${esc(f.source.txt)} — <a href="${f.source.url}" target="_blank" rel="noopener">ver artículo original</a></div>`;
   refreshIcons();
   toast(`Fragmento comprobado: ${hits} de ${f.sentences.length} aciertos.`);
+
+  const det = await loadJSON('progresoDetector', {});
+  det[key] = {hits, total:f.sentences.length, ts:Date.now()};
+  await saveJSON('progresoDetector', det);
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
 }
-function resetFragment(key){
+async function resetFragment(key){
   fragState[key] = FRAGS[key].sentences.map(()=>'-');
   $$(`.sent[data-frag="${key}"]`).forEach(el=>{
     el.classList.remove('locked','hit','miss'); el.dataset.state='-';
@@ -942,6 +924,12 @@ function resetFragment(key){
   });
   $('#score-'+key).innerHTML='';
   $('#result-'+key).hidden=true; $('#result-'+key).innerHTML='';
+
+  const det = await loadJSON('progresoDetector', {});
+  delete det[key];
+  await saveJSON('progresoDetector', det);
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
   toast('Fragmento reiniciado.');
 }
 renderFragments();
@@ -981,7 +969,7 @@ function renderQuiz(){
     </article>`).join('');
   $('#quizResult').innerHTML='';
 }
-$('#btnGrade').addEventListener('click',()=>{
+$('#btnGrade').addEventListener('click', async ()=>{
   const unanswered = QUIZ.some((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`));
   if(unanswered){ toast('Responde todas las preguntas antes de calificar.','err'); return; }
   let score=0;
@@ -999,8 +987,18 @@ $('#btnGrade').addEventListener('click',()=>{
               score>=2?'Repasa la sección 1.2 y 1.3 de la teoría y vuelve a intentarlo.':'Comienza por la teoría (1.1 a 1.4) y reintenta con calma.';
   $('#quizResult').innerHTML=`<strong>${score} / ${QUIZ.length}</strong> ${msg}`;
   toast(`Diagnóstico exprés: ${score} de ${QUIZ.length} aciertos.`);
+
+  await saveJSON('progresoQuiz', {score, total:QUIZ.length, ts:Date.now()});
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
 });
-$('#btnQuizReset').addEventListener('click',()=>{ renderQuiz(); toast('Diagnóstico reiniciado.'); });
+$('#btnQuizReset').addEventListener('click', async ()=>{
+  renderQuiz();
+  await stDelete('progresoQuiz');
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+  toast('Diagnóstico reiniciado.');
+});
 renderQuiz();
 
 /* ============================================================
@@ -1028,114 +1026,149 @@ const COMPROMISOS = [
 ];
 
 async function refreshTicketPanel(){
-  const students = await loadJSON('alumnos', []);
-  $('#ticketEmpty').hidden = students.length>0;
-  $('#ticketForm').hidden  = students.length===0;
-  if(!students.length) return;
-  const sel=$('#ticketStudent'), cur=sel.value;
-  sel.innerHTML = students.map(s=>`<option value="${esc(s.matricula)}">${esc(s.nombre)} · ${esc(s.matricula)}</option>`).join('');
-  if(cur && students.some(s=>s.matricula===cur)) sel.value=cur;
-  await loadTicketForStudent();
+  const perfil = await loadJSON('perfil', null);
+  $('#ticketEmpty').hidden = !!perfil;
+  $('#ticketForm').hidden  = !perfil;
+  if(!perfil) return;
+  await loadTicketData();
   await renderCompromisos();
 }
-async function loadTicketForStudent(){
-  const mat=$('#ticketStudent').value; if(!mat) return;
-  const t = await loadJSON('ticket:'+mat, null);
+async function loadTicketData(){
+  const t = await loadJSON('ticket', null);
   $('#tP1').value = t? t.p1:''; $('#tP2').value = t? t.p2:'';
   $('#tConn').value = t? t.conn:'por lo tanto'; $('#tC').value = t? t.c:'';
   updateTicketPreview();
 }
 async function renderCompromisos(){
-  const mat=$('#ticketStudent').value; if(!mat) return;
-  const done = await loadJSON('compromisos:'+mat, {});
+  const done = await loadJSON('compromisos', {});
   $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
     <label class="chk ${done[i]?'done':''}">
       <input type="checkbox" data-c="${i}" ${done[i]?'checked':''}>
       <span>${esc(c)}</span>
     </label>`).join('');
 }
-$('#ticketStudent') && $('#ticketStudent').addEventListener('change', async ()=>{ await loadTicketForStudent(); await renderCompromisos(); });
 $('#btnSaveTicket') && $('#btnSaveTicket').addEventListener('click', async ()=>{
-  const mat=$('#ticketStudent').value; if(!mat){ toast('Selecciona un alumno primero.','err'); return; }
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){ toast('Regístrate primero en Mi progreso.','err'); return; }
   const p1=$('#tP1').value.trim(), p2=$('#tP2').value.trim(), conn=$('#tConn').value, c=$('#tC').value.trim();
   if(!p1 || !p2 || !c){ toast('Completa las dos premisas y la conclusión.','err'); return; }
-  await saveJSON('ticket:'+mat, {p1,p2,conn,c,ts:Date.now()});
+  await saveJSON('ticket', {p1,p2,conn,c,ts:Date.now()});
   toast('Ticket de salida guardado.');
-  renderAlumnos();
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
 });
 $('#compromisosList') && $('#compromisosList').addEventListener('change', async e=>{
-  const mat=$('#ticketStudent').value; if(!mat) return;
   const i=e.target.dataset.c; if(i==null) return;
-  const done = await loadJSON('compromisos:'+mat, {});
+  const done = await loadJSON('compromisos', {});
   done[i]=e.target.checked;
-  await saveJSON('compromisos:'+mat, done);
+  await saveJSON('compromisos', done);
   e.target.closest('.chk').classList.toggle('done', e.target.checked);
   toast('Compromiso actualizado.');
 });
 
 /* ============================================================
-   REGISTRO DE ALUMNOS
+   PERFIL DEL ALUMNO (registro individual + nota de la sesión)
 ============================================================ */
-const AV_COLORS=[['#e4ecdf','#1e4636'],['#f3e0d6','#8a3d1e'],['#f2e8c9','#7a6210'],
-                 ['#e2e8dd','#3c5a3c'],['#ead9e0','#7a3550'],['#dde7ea','#22505c']];
 function initials(name){
   const p=name.trim().split(/\s+/);
   return ((p[0]?.[0]||'')+(p[1]?.[0]||p[0]?.[1]||'')).toUpperCase();
 }
-async function renderAlumnos(){
-  const students = await loadJSON('alumnos', []);
-  const q=($('#alumnoSearch') ? $('#alumnoSearch').value : '').toLowerCase().trim();
-  const rows=students.filter(s=> !q || s.nombre.toLowerCase().includes(q) || s.matricula.toLowerCase().includes(q));
-  if($('#alumnosCount')) $('#alumnosCount').textContent=students.length;
-  if($('#statAlumnos')) $('#statAlumnos').textContent=students.length;
-  if($('#alumnosEmpty')) $('#alumnosEmpty').hidden = rows.length>0;
-  if($('#alumnosTbody')){
-    const rowsHtml = await Promise.all(rows.map(async s=>{
-      const [bg,fg]=AV_COLORS[[...s.nombre].reduce((a,c)=>a+c.charCodeAt(0),0)%AV_COLORS.length];
-      const t = await loadJSON('ticket:'+s.matricula, null);
-      const statusHtml = t ? '<span class="status-b done">Entregado</span>' : '<span class="status-b pend">Pendiente</span>';
-      return `<tr>
-        <td><div style="display:flex;align-items:center;gap:11px">
-          <span class="avatar" style="background:${bg};color:${fg}">${initials(s.nombre)}</span>
-          <span class="st-name">${esc(s.nombre)}</span></div></td>
-        <td class="mono">${esc(s.matricula)}</td>
-        <td><span class="grupo-b">Grupo ${esc(s.grupo)}</span></td>
-        <td>${statusHtml}</td>
-        <td style="text-align:right"><button class="del-btn" data-mat="${esc(s.matricula)}"><i data-lucide="trash-2"></i><span>Baja</span></button></td>
-      </tr>`;
-    }));
-    $('#alumnosTbody').innerHTML = rowsHtml.join('');
+async function computeNota(){
+  const det = await loadJSON('progresoDetector', {});
+  const quiz = await loadJSON('progresoQuiz', null);
+  const ticket = await loadJSON('ticket', null);
+
+  let hits=0, total=0, fragsDone=0;
+  const fragKeys = Object.keys(FRAGS);
+  fragKeys.forEach(k=>{
+    total += FRAGS[k].sentences.length;
+    if(det[k]){ hits += det[k].hits; fragsDone++; }
+  });
+  const detectorPts = total>0 ? (hits/total)*40 : 0;
+  const quizPts = quiz ? (quiz.score/quiz.total)*20 : 0;
+  const ticketDone = !!(ticket && ticket.p1 && ticket.p2 && ticket.c);
+  const ticketPts = ticketDone ? 15 : 0;
+  const nota = detectorPts + quizPts + ticketPts;
+
+  return {
+    hits, total, fragsDone, fragsCount:fragKeys.length,
+    quiz, quizPts, ticketDone, ticketPts, detectorPts,
+    nota, notaMax:75, pct: Math.round((nota/75)*100)
+  };
+}
+async function updateHomeStat(){
+  const st = await computeNota();
+  if($('#statAvance')) $('#statAvance').textContent = st.pct+'%';
+}
+function pendingItem(label, done, view){
+  return `<div class="pending-item ${done?'ok':''}">
+    <span>${done?'<i data-lucide="check"></i>':'<i data-lucide="circle"></i>'} ${esc(label)}</span>
+    ${done?'<span class="status-b done">Listo</span>':`<button class="btn ghost sm" data-view="${view}">Ir</button>`}
+  </div>`;
+}
+async function renderPerfil(){
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){
+    $('#perfilForm').hidden=false; $('#perfilDash').hidden=true; return;
   }
+  $('#perfilForm').hidden=true; $('#perfilDash').hidden=false;
+
+  const st = await computeNota();
+  const fecha = new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  const detPct = st.total? Math.round((st.hits/st.total)*100):0;
+  const quizTxt = st.quiz ? `${st.quiz.score}/${st.quiz.total}` : 'sin resolver';
+  const quizPct = st.quiz ? Math.round((st.quiz.score/st.quiz.total)*100):0;
+
+  $('#perfilDash').innerHTML = `
+    <div class="panel">
+      <div class="panel-head" style="justify-content:space-between">
+        <span style="display:inline-flex;align-items:center;gap:9px"><i data-lucide="award"></i>Resultados de la sesión</span>
+        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i><span>Editar registro</span></button>
+      </div>
+      <div class="panel-body">
+        <div class="result-id">
+          <span class="result-avatar">${esc(initials(perfil.nombre))}</span>
+          <div><div class="result-name">${esc(perfil.nombre)}</div>
+          <div class="result-mat">Matrícula ${esc(perfil.matricula)} · ${fecha}</div></div>
+        </div>
+        <div class="result-rows">
+          <div class="result-row"><span>Detector de argumentos</span><div class="rub-bar"><div style="width:${detPct}%"></div></div><span>${st.hits}/${st.total} · ${st.detectorPts.toFixed(1)}/40</span></div>
+          <div class="result-row"><span>Diagnóstico exprés</span><div class="rub-bar"><div style="width:${quizPct}%"></div></div><span>${esc(quizTxt)} · ${st.quizPts.toFixed(1)}/20</span></div>
+          <div class="result-row"><span>Ticket de salida</span><div class="rub-bar"><div style="width:${st.ticketDone?100:0}%"></div></div><span><span class="status-b ${st.ticketDone?'done':'pend'}">${st.ticketDone?'Entregado':'Pendiente'}</span> · ${st.ticketPts}/15</span></div>
+        </div>
+        <div class="result-total"><span>Nota registrada en esta herramienta</span><strong>${st.nota.toFixed(1)} / 75</strong></div>
+        <p class="note">Faltan 25 puntos del criterio <strong>Ser</strong> (disposición al autoanálisis), que evalúa tu docente en clase y esta herramienta no puede medir. Esta nota es una referencia propia calculada con la ponderación propuesta en Actividades; no sustituye la calificación oficial.</p>
+        <p class="hint">Consejo: toma una captura de esta tarjeta (Cmd/Ctrl + Shift + 4 en Mac, Herramienta Recortes en Windows) para compartirla con tu docente.</p>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        <div class="pending-list">
+          ${pendingItem('Comprobar los 3 fragmentos del Detector', st.fragsDone>=st.fragsCount, 'detector')}
+          ${pendingItem('Resolver el Diagnóstico exprés', !!st.quiz, 'diagnostico')}
+          ${pendingItem('Guardar tu ticket de salida', st.ticketDone, 'actividades')}
+        </div>
+      </div>
+    </div>`;
   refreshIcons();
 }
-$('#formAlumno') && $('#formAlumno').addEventListener('submit', async e=>{
+async function enterEditMode(){
+  const perfil = await loadJSON('perfil', null);
+  $('#perfilForm').hidden=false; $('#perfilDash').hidden=true;
+  if(perfil){ $('#pNombre').value=perfil.nombre; $('#pMatricula').value=perfil.matricula; }
+  showView('perfil');
+}
+$('#formPerfil') && $('#formPerfil').addEventListener('submit', async e=>{
   e.preventDefault();
-  const nombre=$('#alNombre').value.trim(), mat=$('#alMat').value.trim(), grupo=$('#alGrupo').value;
-  if(nombre.length<3){ toast('Escribe el nombre completo del alumno.','err'); return; }
-  if(mat.length<3){ toast('La matrícula debe tener al menos 3 caracteres.','err'); return; }
-  const students = await loadJSON('alumnos', []);
-  if(students.some(s=>s.matricula.toLowerCase()===mat.toLowerCase())){
-    toast(`La matrícula ${mat} ya está inscrita.`,'err'); return; }
-  students.push({nombre,matricula:mat,grupo,ts:Date.now()});
-  await saveJSON('alumnos', students);
-  e.target.reset(); $('#alNombre').focus();
-  await renderAlumnos();
-  toast(`${nombre.split(' ')[0]} quedó inscrito en el grupo ${grupo}.`);
-});
-$('#alumnoSearch') && $('#alumnoSearch').addEventListener('input', renderAlumnos);
-$('#alumnosTbody') && $('#alumnosTbody').addEventListener('click', async e=>{
-  const b=e.target.closest('.del-btn'); if(!b) return;
-  if(b.classList.contains('confirm')){
-    const mat=b.dataset.mat;
-    const students = await loadJSON('alumnos', []);
-    await saveJSON('alumnos', students.filter(s=>s.matricula!==mat));
-    await stDelete('ticket:'+mat); await stDelete('compromisos:'+mat);
-    await renderAlumnos(); toast('Alumno dado de baja del grupo.');
-  }else{
-    b.classList.add('confirm'); b.innerHTML='<i data-lucide="alert-triangle"></i><span>¿Confirmar?</span>'; refreshIcons();
-    setTimeout(()=>{ if(document.body.contains(b)){ b.classList.remove('confirm');
-      b.innerHTML='<i data-lucide="trash-2"></i><span>Baja</span>'; refreshIcons(); } },2600);
-  }
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<3){ toast('Tu matrícula debe tener al menos 3 caracteres.','err'); return; }
+  await saveJSON('perfil', {nombre, matricula, ts:Date.now()});
+  toast(`Registro guardado: ${nombre.split(' ')[0]}.`);
+  await renderPerfil();
+  await refreshTicketPanel();
+  await updateHomeStat();
 });
 
 /* ============================================================
@@ -1144,15 +1177,16 @@ $('#alumnosTbody') && $('#alumnosTbody').addEventListener('click', async e=>{
 function setStorageNote(){
   const el = $('#storageNote'); if(!el) return;
   if(hasWS()){
-    el.innerHTML = '<i data-lucide="info"></i><span>El registro se guarda en el almacenamiento de este artefacto y persiste entre sesiones dentro de Claude. Si abres este archivo como HTML suelto fuera de Claude, el registro solo dura mientras la pestaña esté abierta.</span>';
+    el.innerHTML = '<i data-lucide="info"></i><span>Tu registro se guarda en el almacenamiento de este artefacto y persiste entre sesiones dentro de Claude. Si abres este archivo como HTML suelto fuera de Claude, tu registro solo dura mientras la pestaña esté abierta.</span>';
   }else{
-    el.innerHTML = '<i data-lucide="alert-triangle"></i><span>No se detectó almacenamiento persistente en este contexto: el registro se conserva solo mientras esta pestaña permanezca abierta.</span>';
+    el.innerHTML = '<i data-lucide="alert-triangle"></i><span>No se detectó almacenamiento persistente en este contexto: tu registro se conserva solo mientras esta pestaña permanezca abierta.</span>';
   }
   refreshIcons();
 }
 refreshIcons();
 setStorageNote();
-renderAlumnos();
+renderPerfil();
+updateHomeStat();
 </script>
 </body>
 </html>
