@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 2 · Indicadores, verdad y validez — Razonamiento Lógico-Matemático</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+============================================================ */
+:root{
+  --paper:#f7f3eb;
+  --card:#fffdf8;
+  --ink:#1c2b25;
+  --pine:#1e4636;
+  --pine-soft:#2c5e49;
+  --terra:#c2542f;
+  --terra-soft:#f3e0d6;
+  --gold:#c9a227;
+  --gold-soft:#f2e8c9;
+  --gold-ink:#7a6210;
+  --line:rgba(28,43,37,.16);
+  --line-strong:rgba(28,43,37,.4);
+  --muted:rgba(28,43,37,.62);
+  --ok-bg:#e7efe6;
+  --err-bg:#f7e6dd;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:150px}
+[hidden]{display:none!important}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:radial-gradient(rgba(30,70,54,.075) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4,.display{font-family:'Fraunces',serif;font-weight:600;line-height:1.16;letter-spacing:-.01em}
+.overline{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra)}
+.mono{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--pine)}
+svg.lucide{width:16px;height:16px;stroke-width:2}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(247,243,235,.93);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--ink);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+.brand .brand-ico{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper)}
+.brand .brand-ico svg{width:17px;height:17px}
+.brand small{display:block;font-family:'Instrument Sans';font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.topbar-side{font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;color:var(--pine);
+  font-weight:600;font-size:13.5px;padding:8px 14px;border-radius:999px;
+  transition:all .18s ease;
+}
+.nav-btn svg{width:15px;height:15px}
+.nav-btn:hover{border-color:var(--line-strong)}
+.nav-btn.active{background:var(--ink);color:var(--paper)}
+
+/* ============================================================
+   VISTAS
+============================================================ */
+.view{padding:0 0 80px}
+.view-head{border-bottom:2px solid var(--ink);padding:52px 0 26px;margin-bottom:36px}
+.view-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 10px}
+.view-head p.sub{max-width:700px;color:var(--muted)}
+
+/* ============================================================
+   BOTONES / FORMULARIOS
+============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink);border-radius:10px;
+  padding:11px 18px;font-weight:600;font-size:14px;
+  transition:all .18s ease;
+}
+.btn:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(28,43,37,.06);transform:translateY(-1px)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:8px}
+.btn.active{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:14px;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);
+  border-radius:8px;padding:10px 12px;width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.field select.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.field select.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.hint{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   INICIO / HERO
+============================================================ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:64px 0 56px}
+.hero h1{font-size:clamp(2.2rem,4.3vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero .lead{font-size:1.05rem;color:var(--muted);max-width:540px}
+.hero-actions{display:flex;gap:12px;margin:26px 0 30px;flex-wrap:wrap}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-strong);max-width:520px}
+.meta-grid>div{padding:12px 14px 12px 0;border-bottom:1px solid var(--line)}
+.meta-grid dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meta-grid dd{font-weight:600;font-size:14.5px}
+.hero-fig{border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--card);overflow:hidden;box-shadow:6px 6px 0 rgba(28,43,37,.12)}
+.hero-fig .diagram-box{padding:26px 20px 10px}
+.hero-fig figcaption{padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.home-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:44px;border-top:1.5px solid var(--ink);padding-top:38px}
+.route-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;border-top:1px solid var(--line);padding:22px 4px;cursor:pointer;transition:background .15s}
+.route-item:first-child{border-top:none}
+.route-item:hover{background:rgba(28,43,37,.045)}
+.route-no{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:400;color:rgba(30,70,54,.28)}
+.route-item h3{font-size:1.2rem;margin-bottom:4px}
+.route-item p{font-size:13.5px;color:var(--muted)}
+.route-go{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);transition:all .18s}
+.route-item:hover .route-go{background:var(--ink);color:var(--paper)}
+.side-stats{display:flex;flex-direction:column;gap:12px}
+.stat{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:14px 18px}
+.stat .num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;line-height:1}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* ============================================================
+   DIAGRAMA DE LA BALANZA (SVG del héroe)
+============================================================ */
+.arg-svg{width:100%;height:auto;display:block}
+#argHead1 path, #argHead2 path{fill:var(--ink)}
+.scale-line{stroke:var(--ink);stroke-width:1.6}
+.scale-box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+.scale-box.v{stroke:var(--pine)}
+.scale-box.f{stroke:var(--terra)}
+.scale-label{font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.scale-label.v{fill:var(--pine)}
+.scale-label.f{fill:var(--terra)}
+.scale-text{font-family:'Instrument Sans',sans-serif;font-size:12px;fill:var(--ink)}
+.scale-arrow{stroke:var(--ink);stroke-width:1.6;fill:none;
+  stroke-dasharray:220;stroke-dashoffset:220;animation:drawArrow2 1s .3s ease forwards}
+@keyframes drawArrow2{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.scale-arrow{animation:none;stroke-dashoffset:0}}
+
+/* ============================================================
+   TEORÍA
+============================================================ */
+.theory{display:grid;grid-template-columns:230px 1fr;gap:52px;align-items:start}
+.toc{position:sticky;top:150px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column}
+.toc-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 10px 16px}
+.toc a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:9px 16px;font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin-left:-1.5px;transition:all .15s}
+.toc a span{font-family:'Fraunces',serif;color:var(--terra);font-weight:600;min-width:30px}
+.toc a:hover{border-left-color:var(--pine);background:rgba(28,43,37,.05)}
+.sec{border-top:1px solid var(--line);padding:44px 0}
+.sec:first-child{border-top:none;padding-top:0}
+.sec-no{font-family:'Fraunces',serif;font-size:3rem;font-weight:400;color:rgba(30,70,54,.22);line-height:1}
+.sec h3{font-size:1.5rem;margin:6px 0 16px}
+.prose p{margin:0 0 14px;max-width:72ch}
+.prose ul,.prose ol{margin:0 0 14px 22px;max-width:72ch}
+.prose li{margin-bottom:6px}
+.def{background:#ecf1ea;border:1px solid rgba(30,70,54,.28);border-radius:0 10px 10px 0;border-left:4px solid var(--pine);padding:18px 22px;margin:20px 0}
+.def .def-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pine)}
+.def p{margin:6px 0 0}
+.ex{background:var(--card);border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 22px;margin:20px 0}
+.ex .ex-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-ink)}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.tbl th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:hover{background:rgba(28,43,37,.04)}
+.tbl td.center,.tbl th.center{text-align:center}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid}
+.tag.p{color:var(--pine);border-color:rgba(30,70,54,.45);background:#ecf1ea}
+.tag.c{color:var(--terra);border-color:rgba(194,84,47,.45);background:var(--terra-soft)}
+.tag.x{color:var(--gold-ink);border-color:rgba(201,162,39,.5);background:var(--gold-soft)}
+.tag.na{color:var(--muted);border-color:var(--line-strong);background:var(--card)}
+
+/* ============================================================
+   PANELES
+============================================================ */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.panel-body{padding:20px 18px}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+.note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line-strong);margin-top:18px;padding-top:12px}
+.lab-block{margin-bottom:40px}
+.lab-block>h3{font-size:1.35rem;margin:6px 0 4px}
+.lab-block>.lab-desc{color:var(--muted);max-width:72ch;margin-bottom:16px;font-size:14px}
+
+/* ============================================================
+   SILOGISMO ABSURDO
+============================================================ */
+.syll-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.ticket-preview{border:1px dashed var(--line-strong);border-radius:10px;padding:16px 18px;margin:16px 0;font-family:'Fraunces',serif;font-size:1.02rem;line-height:1.55;min-height:52px;color:var(--ink)}
+.ticket-preview em{color:var(--terra);font-style:normal;font-weight:600}
+.truth-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.syll-result{border-top:1.5px solid var(--ink);margin-top:16px;padding-top:16px}
+.syll-verdict{display:flex;gap:10px;align-items:center;font-weight:700;margin-bottom:8px}
+.syll-verdict.ok{color:var(--pine)}
+
+/* ============================================================
+   CLASIFICADOR / DIAGNÓSTICO (estilo tipo quiz reutilizado)
+============================================================ */
+.quiz-q{border-top:1px solid var(--line);padding:24px 4px}
+.quiz-q header{display:flex;gap:14px;margin-bottom:14px}
+.qnum{flex:none;font-family:'Fraunces',serif;font-weight:700;color:var(--terra);border:1.5px solid var(--terra);border-radius:8px;padding:2px 9px;height:fit-content}
+.quiz-q .q-text{font-weight:600;font-size:15.5px;padding-top:4px}
+.opts{display:grid;gap:9px;margin-left:56px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14.5px}
+.opt:hover{border-color:var(--pine)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt-key{flex:none;width:26px;height:26px;border:1.5px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;transition:all .15s}
+.opt.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.opt.is-correct .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
+.opt.locked{cursor:default}
+.explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+.quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
+.quiz-result{font-size:15px}
+.quiz-result strong{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--pine);margin-right:8px}
+
+.caso-card{border-top:1px solid var(--line);padding:22px 4px}
+.caso-text{font-weight:600;font-size:14.5px;margin-bottom:12px;max-width:72ch}
+.caso-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.caso-row select{max-width:280px}
+.caso-explain{margin-top:10px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+
+/* ============================================================
+   INDICADORES (práctica formativa, sin calificar)
+============================================================ */
+.ind-item{border:1px solid var(--line-strong);border-radius:10px;padding:16px 18px;margin-bottom:14px;background:var(--card)}
+.ind-text{font-size:14.5px;margin-bottom:10px}
+.ind-blank{font-weight:700;color:var(--terra);border-bottom:2px dotted var(--terra);padding:0 2px}
+.ind-fb{font-size:12.5px;margin-top:8px;display:none}
+.ind-fb.show{display:block}
+.ind-fb.ok{color:var(--pine)}
+.ind-fb.bad{color:var(--terra)}
+
+/* ============================================================
+   ACTIVIDADES
+============================================================ */
+.act-block{margin-bottom:52px}
+.act-block>h3{font-size:1.45rem;margin:8px 0 6px}
+.act-block>.act-desc{color:var(--muted);max-width:72ch;margin-bottom:20px}
+.rub-row{display:grid;grid-template-columns:1fr 1fr 60px;gap:16px;align-items:center;border-top:1px solid var(--line);padding:14px 4px}
+.rub-row:last-child{border-bottom:1px solid var(--line)}
+.rub-row .rub-name{font-weight:600;font-size:14.5px}
+.rub-bar{height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.rub-bar>div{height:100%;background:var(--pine)}
+.rub-pct{text-align:right;font-family:'Fraunces',serif;font-weight:600}
+.pill-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-radius:999px;padding:4px 11px;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);padding:10px 14px;margin-bottom:9px;cursor:pointer;transition:all .15s;font-size:14.5px}
+.chk:hover{border-color:var(--pine)}
+.chk input{width:16px;height:16px;accent-color:var(--pine)}
+.chk.done{background:var(--ok-bg);border-color:var(--pine)}
+.task-panel{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 20px;color:var(--muted);text-align:center}
+.empty svg{width:30px;height:30px;stroke-width:1.5}
+
+/* ============================================================
+   MI PROGRESO (perfil individual)
+============================================================ */
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
+.status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
+.status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
+
+/* ============================================================
+   TOASTS / FOOTER
+============================================================ */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:10px;padding:12px 16px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .28s ease}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#8fd0a5}
+.toast.err svg{color:#f0a284}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
+.foot-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.foot-row strong{color:var(--ink)}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:34px}
+  .home-grid{grid-template-columns:1fr}
+  .theory{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;overflow-x:auto;border-left:none;border-bottom:1.5px solid var(--ink);gap:2px}
+  .toc-title{display:none}
+  .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .toc a:hover{border-bottom-color:var(--pine)}
+  .task-panel{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+  .syll-grid{grid-template-columns:1fr}
+  .result-row{grid-template-columns:1fr;gap:4px}
+  .rub-row{grid-template-columns:1fr;gap:8px}
+  .rub-pct{text-align:left}
+  .meta-grid{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand">
+      <span class="brand-ico"><i data-lucide="scale"></i></span>
+      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 2 - Dr. Adrián Cerda</small></span>
+    </div>
+    <div class="topbar-side">UNITI<br>LPID · Módulo 1</div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="mainNav">
+      <button class="nav-btn active" data-view="inicio"><i data-lucide="home"></i>Inicio</button>
+      <button class="nav-btn" data-view="teoria"><i data-lucide="book-open"></i>Teoría</button>
+      <button class="nav-btn" data-view="laboratorio"><i data-lucide="flask-conical"></i>Laboratorio</button>
+      <button class="nav-btn" data-view="diagnostico"><i data-lucide="clipboard-check"></i>Diagnóstico</button>
+      <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del alumno</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== INICIO ==================== -->
+<section class="view" id="v-inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="overline">Razonamiento Lógico-Matemático · UNITI — LPID, Módulo 1</p>
+      <h1>Indicadores, <em>verdad</em> y validez</h1>
+      <p class="lead">La sesión pasada aprendiste a encontrar premisas y conclusión. Ahora toca algo más incómodo: un argumento puede tener una forma perfecta y aun así estar hecho de mentiras, y puede estar hecho de puras verdades y aun así ser un mal argumento. Separar la forma del contenido es la habilidad de hoy.</p>
+      <div class="hero-actions">
+        <button class="btn" data-view="teoria"><i data-lucide="book-open"></i>Entrar a la teoría</button>
+        <button class="btn ghost" data-view="laboratorio"><i data-lucide="flask-conical"></i>Ir al laboratorio</button>
+      </div>
+      <dl class="meta-grid">
+        <div><dt>Sesión</dt><dd>2 / 12</dd></div>
+        <div><dt>Duración aprox.</dt><dd>110 min</dd></div>
+        <div><dt>Hilo conductor</dt><dd>Forma vs. contenido</dd></div>
+        <div><dt>Aprendizaje esperado</dt><dd>Distingue validez, verdad y fuerza argumentativa</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-fig">
+      <div class="diagram-box">
+        <svg class="arg-svg" viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="argHead1" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z"></path>
+            </marker>
+            <marker id="argHead2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z"></path>
+            </marker>
+          </defs>
+
+          <rect class="scale-box v" x="14" y="18" width="220" height="66" rx="10"></rect>
+          <text class="scale-label v" x="30" y="41">Validez</text>
+          <text class="scale-text" x="30" y="63">¿La forma es correcta?</text>
+
+          <rect class="scale-box f" x="286" y="18" width="220" height="66" rx="10"></rect>
+          <text class="scale-label f" x="302" y="41">Verdad</text>
+          <text class="scale-text" x="302" y="63">¿El contenido es real?</text>
+
+          <path class="scale-arrow" d="M124,88 C124,140 245,150 250,178" marker-end="url(#argHead1)"></path>
+          <path class="scale-arrow" d="M396,88 C396,140 275,150 270,178" marker-end="url(#argHead2)"></path>
+          <text class="scale-text" x="260" y="140" text-anchor="middle" font-style="italic" fill="var(--muted)">dos preguntas distintas</text>
+
+          <rect class="scale-box" x="150" y="184" width="220" height="56" rx="10" style="stroke:var(--gold)"></rect>
+          <text class="scale-label" x="166" y="206" style="fill:var(--gold-ink)">Sólido</text>
+          <text class="scale-text" x="166" y="226">Válido + premisas verdaderas</text>
+        </svg>
+      </div>
+      <figcaption><strong>Validez ≠ Verdad.</strong> Un argumento puede ser válido con premisas falsas, o inválido con premisas verdaderas. Solo cuando ambas coinciden hablamos de un argumento sólido.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap home-grid">
+    <div>
+      <p class="overline" style="margin-bottom:14px">Ruta de la sesión</p>
+      <div class="route-item" data-view="teoria">
+        <span class="route-no">01</span>
+        <div><h3>Verdad, validez y solidez</h3><p>Indicadores lógicos ampliados, la diferencia entre forma y contenido, y el puente con premisas cuantitativas.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="laboratorio">
+        <span class="route-no">02</span>
+        <div><h3>Laboratorio</h3><p>Construye un silogismo absurdo, practica indicadores y clasifica seis argumentos reales.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="actividades">
+        <span class="route-no">03</span>
+        <div><h3>Diagnóstico y cierre</h3><p>Diagnóstico exprés, mapa de conceptos, postura de debate y compromisos de aprendizaje.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <aside>
+      <p class="overline" style="margin-bottom:14px">En un vistazo</p>
+      <div class="side-stats">
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
+        <div class="stat"><div class="num">6</div><div class="lbl">Casos por clasificar</div></div>
+        <div class="stat"><div class="num">6</div><div class="lbl">Preguntas del diagnóstico exprés</div></div>
+        <div class="stat"><div class="num">12</div><div class="lbl">Sesiones del curso</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== TEORÍA ==================== -->
+<section class="view" id="v-teoria" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Forma y contenido</p>
+      <h2>Verdad, validez y solidez</h2>
+      <p class="sub">La sesión 1 preguntó "¿qué apoya a qué?". Hoy preguntamos algo más filoso: "¿el apoyo es real, o solo parece serlo?"</p>
+    </div>
+
+    <div class="theory">
+      <aside class="toc">
+        <p class="toc-title">Contenido</p>
+        <a href="#t1"><span>2.1</span>Indicadores, otra vez</a>
+        <a href="#t2"><span>2.2</span>Verdad y validez</a>
+        <a href="#t3"><span>2.3</span>Sólido, válido y fuerte</a>
+        <a href="#t4"><span>2.4</span>Premisas cuantitativas</a>
+      </aside>
+
+      <div class="prose">
+
+        <!-- 2.1 -->
+        <article class="sec" id="t1">
+          <div class="sec-no">2.1</div>
+          <h3>Indicadores lógicos: ahora con grados de certeza</h3>
+          <p>En la sesión 1 viste que "porque", "ya que" y "puesto que" suelen anunciar premisas, y que "por lo tanto", "así que" y "por eso" suelen anunciar conclusiones. Hoy sumamos un segundo eje: además de anunciar <em>qué papel</em> juega una oración, algunas palabras anuncian <em>qué tan segura</em> es esa conclusión.</p>
+          <table class="tbl">
+            <thead><tr><th>Indicadores de necesidad (deductivos)</th><th>Indicadores de probabilidad (inductivos)</th></tr></thead>
+            <tbody>
+              <tr><td>necesariamente, siempre, se sigue lógicamente que, sin excepción, en todos los casos</td><td>probablemente, es posible que, la mayoría, usualmente, en general, es de esperarse que</td></tr>
+            </tbody>
+          </table>
+          <div class="def">
+            <span class="def-tag">Por qué importa</span>
+            <p>Confundir estos dos grupos es una fuente común de malentendidos: prometer "necesariamente" cuando la evidencia solo sostiene un "probablemente" es sobrevender un argumento.</p>
+          </div>
+        </article>
+
+        <!-- 2.2 -->
+        <article class="sec" id="t2">
+          <div class="sec-no">2.2</div>
+          <h3>Verdad y validez: dos preguntas distintas</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p><strong>Validez</strong> es una propiedad de la <em>forma</em> de un argumento deductivo: pregunta si, suponiendo que las premisas fueran ciertas, la conclusión se seguiría necesariamente. No pregunta si las premisas <em>son</em> ciertas.<br><strong>Verdad</strong> es una propiedad de los enunciados (premisas o conclusión) por separado, sin importar la estructura del argumento.</p>
+          </div>
+          <p>Son ejes independientes. Eso produce combinaciones que a veces sorprenden:</p>
+          <table class="tbl">
+            <thead><tr><th>Validez</th><th>Premisas</th><th>¿Conclusión garantizada?</th><th>Ejemplo</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag p">Válida</span></td><td>Todas verdaderas</td><td>Sí — esto es un argumento <strong>sólido</strong></td><td>"Todos los mamíferos respiran. Las ballenas son mamíferos. Las ballenas respiran."</td></tr>
+              <tr><td><span class="tag p">Válida</span></td><td>Al menos una falsa</td><td>No garantizada</td><td>"Todo lo que es pez vive en árboles. El salmón es un pez. El salmón vive en árboles."</td></tr>
+              <tr><td><span class="tag c">Inválida</span></td><td>Todas verdaderas</td><td>No garantizada, aunque coincida</td><td>"Todos los gatos son mamíferos. Todos los perros son mamíferos. Todos los gatos son perros."</td></tr>
+              <tr><td><span class="tag c">Inválida</span></td><td>Al menos una falsa</td><td>No garantizada</td><td>Cualquier combinación de forma incorrecta y contenido falso.</td></tr>
+            </tbody>
+          </table>
+          <p>La segunda fila es la más contraintuitiva: la <em>forma</em> "Todo lo que es X es Y; esto es X; por lo tanto, esto es Y" es válida sin importar qué signifiquen X y Y. Que el salmón no viva en árboles es un problema de <em>verdad</em>, no de <em>validez</em>.</p>
+        </article>
+
+        <!-- 2.3 -->
+        <article class="sec" id="t3">
+          <div class="sec-no">2.3</div>
+          <h3>Sólido, válido y fuerte: el vocabulario preciso</h3>
+          <div class="def">
+            <span class="def-tag">Definiciones</span>
+            <p><strong>Válido:</strong> la conclusión se sigue necesariamente de las premisas (aplica a argumentos deductivos).<br><strong>Sólido:</strong> válido + todas las premisas son verdaderas → la conclusión queda garantizada.<br><strong>Fuerte / débil:</strong> se usan para argumentos <em>inductivos</em>, donde la conclusión no se sigue con necesidad sino con probabilidad. Un argumento fuerte hace muy probable su conclusión si las premisas son ciertas; uno débil, no.</p>
+          </div>
+          <p>La sesión 3 profundizará en cómo distinguir deducción de inducción. Por ahora basta con esta idea: <strong>"válido/sólido" es vocabulario para lo necesario; "fuerte/débil" es vocabulario para lo probable.</strong> No se mezclan.</p>
+        </article>
+
+        <!-- 2.4 -->
+        <article class="sec" id="t4">
+          <div class="sec-no">2.4</div>
+          <h3>Premisas cuantitativas: el puente con las matemáticas</h3>
+          <p>Muchos argumentos cotidianos —y casi todos los argumentos basados en datos— usan una premisa numérica: "el 80% de los usuarios aprobó el nuevo diseño", "9 de cada 10 especialistas recomiendan...". Estas premisas casi nunca producen argumentos <em>válidos</em> en sentido estricto: son la materia prima de argumentos <em>inductivos</em>, y su fuerza depende de preguntas cuantitativas concretas.</p>
+          <div class="ex">
+            <span class="ex-tag">Ejemplo</span>
+            <p>"Si el 80% de los usuarios aprueba el nuevo diseño, deberíamos lanzarlo." Para juzgar si esto es un argumento <em>fuerte</em>, no basta con el porcentaje: hay que preguntar tamaño de la muestra, si fue representativa, y qué tan alto es realmente 80% frente a la alternativa. Esa evaluación numérica es, exactamente, razonamiento matemático aplicado a un argumento.</p>
+          </div>
+          <p>Este es el puente explícito hacia Cálculo y hacia el análisis de datos: la lógica te dice <em>qué tipo</em> de argumento tienes (fuerte/débil); las matemáticas te dan las herramientas para <em>medir</em> qué tan fuerte es.</p>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LABORATORIO ==================== -->
+<section class="view" id="v-laboratorio" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Taller · forma vs. contenido</p>
+      <h2>Laboratorio de validez y verdad</h2>
+      <p class="sub">Tres ejercicios, de lo lúdico a lo analítico: primero sientes la diferencia entre forma y contenido con un argumento absurdo, luego practicas indicadores, y por último clasificas seis argumentos reales.</p>
+    </div>
+
+    <!-- Parte 1: Silogismo absurdo -->
+    <div class="lab-block">
+      <h3>1 · El silogismo absurdo</h3>
+      <p class="lab-desc">Completa la plantilla con algo disparatado. La forma es válida sin importar lo que escribas — ese es el punto: vas a construir un argumento válido pero (casi seguro) no sólido.</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="syll-grid">
+            <div class="field"><label for="sCat">Categoría absurda</label><input id="sCat" type="text" maxlength="80" placeholder="un calcetín perdido en la lavadora"></div>
+            <div class="field"><label for="sProp">Propiedad absurda</label><input id="sProp" type="text" maxlength="80" placeholder="termina viviendo en otra dimensión"></div>
+            <div class="field"><label for="sSuj">Sujeto</label><input id="sSuj" type="text" maxlength="80" placeholder="Mi calcetín azul favorito"></div>
+          </div>
+          <p class="hint" style="margin:14px 0 4px">Vista previa:</p>
+          <div class="ticket-preview" id="syllPreview">Completa los tres campos para armar tu silogismo.</div>
+          <button class="btn" id="btnCheckSyll"><i data-lucide="check-check"></i>Comprobar validez</button>
+          <div class="syll-result" id="syllResult" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parte 2: Indicadores (práctica formativa) -->
+    <div class="lab-block">
+      <h3>2 · Inserta el indicador</h3>
+      <p class="lab-desc">Práctica formativa — no se califica. Elige, en cada caso, la palabra que mejor conecta las ideas.</p>
+      <div id="indList"></div>
+    </div>
+
+    <!-- Parte 3: Clasificador -->
+    <div class="lab-block">
+      <h3>3 · Clasificador de argumentos</h3>
+      <p class="lab-desc">Seis argumentos. Para cada uno, decide si es válido y sólido, válido pero no sólido, inválido, fuerte o débil. Al terminar, presiona <strong>Comprobar clasificación</strong>.</p>
+      <div id="casoList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnGradeCasos"><i data-lucide="check-check"></i>Comprobar clasificación</button>
+        <button class="btn ghost" id="btnResetCasos"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+        <div class="quiz-result" id="casosResult"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DIAGNÓSTICO ==================== -->
+<section class="view" id="v-diagnostico" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Autoevaluación formativa</p>
+      <h2>Diagnóstico exprés</h2>
+      <p class="sub">Seis preguntas sobre verdad, validez, solidez y fuerza argumentativa. Retroalimentación inmediata en cada una.</p>
+    </div>
+    <div id="quizList"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnGrade"><i data-lucide="check-check"></i>Calificar</button>
+      <button class="btn ghost" id="btnQuizReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ACTIVIDADES ==================== -->
+<section class="view" id="v-actividades" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Zona de cierre</p>
+      <h2>Taller, rúbrica y cierre de sesión</h2>
+      <p class="sub">Instrumentos alineados a las fases de la sesión: encuadre, inicio, desarrollo y cierre.</p>
+    </div>
+
+    <!-- Guía del taller -->
+    <div class="act-block">
+      <h3>Guía del taller colaborativo</h3>
+      <p class="act-desc">En equipo, trabajen el <strong>Laboratorio</strong> completo y después preparen, por escrito:</p>
+      <ol style="margin-left:20px;font-size:14.5px;max-width:72ch">
+        <li style="margin-bottom:9px">Un segundo silogismo absurdo propio, distinto al de la herramienta.</li>
+        <li style="margin-bottom:9px">Para dos de los seis casos del Clasificador, expliquen con sus palabras por qué la forma es válida o inválida.</li>
+        <li style="margin-bottom:9px">Un ejemplo real (redes, noticias, publicidad) con una premisa cuantitativa, y si lo consideran fuerte o débil.</li>
+      </ol>
+    </div>
+
+    <!-- Rúbrica -->
+    <div class="act-block">
+      <h3>Ponderación de la sesión</h3>
+      <span class="pill-flag"><i data-lucide="alert-triangle"></i>Propuesta preliminar — pendiente de validación en Academia (colegiada)</span>
+      <p class="act-desc">Esta ponderación cubre solo los instrumentos de esta sesión.</p>
+      <div class="rub-row"><span class="rub-name">Clasificador de argumentos</span><div class="rub-bar"><div style="width:35%"></div></div><span class="rub-pct">35%</span></div>
+      <div class="rub-row"><span class="rub-name">Silogismo absurdo (construcción)</span><div class="rub-bar"><div style="width:10%"></div></div><span class="rub-pct">10%</span></div>
+      <div class="rub-row"><span class="rub-name">Diagnóstico exprés</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">20%</span></div>
+      <div class="rub-row"><span class="rub-name">Reflexión de cierre</span><div class="rub-bar"><div style="width:10%"></div></div><span class="rub-pct">10%</span></div>
+      <div class="rub-row"><span class="rub-name">Disposición al debate y respeto (eje Ser)</span><div class="rub-bar"><div style="width:25%"></div></div><span class="rub-pct">25%</span></div>
+    </div>
+
+    <!-- Cierre: mapa de conceptos + debate -->
+    <div class="act-block">
+      <h3>Reflexión de cierre — mapa de conceptos y postura de debate</h3>
+      <p class="act-desc">Define, con tus propias palabras, cada término (una frase basta), y toma postura en el debate del cierre. Se guarda junto con tu registro.</p>
+      <div class="task-panel">
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="brain"></i>Mapa de conceptos</div>
+          <div class="panel-body">
+            <div id="reflexionEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu reflexión.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="reflexionForm" hidden>
+              <div class="concept-grid">
+                <div class="field"><label for="defValido">Válido significa…</label><input id="defValido" type="text" maxlength="120"></div>
+                <div class="field"><label for="defSolido">Sólido significa…</label><input id="defSolido" type="text" maxlength="120"></div>
+                <div class="field"><label for="defFuerte">Fuerte significa…</label><input id="defFuerte" type="text" maxlength="120"></div>
+                <div class="field"><label for="defDebil">Débil significa…</label><input id="defDebil" type="text" maxlength="120"></div>
+              </div>
+              <button class="btn" id="btnSaveReflexion" style="width:100%;justify-content:center"><i data-lucide="save"></i>Guardar mi reflexión</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="users"></i>Postura de debate</div>
+          <div class="panel-body">
+            <p class="hint" style="margin-bottom:10px">¿Puede un argumento ser formalmente válido, pero moralmente reprobable? Argumenta tu postura en unas líneas.</p>
+            <div class="field">
+              <textarea id="debatePostura" maxlength="600" placeholder="Creo que sí / no puede serlo porque…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compromisos -->
+    <div class="act-block">
+      <h3>Compromisos de aprendizaje</h3>
+      <p class="act-desc">Márcalos conforme los asumas. Se guardan junto con tu registro.</p>
+      <div id="compromisosList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Registro individual</p>
+      <h2>Registro y monitoreo de avance</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
+    </div>
+
+    <div class="storage-note" id="storageNote">
+      <i data-lucide="info"></i>
+      <span>Verificando almacenamiento disponible…</span>
+    </div>
+
+    <div style="max-width:480px" id="perfilForm">
+      <div class="panel">
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
+        <div class="panel-body">
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
+            <div class="field">
+              <label for="pNombre">Nombre completo</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
+            </div>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilDash" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div><strong>Sesión 2 · Indicadores lógicos, verdad y validez.</strong><br>Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1.</div>
+    <div style="max-width:420px">Los seis casos del Clasificador son ejemplos elaborados con fines didácticos para esta sesión.</div>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+/* ============================================================
+   UTILIDADES
+============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, type='ok'){
+  const box=$('#toasts'), t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML = `<i data-lucide="${type==='ok'?'check-circle-2':'alert-circle'}"></i><span>${esc(msg)}</span>`;
+  box.appendChild(t); refreshIcons();
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 320); }, 3200);
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ============================================================
+   NAVEGACIÓN DE VISTAS
+============================================================ */
+function showView(v){
+  $$('.view').forEach(s => s.hidden = true);
+  $('#v-'+v).hidden = false;
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='perfil') renderPerfil();
+  if(v==='actividades') refreshReflexionPanel();
+}
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
+
+/* ============================================================
+   ALMACENAMIENTO (window.storage con respaldo en memoria)
+============================================================ */
+const memStore = new Map();
+function hasWS(){ return typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'; }
+async function stGet(key){
+  if(hasWS()){
+    try{ const r = await window.storage.get(key); return r ? r.value : null; }
+    catch(e){ return null; }
+  }
+  return memStore.has(key) ? memStore.get(key) : null;
+}
+async function stSet(key, value){
+  if(hasWS()){
+    try{ await window.storage.set(key, value); return true; }
+    catch(e){ return false; }
+  }
+  memStore.set(key, value); return true;
+}
+async function stDelete(key){
+  if(hasWS()){
+    try{ await window.storage.delete(key); return true; }
+    catch(e){ return false; }
+  }
+  memStore.delete(key); return true;
+}
+async function loadJSON(key, fallback){
+  const v = await stGet(key);
+  if(v==null) return fallback;
+  try{ return JSON.parse(v); }catch(e){ return fallback; }
+}
+async function saveJSON(key, obj){ return stSet(key, JSON.stringify(obj)); }
+
+/* ============================================================
+   PARTE 1 · SILOGISMO ABSURDO
+============================================================ */
+function syllText(){
+  const cat = $('#sCat').value.trim(), prop = $('#sProp').value.trim(), suj = $('#sSuj').value.trim();
+  return {cat, prop, suj};
+}
+function updateSyllPreview(){
+  const {cat,prop,suj} = syllText();
+  if(!cat && !prop && !suj){ $('#syllPreview').innerHTML = 'Completa los tres campos para armar tu silogismo.'; return; }
+  const c = cat||'…', p = prop||'…', s = suj||'…';
+  $('#syllPreview').innerHTML = `Todo lo que es <em>${esc(c)}</em> ${esc(p)}. ${esc(s)} es ${esc(c)}. Por lo tanto, ${esc(s)} ${esc(p)}.`;
+}
+['sCat','sProp','sSuj'].forEach(id=> $('#'+id).addEventListener('input', updateSyllPreview));
+
+$('#btnCheckSyll').addEventListener('click', ()=>{
+  const {cat,prop,suj} = syllText();
+  if(!cat || !prop || !suj){ toast('Completa los tres campos primero.','err'); return; }
+  $('#syllResult').hidden = false;
+  $('#syllResult').innerHTML = `
+    <div class="syll-verdict ok"><i data-lucide="check-check"></i>Estructura VÁLIDA</div>
+    <p style="font-size:13.5px;color:var(--muted);max-width:64ch">Si las dos premisas fueran ciertas, la conclusión se seguiría necesariamente — sin importar lo absurdo del contenido. Esa es la forma "Todo X es Y; esto es X; por lo tanto, esto es Y", y siempre es válida.</p>
+    <div class="truth-row">
+      <span class="hint">¿Las premisas son realmente verdaderas?</span>
+      <button class="btn ghost sm" data-truth="si">Sí, son verdaderas</button>
+      <button class="btn ghost sm" data-truth="no">No, son absurdas</button>
+    </div>
+    <div id="syllTruthFeedback"></div>`;
+  refreshIcons();
+});
+$('#syllResult').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-truth]'); if(!b) return;
+  $$('#syllResult [data-truth]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const truthy = b.dataset.truth==='si';
+  const fb = $('#syllTruthFeedback');
+  if(truthy){
+    fb.innerHTML = `<p class="hint" style="margin-top:12px">Si de verdad crees que las premisas son ciertas, entonces tu argumento también sería <strong>sólido</strong>. Prueba con algo más disparatado para sentir mejor la diferencia entre validez y verdad.</p>`;
+  } else {
+    fb.innerHTML = `<p class="hint" style="margin-top:12px">Entonces tienes un argumento <strong>válido pero no sólido</strong>: la lógica es impecable, el contenido es disparatado. Ese es exactamente el chiste del silogismo absurdo.</p>`;
+  }
+  const {cat,prop,suj} = syllText();
+  await saveJSON('progresoSilogismo', {cat, prop, suj, premisasVerdaderas:truthy, completed:true, ts:Date.now()});
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PARTE 2 · INDICADORES (formativo, sin calificar)
+============================================================ */
+const INDICADORES = [
+  { pre:'Todos los estudiantes de UNITI tienen matrícula institucional. Marisol es estudiante de UNITI. ', post:', Marisol tiene matrícula institucional.',
+    opts:['por lo tanto','porque','y','pero'], ans:0,
+    why:'"Por lo tanto" anuncia que lo que sigue es la conclusión, sostenida por las dos premisas anteriores.' },
+  { pre:'', post:' el 90% de los sensores falló en la prueba, el equipo decidió rediseñar el circuito.',
+    opts:['Por lo tanto','Dado que','Sin embargo','Es posible que'], ans:1, preIsBlank:true,
+    why:'"Dado que" introduce la premisa (la razón) antes de anunciar la decisión que la sigue.' },
+  { pre:'El algoritmo tiene un error de sintaxis; ', post:', el programa no compila.',
+    opts:['ya que','por consiguiente','aunque','tal vez'], ans:1,
+    why:'"Por consiguiente" anuncia la conclusión que se deriva del error de sintaxis mencionado antes.' }
+];
+function renderIndicadores(){
+  $('#indList').innerHTML = INDICADORES.map((it,i)=>{
+    const blankSelect = `<select data-ind="${i}"><option value="">— elige —</option>${it.opts.map((o,j)=>`<option value="${j}">${esc(o)}</option>`).join('')}</select>`;
+    const sentence = it.preIsBlank
+      ? `${blankSelect}${esc(it.post)}`
+      : `${esc(it.pre)}${blankSelect}${esc(it.post)}`;
+    return `<div class="ind-item">
+      <div class="ind-text">${i+1}. ${sentence}</div>
+      <div class="ind-fb" id="indFb-${i}"></div>
+    </div>`;
+  }).join('');
+}
+$('#indList').addEventListener('change', e=>{
+  const sel = e.target.closest('select[data-ind]'); if(!sel) return;
+  const i = +sel.dataset.ind;
+  const it = INDICADORES[i];
+  const fb = $('#indFb-'+i);
+  if(sel.value===''){ fb.className='ind-fb'; fb.innerHTML=''; return; }
+  const correct = +sel.value===it.ans;
+  fb.className = 'ind-fb show ' + (correct?'ok':'bad');
+  fb.innerHTML = correct
+    ? `<strong>Correcto.</strong> ${esc(it.why)}`
+    : `<strong>No exactamente.</strong> ${esc(it.why)}`;
+});
+renderIndicadores();
+
+/* ============================================================
+   PARTE 3 · CLASIFICADOR DE ARGUMENTOS
+============================================================ */
+const CASOS = [
+  { id:'c1', text:'Todos los mexicanos son latinoamericanos. Juan es mexicano. Por lo tanto, Juan es latinoamericano.',
+    ans:'solido', why:'La forma es válida y ambas premisas son verdaderas: es válido y sólido.' },
+  { id:'c2', text:'Todo lo que es un perro puede volar. Firulais es un perro. Por lo tanto, Firulais puede volar.',
+    ans:'valido_no_solido', why:'La forma es válida —si las premisas fueran ciertas, la conclusión se seguiría—, pero la primera premisa es falsa: es válido pero no sólido.' },
+  { id:'c3', text:'Si llueve, el suelo se moja. El suelo está mojado. Por lo tanto, llovió.',
+    ans:'invalido', why:'Aunque suena razonable, esta forma (afirmar el consecuente) es inválida: el suelo pudo mojarse por otra razón.' },
+  { id:'c4', text:'Todos los gatos son mamíferos. Todos los perros son mamíferos. Por lo tanto, todos los gatos son perros.',
+    ans:'invalido', why:'Ambas premisas son verdaderas, pero la forma es inválida: compartir una categoría con los perros no hace gatos a los perros.' },
+  { id:'c5', text:'El 95% de los pacientes de un ensayo clínico con muestra representativa mejoró con este medicamento. Por lo tanto, es probable que el medicamento funcione en la población general.',
+    ans:'fuerte', why:'Es un argumento inductivo: la conclusión no es necesaria pero sí muy probable dado el tamaño y la representatividad de la muestra. Es fuerte.' },
+  { id:'c6', text:'Les pregunté a mis tres mejores amigos si les gustó la película y a los tres les encantó. Por lo tanto, a todo el mundo le va a encantar esta película.',
+    ans:'debil', why:'La muestra es diminuta y nada representativa. La conclusión generaliza demasiado: es un argumento inductivo débil.' }
+];
+const CASO_OPTS = [
+  {v:'solido', label:'Válido y sólido'},
+  {v:'valido_no_solido', label:'Válido pero no sólido'},
+  {v:'invalido', label:'Inválido'},
+  {v:'fuerte', label:'Fuerte (inductivo)'},
+  {v:'debil', label:'Débil (inductivo)'}
+];
+function renderCasos(){
+  $('#casoList').innerHTML = CASOS.map((c,i)=>`
+    <article class="caso-card">
+      <div class="caso-text">${i+1}. ${esc(c.text)}</div>
+      <div class="caso-row">
+        <select data-caso="${i}">
+          <option value="">— clasifica —</option>
+          ${CASO_OPTS.map(o=>`<option value="${o.v}">${o.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="caso-explain" id="casoExplain-${i}" hidden></div>
+    </article>`).join('');
+  $('#casosResult').innerHTML = '';
+}
+$('#btnGradeCasos').addEventListener('click', async ()=>{
+  const unanswered = CASOS.some((_,i)=> !$(`select[data-caso="${i}"]`).value);
+  if(unanswered){ toast('Clasifica los seis casos antes de comprobar.','err'); return; }
+  let score = 0;
+  const answers = [];
+  CASOS.forEach((c,i)=>{
+    const sel = $(`select[data-caso="${i}"]`);
+    answers.push(sel.value);
+    const correct = sel.value===c.ans;
+    if(correct) score++;
+    sel.classList.remove('is-correct','is-wrong');
+    sel.classList.add(correct?'is-correct':'is-wrong');
+    sel.disabled = true;
+    const exp = $('#casoExplain-'+i);
+    exp.hidden = false;
+    exp.innerHTML = `<strong>${correct?'Correcto.':'La clasificación correcta era "'+CASO_OPTS.find(o=>o.v===c.ans).label+'".'}</strong> ${esc(c.why)}`;
+  });
+  $('#casosResult').innerHTML = `<strong>${score} / ${CASOS.length}</strong> aciertos en el clasificador.`;
+  toast(`Clasificador: ${score} de ${CASOS.length} aciertos.`);
+
+  await saveJSON('progresoClasificador', {score, total:CASOS.length, answers, ts:Date.now()});
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+$('#btnResetCasos').addEventListener('click', async ()=>{
+  renderCasos();
+  await stDelete('progresoClasificador');
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+  toast('Clasificador reiniciado.');
+});
+renderCasos();
+
+/* ============================================================
+   DIAGNÓSTICO EXPRÉS (QUIZ)
+============================================================ */
+const QUIZ=[
+ {q:'¿Qué evalúa la "validez" de un argumento?',
+  opts:['Si el tema es interesante','Si la estructura garantiza la conclusión suponiendo ciertas las premisas','Si el autor es reconocido','Si la conclusión es verdadera'],
+  ans:1, why:'La validez es una propiedad de la forma: si las premisas fueran ciertas, ¿la conclusión se seguiría necesariamente?'},
+ {q:'Un argumento válido con al menos una premisa falsa es…',
+  opts:['Inválido automáticamente','Válido pero no sólido','Sólido de todas formas','Un argumento fuerte'],
+  ans:1, why:'La validez depende de la forma, no del contenido; una premisa falsa impide la solidez, no la validez.'},
+ {q:'¿Qué se necesita, además de validez, para que un argumento sea "sólido"?',
+  opts:['Que sea inductivo','Que tenga al menos tres premisas','Que todas las premisas sean verdaderas','Que use un indicador de conclusión'],
+  ans:2, why:'Sólido = válido + todas las premisas verdaderas. Eso garantiza que la conclusión también sea verdadera.'},
+ {q:'"Fuerte" y "débil" se usan para calificar argumentos…',
+  opts:['Deductivos','Inductivos','Sin premisas','Con conclusión falsa'],
+  ans:1, why:'"Fuerte/débil" describe qué tan probable es la conclusión de un argumento inductivo; "válido/sólido" es vocabulario deductivo.'},
+ {q:'"El 95% de una muestra representativa mejoró con el tratamiento" es un ejemplo de…',
+  opts:['Una premisa que hace al argumento válido con certeza','Una premisa cuantitativa que aporta fuerza inductiva, no certeza deductiva','Una conclusión, no una premisa','Una falacia de ambigüedad'],
+  ans:1, why:'Los datos estadísticos suelen alimentar argumentos inductivos: hacen la conclusión probable, no necesaria.'},
+ {q:'"Todos los gatos son mamíferos. Todos los perros son mamíferos. Por lo tanto, todos los gatos son perros." Este argumento es…',
+  opts:['Válido y sólido, porque las premisas son verdaderas','Inválido, aunque ambas premisas son verdaderas','Sólido, porque el tema es sobre animales','Fuerte, porque suena razonable'],
+  ans:1, why:'Las premisas verdaderas no garantizan validez: la forma de este argumento no conecta correctamente los términos.'}
+];
+function renderQuiz(){
+  $('#quizList').innerHTML = QUIZ.map((it,i)=>`
+    <article class="quiz-q">
+      <header><span class="qnum">P${i+1}</span><p class="q-text">${esc(it.q)}</p></header>
+      <div class="opts">${it.opts.map((o,j)=>`
+        <label class="opt"><input type="radio" name="q${i}" value="${j}">
+        <span class="opt-key">${'ABCD'[j]}</span><span>${esc(o)}</span></label>`).join('')}
+      </div>
+      <p class="explain" hidden><strong>Retroalimentación:</strong> ${esc(it.why)}</p>
+    </article>`).join('');
+  $('#quizResult').innerHTML='';
+}
+$('#btnGrade').addEventListener('click', async ()=>{
+  const unanswered = QUIZ.some((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`));
+  if(unanswered){ toast('Responde todas las preguntas antes de calificar.','err'); return; }
+  let score=0;
+  const answers=[];
+  $$('#quizList .quiz-q').forEach((art,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    answers.push(+sel.value);
+    if(+sel.value===QUIZ[i].ans) score++;
+    art.querySelectorAll('.opt').forEach(l=>{
+      const inp=l.querySelector('input'); inp.disabled=true; l.classList.add('locked');
+      if(+inp.value===QUIZ[i].ans) l.classList.add('is-correct');
+      else if(+inp.value===+sel.value) l.classList.add('is-wrong');
+    });
+    art.querySelector('.explain').hidden=false;
+  });
+  const msg = score===6?'Dominas la diferencia entre forma y contenido.':score>=4?'Bien: repasa los puntos marcados en naranja.':
+              score>=2?'Repasa 2.2 y 2.3 de la teoría y vuelve a intentarlo.':'Revisa la teoría completa (2.1 a 2.4) y reintenta con calma.';
+  $('#quizResult').innerHTML=`<strong>${score} / ${QUIZ.length}</strong> ${msg}`;
+  toast(`Diagnóstico exprés: ${score} de ${QUIZ.length} aciertos.`);
+
+  await saveJSON('progresoQuiz', {score, total:QUIZ.length, answers, ts:Date.now()});
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+$('#btnQuizReset').addEventListener('click', async ()=>{
+  renderQuiz();
+  await stDelete('progresoQuiz');
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+  toast('Diagnóstico reiniciado.');
+});
+renderQuiz();
+
+/* ============================================================
+   REFLEXIÓN DE CIERRE (mapa de conceptos + debate) Y COMPROMISOS
+============================================================ */
+const COMPROMISOS = [
+  'Reviso las diferencias entre validez, verdad, solidez y fuerza antes de la sesión 3.',
+  'Practico distinguir un argumento inválido aunque sus premisas parezcan verdaderas.',
+  'Busco un ejemplo con porcentajes o estadísticas en medios y evalúo si es un argumento fuerte o débil.',
+  'Entrego mi reflexión de cierre antes de terminar la sesión.'
+];
+async function refreshReflexionPanel(){
+  const perfil = await loadJSON('perfil', null);
+  $('#reflexionEmpty').hidden = !!perfil;
+  $('#reflexionForm').hidden = !perfil;
+  if(perfil) await loadReflexionData();
+  await renderCompromisos();
+}
+async function loadReflexionData(){
+  const r = await loadJSON('reflexion', null);
+  $('#defValido').value = r?r.valido:''; $('#defSolido').value = r?r.solido:'';
+  $('#defFuerte').value = r?r.fuerte:''; $('#defDebil').value = r?r.debil:'';
+  $('#debatePostura').value = r?r.debate:'';
+}
+async function renderCompromisos(){
+  const done = await loadJSON('compromisos', {});
+  $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
+    <label class="chk ${done[i]?'done':''}">
+      <input type="checkbox" data-c="${i}" ${done[i]?'checked':''}>
+      <span>${esc(c)}</span>
+    </label>`).join('');
+}
+$('#btnSaveReflexion').addEventListener('click', async ()=>{
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){ toast('Regístrate primero en Registro y nota del alumno.','err'); return; }
+  const valido=$('#defValido').value.trim(), solido=$('#defSolido').value.trim();
+  const fuerte=$('#defFuerte').value.trim(), debil=$('#defDebil').value.trim();
+  const debate=$('#debatePostura').value.trim();
+  if(!valido || !solido || !fuerte || !debil){ toast('Completa las cuatro definiciones del mapa de conceptos.','err'); return; }
+  if(debate.length<20){ toast('Desarrolla un poco más tu postura de debate (mínimo unas líneas).','err'); return; }
+  await saveJSON('reflexion', {valido,solido,fuerte,debil,debate,ts:Date.now()});
+  toast('Reflexión de cierre guardada.');
+  updateHomeStat();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+$('#compromisosList').addEventListener('change', async e=>{
+  const i=e.target.dataset.c; if(i==null) return;
+  const done = await loadJSON('compromisos', {});
+  done[i]=e.target.checked;
+  await saveJSON('compromisos', done);
+  e.target.closest('.chk').classList.toggle('done', e.target.checked);
+  toast('Compromiso actualizado.');
+});
+
+/* ============================================================
+   PERFIL DEL ALUMNO (registro individual + nota de la sesión)
+============================================================ */
+function initials(name){
+  const p=name.trim().split(/\s+/);
+  return ((p[0]?.[0]||'')+(p[1]?.[0]||p[0]?.[1]||'')).toUpperCase();
+}
+async function computeNota(){
+  const clas = await loadJSON('progresoClasificador', null);
+  const syll = await loadJSON('progresoSilogismo', null);
+  const quiz = await loadJSON('progresoQuiz', null);
+  const reflexion = await loadJSON('reflexion', null);
+
+  const clasPts = clas ? (clas.score/clas.total)*35 : 0;
+  const syllDone = !!(syll && syll.completed);
+  const syllPts = syllDone ? 10 : 0;
+  const quizPts = quiz ? (quiz.score/quiz.total)*20 : 0;
+  const reflexionDone = !!(reflexion && reflexion.valido && reflexion.solido && reflexion.fuerte && reflexion.debil && reflexion.debate);
+  const reflexionPts = reflexionDone ? 10 : 0;
+  const nota = clasPts + syllPts + quizPts + reflexionPts;
+
+  return {
+    clas, clasPts, syllDone, syllPts, quiz, quizPts, reflexionDone, reflexionPts,
+    nota, notaMax:75, pct: Math.round((nota/75)*100)
+  };
+}
+async function updateHomeStat(){
+  const st = await computeNota();
+  if($('#statAvance')) $('#statAvance').textContent = st.pct+'%';
+}
+function pendingItem(label, done, view){
+  return `<div class="pending-item ${done?'ok':''}">
+    <span>${done?'<i data-lucide="check"></i>':'<i data-lucide="circle"></i>'} ${esc(label)}</span>
+    ${done?'<span class="status-b done">Listo</span>':`<button class="btn ghost sm" data-view="${view}">Ir</button>`}
+  </div>`;
+}
+async function renderPerfil(){
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){
+    $('#perfilForm').hidden=false; $('#perfilDash').hidden=true; return;
+  }
+  $('#perfilForm').hidden=true; $('#perfilDash').hidden=false;
+
+  const st = await computeNota();
+  const fecha = new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  const clasTxt = st.clas ? `${st.clas.score}/${st.clas.total}` : 'sin resolver';
+  const clasPct = st.clas ? Math.round((st.clas.score/st.clas.total)*100):0;
+  const quizTxt = st.quiz ? `${st.quiz.score}/${st.quiz.total}` : 'sin resolver';
+  const quizPct = st.quiz ? Math.round((st.quiz.score/st.quiz.total)*100):0;
+
+  $('#perfilDash').innerHTML = `
+    <div class="panel">
+      <div class="panel-head" style="justify-content:space-between">
+        <span style="display:inline-flex;align-items:center;gap:9px"><i data-lucide="award"></i>Resultados de la sesión</span>
+        <div class="panel-head-actions">
+          <button class="btn ghost sm" data-action="download-evidence"><i data-lucide="image-down"></i><span>Descargar evidencia (PNG)</span></button>
+          <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i><span>Editar registro</span></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="result-id">
+          <span class="result-avatar">${esc(initials(perfil.nombre))}</span>
+          <div><div class="result-name">${esc(perfil.nombre)}</div>
+          <div class="result-mat">Matrícula ${esc(perfil.matricula)} · ${fecha}</div></div>
+        </div>
+        <div class="result-rows">
+          <div class="result-row"><span>Clasificador de argumentos</span><div class="rub-bar"><div style="width:${clasPct}%"></div></div><span>${esc(clasTxt)} · ${st.clasPts.toFixed(1)}/35</span></div>
+          <div class="result-row"><span>Silogismo absurdo</span><div class="rub-bar"><div style="width:${st.syllDone?100:0}%"></div></div><span><span class="status-b ${st.syllDone?'done':'pend'}">${st.syllDone?'Construido':'Pendiente'}</span> · ${st.syllPts}/10</span></div>
+          <div class="result-row"><span>Diagnóstico exprés</span><div class="rub-bar"><div style="width:${quizPct}%"></div></div><span>${esc(quizTxt)} · ${st.quizPts.toFixed(1)}/20</span></div>
+          <div class="result-row"><span>Reflexión de cierre</span><div class="rub-bar"><div style="width:${st.reflexionDone?100:0}%"></div></div><span><span class="status-b ${st.reflexionDone?'done':'pend'}">${st.reflexionDone?'Entregada':'Pendiente'}</span> · ${st.reflexionPts}/10</span></div>
+        </div>
+        <div class="result-total"><span>Nota registrada en esta herramienta</span><strong>${st.nota.toFixed(1)} / 75</strong></div>
+        <p class="note">Faltan 25 puntos del criterio <strong>Ser</strong> (disposición al debate y respeto), que evalúa tu docente en clase y esta herramienta no puede medir. Esta nota es una referencia propia calculada con la ponderación propuesta en Actividades; no sustituye la calificación oficial.</p>
+        <p class="hint">El botón "Descargar evidencia" genera una imagen PNG con tu nota, tus respuestas del diagnóstico, tu clasificación de casos y tu reflexión de cierre, lista para subir a Moodle.</p>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        <div class="pending-list">
+          ${pendingItem('Clasificar los 6 casos del Laboratorio', !!st.clas, 'laboratorio')}
+          ${pendingItem('Construir tu silogismo absurdo', st.syllDone, 'laboratorio')}
+          ${pendingItem('Resolver el Diagnóstico exprés', !!st.quiz, 'diagnostico')}
+          ${pendingItem('Guardar tu reflexión de cierre', st.reflexionDone, 'actividades')}
+        </div>
+      </div>
+    </div>`;
+  refreshIcons();
+}
+async function enterEditMode(){
+  const perfil = await loadJSON('perfil', null);
+  $('#perfilForm').hidden=false; $('#perfilDash').hidden=true;
+  if(perfil){ $('#pNombre').value=perfil.nombre; $('#pMatricula').value=perfil.matricula; }
+  showView('perfil');
+}
+$('#formPerfil').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<3){ toast('Tu matrícula debe tener al menos 3 caracteres.','err'); return; }
+  await saveJSON('perfil', {nombre, matricula, ts:Date.now()});
+  toast(`Registro guardado: ${nombre.split(' ')[0]}.`);
+  await renderPerfil();
+  await refreshReflexionPanel();
+  await updateHomeStat();
+});
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG): nota + diagnóstico + clasificador
+   + silogismo absurdo + reflexión de cierre + compromisos.
+============================================================ */
+function wrapCanvasText(ctx, text, maxWidth){
+  const words = String(text).split(' ');
+  const lines = [];
+  let line = '';
+  for(const w of words){
+    const test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line); line = w;
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+async function generateEvidenceImage(){
+  const perfil = await loadJSON('perfil', null);
+  if(!perfil){ toast('Regístrate primero en "Registro y nota del alumno".','err'); showView('perfil'); return; }
+
+  toast('Generando tu evidencia…');
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+
+  const st = await computeNota();
+  const quiz = await loadJSON('progresoQuiz', null);
+  const clas = await loadJSON('progresoClasificador', null);
+  const syll = await loadJSON('progresoSilogismo', null);
+  const reflexion = await loadJSON('reflexion', null);
+  const done = await loadJSON('compromisos', {});
+
+  const INK='#1c2b25', PINE='#1e4636', TERRA='#c2542f', MUTED='#5c6b62', PAPER='#f7f3eb', LINE='rgba(28,43,37,.3)';
+  const FONT_H1 = '700 24px Fraunces, Georgia, serif';
+  const FONT_H2 = '700 15px "Instrument Sans", Arial, sans-serif';
+  const FONT_BIG = '700 38px Fraunces, Georgia, serif';
+  const FONT_BODY = '400 13px "Instrument Sans", Arial, sans-serif';
+  const FONT_BODY_B = '700 13px "Instrument Sans", Arial, sans-serif';
+  const FONT_SMALL = '400 11.5px "Instrument Sans", Arial, sans-serif';
+  const FONT_NAME = '700 17px "Instrument Sans", Arial, sans-serif';
+  const FONT_ITALIC = 'italic 400 14px Fraunces, Georgia, serif';
+
+  const SCALE = 2;
+  const W = 900, PAD = 46;
+  const contentW = W - PAD*2;
+  const placeholderH = 3600;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W*SCALE; canvas.height = placeholderH*SCALE;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+  ctx.fillStyle = PAPER; ctx.fillRect(0,0,W,placeholderH);
+  ctx.textBaseline = 'alphabetic';
+
+  let y = PAD;
+  const divider = ()=>{
+    ctx.strokeStyle = LINE; ctx.setLineDash([4,3]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
+    ctx.setLineDash([]);
+    y += 22;
+  };
+  const sectionTitle = (label)=>{
+    ctx.fillStyle = PINE; ctx.font = FONT_H2;
+    ctx.fillText(label, PAD, y+13); y += 24;
+  };
+
+  // Encabezado
+  ctx.fillStyle = INK; ctx.font = FONT_H1;
+  ctx.fillText('Evidencia de trabajo individual', PAD, y+22); y += 32;
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  ctx.fillText('Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1 · Sesión 2', PAD, y+11); y += 24;
+  ctx.strokeStyle = INK; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke(); y += 26;
+
+  // Identidad
+  ctx.fillStyle = INK; ctx.font = FONT_NAME;
+  wrapCanvasText(ctx, perfil.nombre, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+15); y += 21; });
+  y += 1;
+  ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+  const fecha = new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  wrapCanvasText(ctx, `Matrícula ${perfil.matricula} · ${fecha}`, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+12); y += 17; });
+  y += 17;
+
+  // Nota
+  ctx.fillStyle = PINE; ctx.font = FONT_H2;
+  ctx.fillText('NOTA DE LA SESIÓN', PAD, y+13); y += 12;
+  ctx.font = FONT_BIG;
+  ctx.fillText(`${st.nota.toFixed(1)} / 75`, PAD, y+38); y += 46;
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  wrapCanvasText(ctx, `Clasificador: ${st.clas?st.clas.score+'/'+st.clas.total:'sin resolver'} (${st.clasPts.toFixed(1)}/35) · Silogismo absurdo: ${st.syllDone?'construido':'pendiente'} (${st.syllPts}/10) · Diagnóstico: ${quiz?quiz.score+'/'+quiz.total:'sin resolver'} (${st.quizPts.toFixed(1)}/20) · Reflexión: ${st.reflexionDone?'entregada':'pendiente'} (${st.reflexionPts}/10).`, contentW)
+    .forEach(l=>{ ctx.fillText(l, PAD, y+11); y+=16; });
+  y += 4;
+  wrapCanvasText(ctx, 'Faltan 25 puntos del criterio Ser, evaluados por el docente en clase. Esta nota es una referencia propia, no la calificación oficial.', contentW)
+    .forEach(l=>{ ctx.fillText(l, PAD, y+11); y+=16; });
+  y += 14;
+  divider();
+
+  // Clasificador
+  sectionTitle('CLASIFICADOR DE ARGUMENTOS' + (clas?` · ${clas.score}/${clas.total} aciertos`:' · sin resolver'));
+  const CASO_LABELS = {solido:'Válido y sólido', valido_no_solido:'Válido pero no sólido', invalido:'Inválido', fuerte:'Fuerte', debil:'Débil'};
+  if(clas && clas.answers){
+    CASOS.forEach((c,i)=>{
+      const chosen = clas.answers[i];
+      const isCorrect = chosen===c.ans;
+      ctx.fillStyle = INK; ctx.font = FONT_BODY_B;
+      wrapCanvasText(ctx, `${i+1}. ${c.text}`, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+12); y+=18; });
+      y += 2;
+      const bx=PAD+2, by=y+3, bsize=9;
+      ctx.strokeStyle = isCorrect?PINE:TERRA; ctx.lineWidth=1.4;
+      ctx.fillStyle = isCorrect?PINE:TERRA; ctx.fillRect(bx,by,bsize,bsize);
+      ctx.strokeRect(bx+0.5,by+0.5,bsize,bsize);
+      ctx.font = FONT_BODY_B;
+      const chosenLabel = CASO_LABELS[chosen] || chosen;
+      const suffix = isCorrect ? '' : `  (correcto: ${CASO_LABELS[c.ans]})`;
+      wrapCanvasText(ctx, `Tu respuesta: ${chosenLabel}${suffix}`, contentW-20).forEach((l,k)=>{ ctx.fillText(l, PAD+20, y+11); y+=16; });
+      y += 8;
+    });
+  } else {
+    ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+    ctx.fillText('Aún no se ha resuelto el clasificador.', PAD, y+12); y += 20;
+  }
+  y += 4; divider();
+
+  // Silogismo absurdo
+  sectionTitle('SILOGISMO ABSURDO');
+  if(syll && syll.completed){
+    ctx.fillStyle = INK; ctx.font = FONT_ITALIC;
+    const txt = `Todo lo que es ${syll.cat} ${syll.prop}. ${syll.suj} es ${syll.cat}. Por lo tanto, ${syll.suj} ${syll.prop}.`;
+    wrapCanvasText(ctx, txt, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+13); y+=20; });
+    y += 4;
+    ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+    const veredicto = syll.premisasVerdaderas ? 'El alumno consideró que las premisas eran verdaderas (argumento válido y sólido).' : 'El alumno reconoció que las premisas son falsas: argumento válido pero no sólido.';
+    wrapCanvasText(ctx, veredicto, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+10); y+=15; });
+    y += 6;
+  } else {
+    ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+    ctx.fillText('Aún no se ha construido el silogismo absurdo.', PAD, y+12); y += 20;
+  }
+  y += 4; divider();
+
+  // Reflexión de cierre
+  sectionTitle('REFLEXIÓN DE CIERRE');
+  if(reflexion){
+    const pairs = [['Válido', reflexion.valido], ['Sólido', reflexion.solido], ['Fuerte', reflexion.fuerte], ['Débil', reflexion.debil]];
+    pairs.forEach(([label,val])=>{
+      ctx.fillStyle = INK; ctx.font = FONT_BODY_B;
+      wrapCanvasText(ctx, `${label}: ${val||'—'}`, contentW).forEach(l=>{ ctx.fillText(l, PAD, y+12); y+=17; });
+    });
+    y += 6;
+    ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+    ctx.fillText('Postura de debate:', PAD, y+12); y += 17;
+    ctx.fillStyle = INK; ctx.font = FONT_BODY;
+    wrapCanvasText(ctx, reflexion.debate||'—', contentW).forEach(l=>{ ctx.fillText(l, PAD, y+11); y+=16; });
+  } else {
+    ctx.fillStyle = MUTED; ctx.font = FONT_BODY;
+    ctx.fillText('Aún no se ha guardado la reflexión de cierre.', PAD, y+12); y += 20;
+  }
+  y += 4; divider();
+
+  // Compromisos
+  sectionTitle('COMPROMISOS DE APRENDIZAJE');
+  COMPROMISOS.forEach((c,i)=>{
+    const checked = !!done[i];
+    const bx = PAD+1, by = y+2, bsize=11;
+    if(checked){ ctx.fillStyle = PINE; ctx.fillRect(bx,by,bsize,bsize);
+      ctx.strokeStyle = PAPER; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(bx+2,by+6); ctx.lineTo(bx+4.5,by+9); ctx.lineTo(bx+9,by+2.5); ctx.stroke();
+    }
+    ctx.strokeStyle = checked ? PINE : MUTED; ctx.lineWidth=1.4;
+    ctx.strokeRect(bx+0.5,by+0.5,bsize,bsize);
+    ctx.fillStyle = checked ? INK : MUTED; ctx.font = checked ? FONT_BODY_B : FONT_BODY;
+    wrapCanvasText(ctx, c, contentW-24).forEach(l=>{ ctx.fillText(l, PAD+24, y+11); y+=17; });
+    y += 6;
+  });
+
+  y += 8; divider();
+  ctx.fillStyle = MUTED; ctx.font = FONT_SMALL;
+  wrapCanvasText(ctx, 'Evidencia generada por el propio alumno dentro de la herramienta interactiva de la sesión.', contentW).forEach(l=>{ ctx.fillText(l, PAD, y+10); y += 15; });
+  ctx.fillText(`Generado el ${new Date().toLocaleString('es-MX')}`, PAD, y+10); y += 18;
+
+  const finalH = Math.min(y + PAD, placeholderH);
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = W*SCALE; finalCanvas.height = finalH*SCALE;
+  const fctx = finalCanvas.getContext('2d');
+  fctx.drawImage(canvas, 0,0,W*SCALE,finalH*SCALE, 0,0,W*SCALE,finalH*SCALE);
+
+  finalCanvas.toBlob(blob=>{
+    if(!blob){ toast('No se pudo generar la imagen. Intenta de nuevo.','err'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = (perfil.matricula||'alumno').replace(/[^A-Za-z0-9_-]/g,'');
+    a.href = url; a.download = `evidencia_sesion2_${safeName}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('Evidencia descargada.');
+  }, 'image/png');
+}
+
+/* ============================================================
+   ARRANQUE
+============================================================ */
+function setStorageNote(){
+  const el = $('#storageNote'); if(!el) return;
+  if(hasWS()){
+    el.innerHTML = '<i data-lucide="info"></i><span>Tu registro se guarda en el almacenamiento de este artefacto. Si abres este archivo como HTML suelto fuera de Claude, tu registro solo dura mientras la pestaña esté abierta.</span>';
+  }else{
+    el.innerHTML = '<i data-lucide="alert-triangle"></i><span>No se detectó almacenamiento persistente: tu registro se conserva solo mientras esta pestaña permanezca abierta.</span>';
+  }
+  refreshIcons();
+}
+refreshIcons();
+setStorageNote();
+renderPerfil();
+updateHomeStat();
+</script>
+</body>
+</html>
