@@ -236,6 +236,9 @@ nav.tabs::-webkit-scrollbar{display:none}
 .opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
 .opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
 .opt.locked{cursor:default}
+.opt{color:var(--ink);text-align:left}
+.opt.selected{border-color:var(--pine);background:#eef3ec}
+.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
 .explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
 .quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
 .quiz-result{font-size:15px}
@@ -1028,65 +1031,58 @@ function renderCasos(){
 /* ============================================================
    DIAGNÓSTICO EXPRÉS
 ============================================================ */
-const QUIZ=[
-  {q:'Dos cantidades son directamente proporcionales cuando…',
-   opts:['al sumarle 1 a una, la otra le suma 1','al duplicar una, la otra se duplica: su razón es constante','cuando ambas crecen juntas','cuando su diferencia es siempre la misma'],
-   a:1,
-   ex:'Crecer juntas no basta: la edad y la estatura crecen juntas y no son proporcionales. El criterio es la razón constante (y/x = k): duplicar una duplica la otra.'},
-  {q:'El 85% de 40 personas es…',
-   opts:['30 personas','38 personas','34 personas','3.4 personas'],
-   a:2,
-   ex:'0.85 × 40 = 34. El porcentaje actúa como razón (85/100) multiplicada por la base completa.'},
-  {q:'Un precio sube 20%. ¿Qué fracción del NUEVO precio representa el aumento?',
-   opts:['1/5','1/10','1/12','1/6'],
-   a:3,
-   ex:'Con precio viejo 100, el nuevo es 120 y el aumento 20: 20/120 = 1/6. El "20%" inicial era 1/5 del precio viejo; cambiar de base cambia la fracción.'},
-  {q:'El apoyo a un proyecto pasó de 40% a 50% de las y los encuestados. La auditoría correcta de ese cambio dice:',
-   opts:['"Subió 10%": la cifra es correcta tal cual','"Subió 25 puntos porcentuales, equivalente a un aumento relativo de 10%"','"Subió 10 puntos porcentuales, que equivalen a un aumento relativo de 25%"','No se puede saber sin la lista de nombres de los encuestados'],
-   a:2,
-   ex:'De 40 a 50 hay 10 puntos porcentuales; en términos relativos, 10/40 = 25%. Confundir ambas bases es una de las manipulaciones más frecuentes en medios.'},
-  {q:'Si 5 kg de café cuestan $80, ¿cuánto cuestan 8 kg?',
-   opts:['$144','$128','$120','$100'],
-   a:1,
-   ex:'x = (8 × 80) / 5 = 128. Multiplicar en cruz con los pares ordenados: 5→80, 8→x.'},
-  {q:'"El 90% de los accidentes ocurren a menos de 50 km del hogar, así que manejar lejos es más peligroso." ¿Qué le falta a este argumento?',
-   opts:['Nada: el 90% ya decide la cuestión','Comparar tasas: qué porcentaje de los viajes cercanos y de los lejanos termina en accidente (la mayoría de los viajes son cerca de casa)','Saber la edad promedio de los conductores','Que la cifra sea redonda para poder recordarla'],
-   a:1,
-   ex:'El 90% cita una base enorme (casi todos los viajes son cercanos): un conteo alto no implica riesgo alto. Hay que comparar razones con la misma pregunta del curso: ¿porcentaje de qué? — aquí, accidentes por viaje.'}
-];
+/* Estado de selección: sel[i] = índice de la opción elegida, o null */
+let sel = QUIZ.map(()=>null);
+
 function renderQuiz(){
+  sel = QUIZ.map(()=>null);
   $('#quizList').innerHTML = QUIZ.map((q,i)=>`
     <div class="quiz-q" data-q="${i}">
       <header><span class="qnum mono">P${i+1}</span><span class="q-text">${q.q}</span></header>
       <div class="opts">${q.opts.map((o,j)=>`
-        <label class="opt"><input type="radio" name="qz${i}" value="${j}"><span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span></label>`).join('')}
+        <button type="button" class="opt" data-q="${i}" data-j="${j}">
+          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
+        </button>`).join('')}
       </div>
       <div class="explain" hidden>${q.ex}</div>
     </div>`).join('');
 }
+
+/* Selección por delegación: feedback visual inmediato, sin radios ocultos */
+ $('#quizList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const card = b.closest('.quiz-q');
+  if(card.classList.contains('graded')) return;      // bloqueado tras calificar
+  sel[+b.dataset.q] = +b.dataset.j;
+  card.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+});
+
  $('#btnGrade').addEventListener('click', async ()=>{
   let score=0, unanswered=0;
   QUIZ.forEach((q,i)=>{
-    const sel=document.querySelector(`input[name="qz${i}"]:checked`);
-    const card=document.querySelector(`.quiz-q[data-q="${i}"]`);
+    const chosen = sel[i];
+    const card = document.querySelector(`.quiz-q[data-q="${i}"]`);
+    card.classList.add('graded');
     card.querySelectorAll('.opt').forEach((opt,j)=>{
+      opt.classList.remove('selected');
       opt.classList.add('locked');
       opt.classList.remove('is-correct','is-wrong');
       if(j===q.a) opt.classList.add('is-correct');
-      else if(sel && +sel.value===j) opt.classList.add('is-wrong');
+      else if(chosen!==null && chosen===j) opt.classList.add('is-wrong');
     });
     card.querySelector('.explain').hidden=false;
-    if(sel && +sel.value===q.a) score++;
-    if(!sel) unanswered++;
+    if(chosen!==null && chosen===q.a) score++;
+    if(chosen===null) unanswered++;
   });
   if(unanswered) toast(`Faltan ${unanswered} pregunta${unanswered>1?'s':''} por responder.`,'err');
-  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Dominas la aritmética de los datos.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a la teoría antes del cierre.'}`;
+  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Dominas el tema de la sesión.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a la teoría antes del cierre.'}`;
   await saveJSON(K.quiz,{score,total:QUIZ.length,ts:Date.now()});
   updateAvance();
   if(!$('#v-perfil').hidden) renderPerfil();
 });
- $('#btnQuizReset').addEventListener('click', ()=>{ renderQuiz(); $('#quizResult').textContent=''; refreshIcons(); });
 
+ $('#btnQuizReset').addEventListener('click', ()=>{ renderQuiz(); $('#quizResult').textContent=''; refreshIcons(); });
 /* ============================================================
    COMPROMISOS
 ============================================================ */
