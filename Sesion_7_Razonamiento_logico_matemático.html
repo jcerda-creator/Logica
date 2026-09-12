@@ -1047,10 +1047,10 @@ const CUAD=[
   ]}
 ];
 function renderCuad(){
-  $('#cuadList').innerHTML = CUAD.map((esc,e)=>`
+  $('#cuadList').innerHTML = CUAD.map((sc,e)=>`
     <div class="cuad-card">
-      <h4>${esc.esc}</h4>
-      ${esc.items.map((it,i)=>`
+      <h4>${sc.esc}</h4>
+      ${sc.items.map((it,i)=>`
         <div class="cuad-row">
           <span class="cuad-prop">${esc(it.p)}</span>
           <select data-e="${e}" data-i="${i}">
@@ -1058,13 +1058,13 @@ function renderCuad(){
             ${CUAD_OPTS.map(o=>`<option value="${o.v}">${o.t}</option>`).join('')}
           </select>
         </div>`).join('')}
-      ${esc.items.map((it,i)=>`<div class="cuad-fb" id="cuadFb-${e}-${i}"></div>`).join('')}
+      ${sc.items.map((it,i)=>`<div class="cuad-fb" id="cuadFb-${e}-${i}"></div>`).join('')}
     </div>`).join('');
 }
  $('#btnCuadCheck').addEventListener('click', async ()=>{
   let score=0, missing=0, total=0;
-  CUAD.forEach((esc,e)=>{
-    esc.items.forEach((it,i)=>{
+  CUAD.forEach((sc,e)=>{
+    sc.items.forEach((it,i)=>{
       total++;
       const sel=$(`#cuadList select[data-e="${e}"][data-i="${i}"]`);
       const fb=$(`#cuadFb-${e}-${i}`);
