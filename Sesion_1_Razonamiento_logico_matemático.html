@@ -721,7 +721,6 @@ footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
     <div style="max-width:420px">Los fragmentos del Detector son adaptaciones y resúmenes, en palabras propias, de artículos publicados; cada uno cita su fuente original. Ninguno se reproduce de forma literal.</div>
   </div>
 </footer>
-
 <div id="toasts"></div>
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -892,7 +891,7 @@ function cycleSentence(el){
   el.dataset.state=next;
   el.querySelector('.badge').textContent = next==='-' ? '–' : next;
 }
-$('#fragList').addEventListener('click', e=>{
+ $('#fragList').addEventListener('click', e=>{
   const sent = e.target.closest('.sent');
   if(sent){ cycleSentence(sent); return; }
   const chk = e.target.closest('[data-check]');
@@ -947,7 +946,23 @@ async function resetFragment(key){
 renderFragments();
 
 /* ============================================================
-   DIAGNÓSTICO EXPRÉS (QUIZ)
+   CORRECCIÓN: estilo de "opción elegida" (inyectado desde el
+   script para no tener que editar el bloque <style> a mano)
+============================================================ */
+(function(){
+  const st = document.createElement('style');
+  st.textContent =
+    '.opt{font-family:inherit;line-height:1.45;color:var(--ink);text-align:left;width:100%}' +
+    '.opt.selected{border-color:var(--pine);background:#eef3ec}' +
+    '.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}';
+  document.head.appendChild(st);
+})();
+
+/* ============================================================
+   DIAGNÓSTICO EXPRÉS (QUIZ) — MECANISMO CORREGIDO
+   Botones reales con estado en JavaScript. Ya no se usan
+   radios ocultos ni el comportamiento nativo de <label>,
+   que en varios navegadores no se activa al hacer clic.
 ============================================================ */
 const QUIZ=[
  {q:'¿Cuál definición corresponde mejor a "premisa"?',
@@ -969,31 +984,51 @@ const QUIZ=[
   opts:['El examen fue difícil','Muchos alumnos reprobaron','Ambas oraciones son premisas','El texto no tiene conclusión'],
   ans:1, why:'"Como" (al inicio) suele introducir la premisa; lo que viene después de la coma —el efecto que se explica o sostiene— funciona aquí como conclusión.'}
 ];
+
+/* Estado de selección: quizSel[i] = índice de la opción elegida, o null */
+let quizSel = QUIZ.map(()=>null);
+
 function renderQuiz(){
+  quizSel = QUIZ.map(()=>null);
   $('#quizList').innerHTML = QUIZ.map((it,i)=>`
-    <article class="quiz-q">
+    <article class="quiz-q" data-q="${i}">
       <header><span class="qnum">P${i+1}</span><p class="q-text">${esc(it.q)}</p></header>
       <div class="opts">${it.opts.map((o,j)=>`
-        <label class="opt"><input type="radio" name="q${i}" value="${j}">
-        <span class="opt-key">${'ABCD'[j]}</span><span>${esc(o)}</span></label>`).join('')}
+        <button type="button" class="opt" data-q="${i}" data-j="${j}">
+          <span class="opt-key">${'ABCD'[j]}</span><span>${esc(o)}</span>
+        </button>`).join('')}
       </div>
       <p class="explain" hidden><strong>Retroalimentación:</strong> ${esc(it.why)}</p>
     </article>`).join('');
   $('#quizResult').innerHTML='';
 }
-$('#btnGrade').addEventListener('click', async ()=>{
-  const unanswered = QUIZ.some((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`));
+
+/* Selección por delegación: feedback visual inmediato */
+ $('#quizList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const art = b.closest('.quiz-q');
+  if(art.classList.contains('graded')) return;      // bloqueado tras calificar
+  quizSel[+b.dataset.q] = +b.dataset.j;
+  art.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+});
+
+ $('#btnGrade').addEventListener('click', async ()=>{
+  const unanswered = quizSel.some(v=>v===null);
   if(unanswered){ toast('Responde todas las preguntas antes de calificar.','err'); return; }
   let score=0;
   const answers=[];
   $$('#quizList .quiz-q').forEach((art,i)=>{
-    const sel=document.querySelector(`input[name="q${i}"]:checked`);
-    answers.push(+sel.value);
-    if(+sel.value===QUIZ[i].ans) score++;
+    const chosen = quizSel[i];
+    answers.push(chosen);
+    if(chosen===QUIZ[i].ans) score++;
+    art.classList.add('graded');
     art.querySelectorAll('.opt').forEach(l=>{
-      const inp=l.querySelector('input'); inp.disabled=true; l.classList.add('locked');
-      if(+inp.value===QUIZ[i].ans) l.classList.add('is-correct');
-      else if(+inp.value===+sel.value) l.classList.add('is-wrong');
+      const j=+l.dataset.j;
+      l.classList.add('locked');
+      l.classList.remove('selected');
+      if(j===QUIZ[i].ans) l.classList.add('is-correct');
+      else if(j===chosen) l.classList.add('is-wrong');
     });
     art.querySelector('.explain').hidden=false;
   });
@@ -1006,7 +1041,7 @@ $('#btnGrade').addEventListener('click', async ()=>{
   updateHomeStat();
   if(!$('#v-perfil').hidden) renderPerfil();
 });
-$('#btnQuizReset').addEventListener('click', async ()=>{
+ $('#btnQuizReset').addEventListener('click', async ()=>{
   renderQuiz();
   await stDelete('progresoQuiz');
   updateHomeStat();
@@ -1014,7 +1049,6 @@ $('#btnQuizReset').addEventListener('click', async ()=>{
   toast('Diagnóstico reiniciado.');
 });
 renderQuiz();
-
 /* ============================================================
    TICKET DE SALIDA
 ============================================================ */
@@ -1030,7 +1064,7 @@ function updateTicketPreview(){
   $('#ticketPreview').innerHTML = txt;
 }
 ['tP1','tP2','tConn','tC'].forEach(id=> $('#'+id) && $('#'+id).addEventListener('input', updateTicketPreview));
-$('#tConn').addEventListener('change', updateTicketPreview);
+ $('#tConn').addEventListener('change', updateTicketPreview);
 
 const COMPROMISOS = [
   'Reviso mis notas del diagnóstico y anoto mis dudas antes de la sesión 2.',
@@ -1061,7 +1095,7 @@ async function renderCompromisos(){
       <span>${esc(c)}</span>
     </label>`).join('');
 }
-$('#btnSaveTicket') && $('#btnSaveTicket').addEventListener('click', async ()=>{
+ $('#btnSaveTicket') && $('#btnSaveTicket').addEventListener('click', async ()=>{
   const perfil = await loadJSON('perfil', null);
   if(!perfil){ toast('Regístrate primero en Mi progreso.','err'); return; }
   const p1=$('#tP1').value.trim(), p2=$('#tP2').value.trim(), conn=$('#tConn').value, c=$('#tC').value.trim();
@@ -1071,7 +1105,7 @@ $('#btnSaveTicket') && $('#btnSaveTicket').addEventListener('click', async ()=>{
   updateHomeStat();
   if(!$('#v-perfil').hidden) renderPerfil();
 });
-$('#compromisosList') && $('#compromisosList').addEventListener('change', async e=>{
+ $('#compromisosList') && $('#compromisosList').addEventListener('change', async e=>{
   const i=e.target.dataset.c; if(i==null) return;
   const done = await loadJSON('compromisos', {});
   done[i]=e.target.checked;
@@ -1176,7 +1210,7 @@ async function enterEditMode(){
   if(perfil){ $('#pNombre').value=perfil.nombre; $('#pMatricula').value=perfil.matricula; }
   showView('perfil');
 }
-$('#formPerfil') && $('#formPerfil').addEventListener('submit', async e=>{
+ $('#formPerfil') && $('#formPerfil').addEventListener('submit', async e=>{
   e.preventDefault();
   const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
   if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
