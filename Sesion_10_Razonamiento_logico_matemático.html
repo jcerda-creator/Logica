@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 10 · Reglas de inferencia, reemplazo y deducción natural — Razonamiento Lógico-Matemático</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+============================================================ */
+:root{
+  --paper:#f7f3eb;
+  --card:#fffdf8;
+  --ink:#1c2b25;
+  --pine:#1e4636;
+  --pine-soft:#2c5e49;
+  --terra:#c2542f;
+  --terra-soft:#f3e0d6;
+  --gold:#c9a227;
+  --gold-soft:#f2e8c9;
+  --gold-ink:#7a6210;
+  --line:rgba(28,43,37,.16);
+  --line-strong:rgba(28,43,37,.4);
+  --muted:rgba(28,43,37,.62);
+  --ok-bg:#e7efe6;
+  --err-bg:#f7e6dd;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:150px}
+[hidden]{display:none!important}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:radial-gradient(rgba(30,70,54,.075) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4,.display{font-family:'Fraunces',serif;font-weight:600;line-height:1.16;letter-spacing:-.01em}
+.overline{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra)}
+.mono{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--pine)}
+svg.lucide{width:16px;height:16px;stroke-width:2}
+code{background:rgba(28,43,37,.07);border-radius:5px;padding:1px 6px;font-size:.92em}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(247,243,235,.93);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--ink);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+.brand .brand-ico{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper)}
+.brand .brand-ico svg{width:17px;height:17px}
+.brand small{display:block;font-family:'Instrument Sans';font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.topbar-side{font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;color:var(--pine);
+  font-weight:600;font-size:13.5px;padding:8px 14px;border-radius:999px;
+  transition:all .18s ease;
+}
+.nav-btn svg{width:15px;height:15px}
+.nav-btn:hover{border-color:var(--line-strong)}
+.nav-btn.active{background:var(--ink);color:var(--paper)}
+
+/* ============================================================
+   VISTAS
+============================================================ */
+.view{padding:0 0 80px}
+.view-head{border-bottom:2px solid var(--ink);padding:52px 0 26px;margin-bottom:36px}
+.view-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 10px}
+.view-head p.sub{max-width:700px;color:var(--muted)}
+
+/* ============================================================
+   BOTONES / FORMULARIOS
+============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink);border-radius:10px;
+  padding:11px 18px;font-weight:600;font-size:14px;
+  transition:all .18s ease;
+}
+.btn:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(28,43,37,.06);transform:translateY(-1px)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:14px;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);
+  border-radius:8px;padding:10px 12px;width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.field select.is-correct,.caso-row select.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.field select.is-wrong,.caso-row select.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.hint{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   INICIO / HERO
+============================================================ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:64px 0 56px}
+.hero h1{font-size:clamp(2.2rem,4.3vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero .lead{font-size:1.05rem;color:var(--muted);max-width:540px}
+.hero-actions{display:flex;gap:12px;margin:26px 0 30px;flex-wrap:wrap}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-strong);max-width:520px}
+.meta-grid>div{padding:12px 14px 12px 0;border-bottom:1px solid var(--line)}
+.meta-grid dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meta-grid dd{font-weight:600;font-size:14.5px}
+.hero-fig{border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--card);overflow:hidden;box-shadow:6px 6px 0 rgba(28,43,37,.12)}
+.hero-fig .diagram-box{padding:26px 20px 10px}
+.hero-fig figcaption{padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.home-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:44px;border-top:1.5px solid var(--ink);padding-top:38px}
+.route-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;border-top:1px solid var(--line);padding:22px 4px;cursor:pointer;transition:background .15s}
+.route-item:first-child{border-top:none}
+.route-item:hover{background:rgba(28,43,37,.045)}
+.route-no{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:400;color:rgba(30,70,54,.28)}
+.route-item h3{font-size:1.2rem;margin-bottom:4px}
+.route-item p{font-size:13.5px;color:var(--muted)}
+.route-go{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);transition:all .18s}
+.route-item:hover .route-go{background:var(--ink);color:var(--paper)}
+.side-stats{display:flex;flex-direction:column;gap:12px}
+.stat{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:14px 18px}
+.stat .num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;line-height:1}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* ============================================================
+   DIAGRAMA DEL HÉROE: DEMOSTRACIÓN TIPO
+============================================================ */
+.arg-svg{width:100%;height:auto;display:block}
+.dn-box{fill:var(--card);stroke:var(--ink);stroke-width:1.3}
+.dn-box.g{stroke:var(--gold)}
+.dn-num{font-family:'Fraunces',serif;font-weight:700;font-size:12px;fill:var(--terra)}
+.dn-txt{font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;fill:var(--ink)}
+.dn-why{font-family:'Instrument Sans',sans-serif;font-size:10px;letter-spacing:.05em;text-transform:uppercase;fill:var(--muted)}
+.exam-arrow{stroke:var(--pine);stroke-width:1.6;fill:none;stroke-dasharray:130;stroke-dashoffset:130;animation:drawArrow10 .7s ease forwards}
+@keyframes drawArrow10{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.exam-arrow{animation:none;stroke-dashoffset:0}}
+
+/* ============================================================
+   TEORÍA
+============================================================ */
+.theory{display:grid;grid-template-columns:230px 1fr;gap:52px;align-items:start}
+.toc{position:sticky;top:150px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column}
+.toc-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 10px 16px}
+.toc a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:9px 16px;font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin-left:-1.5px;transition:all .15s}
+.toc a span{font-family:'Fraunces',serif;color:var(--terra);font-weight:600;min-width:30px}
+.toc a:hover{border-left-color:var(--pine);background:rgba(28,43,37,.05)}
+.sec{border-top:1px solid var(--line);padding:44px 0}
+.sec:first-child{border-top:none;padding-top:0}
+.sec-no{font-family:'Fraunces',serif;font-size:3rem;font-weight:400;color:rgba(30,70,54,.22);line-height:1}
+.sec h3{font-size:1.5rem;margin:6px 0 16px}
+.prose p{margin:0 0 14px;max-width:72ch}
+.prose ul,.prose ol{margin:0 0 14px 22px;max-width:72ch}
+.prose li{margin-bottom:6px}
+.def{background:#ecf1ea;border:1px solid rgba(30,70,54,.28);border-radius:0 10px 10px 0;border-left:4px solid var(--pine);padding:18px 22px;margin:20px 0}
+.def .def-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pine)}
+.def p{margin:6px 0 0}
+.ex{background:var(--card);border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 22px;margin:20px 0}
+.ex .ex-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-ink)}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.tbl th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:hover{background:rgba(28,43,37,.04)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid}
+.tag.p{color:var(--pine);border-color:rgba(30,70,54,.45);background:#ecf1ea}
+.tag.c{color:var(--terra);border-color:rgba(194,84,47,.45);background:var(--terra-soft)}
+.tag.x{color:var(--gold-ink);border-color:rgba(201,162,39,.5);background:var(--gold-soft)}
+code{background:rgba(28,43,37,.07);border-radius:5px;padding:1px 6px;font-size:.92em}
+
+/* Demostración tipo */
+.demo{border:1px solid var(--line-strong);border-left:4px solid var(--pine);border-radius:0 10px 10px 0;background:var(--card);padding:16px 20px;margin:16px 0;max-width:74ch}
+.demo-line{display:grid;grid-template-columns:36px 1fr 190px;gap:12px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line)}
+.demo-line:last-child{border-bottom:none}
+.demo-line .dl-n{font-family:'Fraunces',serif;font-weight:700;color:var(--terra);text-align:right}
+.demo-line .dl-p{font-family:'Fraunces',serif;font-size:1.02rem}
+.demo-line .dl-j{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.demo-line .dl-j b{color:var(--gold-ink)}
+.demo-line.final .dl-p{font-weight:700}
+.demo-line.final .dl-n{border-bottom:2px solid var(--pine)}
+
+/* ============================================================
+   PANELES / LABORATORIO
+============================================================ */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.panel-body{padding:20px 18px}
+.lab-block{margin-bottom:40px}
+.lab-block>h3{font-size:1.35rem;margin:6px 0 4px}
+.lab-block>.lab-desc{color:var(--muted);max-width:72ch;margin-bottom:16px;font-size:14px}
+.quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
+.quiz-result{font-size:15px}
+.quiz-result strong{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--pine);margin-right:8px}
+.caso-card{border-top:1px solid var(--line);padding:22px 4px}
+.caso-text{font-weight:600;font-size:14.5px;margin-bottom:12px;max-width:72ch}
+.caso-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.caso-row select{max-width:340px;font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px}
+.caso-explain{margin-top:10px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+
+/* --- Deductor --- */
+.ded-wrap{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:16px 18px;margin-bottom:14px}
+.ded-goal{background:#ecf1ea;border:1px solid rgba(30,70,54,.3);border-left:4px solid var(--pine);border-radius:0 10px 10px 0;padding:12px 16px;margin:10px 0 16px;font-family:'Fraunces',serif;font-size:1.02rem}
+.ded-goal .syl-badge{display:inline-block;font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--pine);width:110px}
+.ded-given{font-family:'Fraunces',serif;font-size:1rem;line-height:1.7;margin-bottom:14px}
+.ded-given .dn-num{font-family:'Fraunces',serif;font-weight:700;color:var(--terra);margin-right:8px}
+.ded-row{display:grid;grid-template-columns:44px 1fr 260px;gap:10px;align-items:center;margin-bottom:10px}
+.ded-row .dn-num{font-family:'Fraunces',serif;font-weight:700;color:var(--terra);text-align:center;font-size:1.1rem}
+.ded-row select{font:inherit;font-size:14px;color:var(--ink);background:var(--card);border:1px solid var(--line-strong);border-radius:8px;padding:9px 10px;width:100%}
+.ded-row select.prop{max-width:100%}
+.ded-row select.rule{max-width:100%}
+.ded-row select.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.ded-row select.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.ded-fb{font-size:12.5px;margin:8px 0 0 54px;display:none;border-left:3px solid var(--gold);padding:8px 12px;background:var(--gold-soft)}
+.ded-fb.show{display:block}
+.ded-proof{margin-top:18px}
+.ded-verdict{font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;margin-top:14px}
+.ded-verdict.ok{color:var(--pine)}
+.ded-verdict.bad{color:var(--terra)}
+
+/* --- Simplificador (lógica ↔ álgebra) --- */
+.simp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.simp-col{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:16px 18px}
+.simp-col h4{font-size:1rem;margin-bottom:10px}
+.simp-line{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:8px}
+.simp-line .expr{font-family:'Fraunces',serif;font-size:1rem}
+.simp-arrow{color:var(--muted)}
+.simp-why{font-size:11px;color:var(--gold-ink);text-align:right;max-width:170px}
+
+/* --- Diagnóstico --- */
+.quiz-q{border-top:1px solid var(--line);padding:24px 4px}
+.quiz-q header{display:flex;gap:14px;margin-bottom:14px}
+.qnum{flex:none;font-family:'Fraunces',serif;font-weight:700;color:var(--terra);border:1.5px solid var(--terra);border-radius:8px;padding:2px 9px;height:fit-content}
+.quiz-q .q-text{font-weight:600;font-size:15.5px;padding-top:4px}
+.opts{display:grid;gap:9px;margin-left:56px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14.5px;text-align:left;color:var(--ink);width:100%;font-family:inherit;line-height:1.45}
+.opt:hover{border-color:var(--pine)}
+.opt-key{flex:none;width:26px;height:26px;border:1.5px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;transition:all .15s}
+.opt.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.opt.is-correct .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
+.opt.locked{cursor:default}
+.opt.selected{border-color:var(--pine);background:#eef3ec}
+.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+
+/* ============================================================
+   ACTIVIDADES
+============================================================ */
+.act-block{margin-bottom:52px}
+.act-block>h3{font-size:1.45rem;margin:8px 0 6px}
+.act-block>.act-desc{color:var(--muted);max-width:72ch;margin-bottom:20px}
+.rub-row{display:grid;grid-template-columns:1fr 1fr 60px;gap:16px;align-items:center;border-top:1px solid var(--line);padding:14px 4px}
+.rub-row:last-child{border-bottom:1px solid var(--line)}
+.rub-row .rub-name{font-weight:600;font-size:14.5px}
+.rub-bar{height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.rub-bar>div{height:100%;background:var(--pine)}
+.rub-pct{text-align:right;font-family:'Fraunces',serif;font-weight:600}
+.pill-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-radius:999px;padding:4px 11px;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);padding:10px 14px;margin-bottom:9px;cursor:pointer;transition:all .15s;font-size:14.5px}
+.chk:hover{border-color:var(--pine)}
+.chk input{width:16px;height:16px;accent-color:var(--pine)}
+.chk.done{background:var(--ok-bg);border-color:var(--pine)}
+.task-panel{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 20px;color:var(--muted);text-align:center}
+.empty svg{width:30px;height:30px;stroke-width:1.5}
+
+/* ============================================================
+   MI PROGRESO
+============================================================ */
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
+.status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
+.status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   TOASTS / FOOTER
+============================================================ */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:10px;padding:12px 16px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .28s ease}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#8fd0a5}
+.toast.err svg{color:#f0a284}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
+.foot-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.foot-row strong{color:var(--ink)}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:34px}
+  .home-grid{grid-template-columns:1fr}
+  .theory{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;overflow-x:auto;border-left:none;border-bottom:1.5px solid var(--ink);gap:2px}
+  .toc-title{display:none}
+  .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .toc a:hover{border-bottom-color:var(--pine)}
+  .task-panel{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+  .simp-grid{grid-template-columns:1fr}
+  .ded-row{grid-template-columns:36px 1fr;gap:8px}
+  .ded-row select.rule{grid-column:1 / -1}
+  .demo-line{grid-template-columns:30px 1fr;gap:8px}
+  .demo-line .dl-j{grid-column:2}
+  .result-row{grid-template-columns:1fr;gap:4px}
+  .rub-row{grid-template-columns:1fr;gap:8px}
+  .rub-pct{text-align:left}
+  .meta-grid{max-width:none}
+  .opts{margin-left:0}
+  .explain{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand">
+      <span class="brand-ico"><i data-lucide="scale"></i></span>
+      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 10 - Dr. Adrián Cerda</small></span>
+    </div>
+    <div class="topbar-side">UNITI<br>LPID · Módulo 1</div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="mainNav">
+      <button class="nav-btn active" data-view="inicio"><i data-lucide="home"></i>Inicio</button>
+      <button class="nav-btn" data-view="teoria"><i data-lucide="book-open"></i>Teoría</button>
+      <button class="nav-btn" data-view="laboratorio"><i data-lucide="flask-conical"></i>Laboratorio</button>
+      <button class="nav-btn" data-view="diagnostico"><i data-lucide="clipboard-check"></i>Diagnóstico</button>
+      <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del alumno</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== INICIO ==================== -->
+<section class="view" id="v-inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="overline">Razonamiento Lógico-Matemático · UNITI — LPID, Módulo 1</p>
+      <h1>Deducción natural: demostrar <em>paso a paso</em>, con recibo</h1>
+      <p class="lead">Hasta hoy reconociste argumentos válidos; ahora los construyes. Una demostración es una cadena donde cada eslabón cita su regla — como en el álgebra, donde cada paso cita una propiedad: distributiva, factorización, producto de conjugados. Al terminar, escribirás demostraciones que otro puede verificar línea por línea — exactamente lo que hará tu código en producción.</p>
+      <div class="hero-actions">
+        <button class="btn" data-view="teoria"><i data-lucide="book-open"></i>Entrar a la teoría</button>
+        <button class="btn ghost" data-view="laboratorio"><i data-lucide="flask-conical"></i>Ir al laboratorio</button>
+      </div>
+      <dl class="meta-grid">
+        <div><dt>Sesión</dt><dd>10 / 12</dd></div>
+        <div><dt>Duración aprox.</dt><dd>110 min</dd></div>
+        <div><dt>Hilo conductor</dt><dd>¿Cómo demostramos una conclusión paso a paso y simplificamos expresiones complejas, lógicas y algebraicas?</dd></div>
+        <div><dt>Aprendizaje esperado</dt><dd>Realiza deducciones formales justificadas y simplifica expresiones lógicas y algebraicas respetando las reglas</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-fig">
+      <div class="diagram-box">
+        <svg class="arg-svg" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg">
+          <rect class="dn-box" x="20" y="16" width="480" height="44" rx="8"></rect>
+          <text class="dn-num" x="34" y="42">1.</text>
+          <text class="dn-txt" x="58" y="42">p → q &nbsp;·&nbsp; p</text>
+          <text class="dn-why" x="400" y="42">premisas</text>
+
+          <path class="exam-arrow" d="M60,64 C60,84 60,92 60,102" marker-end="url(#h10)"></path>
+          <defs><marker id="h10" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--pine)"></path></marker></defs>
+
+          <rect class="dn-box" x="20" y="106" width="480" height="44" rx="8"></rect>
+          <text class="dn-num" x="34" y="132">2.</text>
+          <text class="dn-txt" x="58" y="132">q</text>
+          <text class="dn-why" x="310" y="132">1, modus ponens (MP)</text>
+
+          <path class="exam-arrow" style="animation-delay:.2s" d="M60,154 C60,168 60,172 60,180" marker-end="url(#h10)"></path>
+
+          <rect class="dn-box g" x="20" y="184" width="480" height="44" rx="8"></rect>
+          <text class="dn-num" x="34" y="210">∴</text>
+          <text class="dn-txt" x="58" y="210">Meta alcanzada — demostración completa</text>
+          <text class="dn-why" x="330" y="210">cada línea cita su regla</text>
+        </svg>
+      </div>
+      <figcaption><strong>Una demostración es una cadena con recibo.</strong> Cada línea nueva se deriva de líneas anteriores citando exactamente la regla que autoriza el paso. Nada se acepta «porque sí»: esa disciplina es la misma del álgebra (cada transformación cita una propiedad) y la del código que pasa revisión.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap home-grid">
+    <div>
+      <p class="overline" style="margin-bottom:14px">Ruta de la sesión</p>
+      <div class="route-item" data-view="teoria">
+        <span class="route-no">01</span>
+        <div><h3>Inferencia, reemplazo y simplificación</h3><p>MP, MT y compañía; las reglas de reemplazo (De Morgan y amigas); y el puente con la simplificación algebraica.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="laboratorio">
+        <span class="route-no">02</span>
+        <div><h3>Laboratorio</h3><p>Identificador de reglas, el Deductor paso a paso, el paralelo lógica↔álgebra y el simplificador de pseudocódigo.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="actividades">
+        <span class="route-no">03</span>
+        <div><h3>Diagnóstico y cierre</h3><p>Diagnóstico exprés, taller ABPr y el ticket de tres pasos sobre ahorro de recursos.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <aside>
+      <p class="overline" style="margin-bottom:14px">En un vistazo</p>
+      <div class="side-stats">
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
+        <div class="stat"><div class="num">8</div><div class="lbl">Reglas a dominar</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">Demostraciones del Deductor</div></div>
+        <div class="stat"><div class="num">12</div><div class="lbl">Sesiones del curso</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== TEORÍA ==================== -->
+<section class="view" id="v-teoria" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">ABPr · razonamiento formal</p>
+      <h2>Reglas de inferencia, reemplazo y deducción natural</h2>
+      <p class="sub">La sesión 9 te dio las tablas; hoy las comprimes en reglas cortas que autorizan pasos de razonamiento — las mismas que un compilador aplica al simplificar condiciones y un matemático al despejar.</p>
+    </div>
+
+    <div class="theory">
+      <aside class="toc">
+        <p class="toc-title">Contenido</p>
+        <a href="#t1"><span>10.1</span>Reglas de inferencia</a>
+        <a href="#t2"><span>10.2</span>Reglas de reemplazo</a>
+        <a href="#t3"><span>10.3</span>La demostración formal</a>
+        <a href="#t4"><span>10.4</span>Lógica ↔ álgebra: simplificar</a>
+      </aside>
+
+      <div class="prose">
+
+        <!-- 10.1 -->
+        <article class="sec" id="t1">
+          <div class="sec-no">10.1</div>
+          <h3>Reglas de inferencia: los movimientos legales</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p>Una <strong>regla de inferencia</strong> es un molde: si tienes líneas con cierta forma, puedes escribir una línea nueva que se sigue necesariamente. Son <em>tautologías condicionales</em> disfrazadas de permisos de trabajo.</p>
+          </div>
+          <table class="tbl">
+            <thead><tr><th>Regla</th><th>Molde</th><th>En palabras</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag p">MP · Modus Ponens</span></td><td>p → q &nbsp;·&nbsp; p &nbsp;⟹&nbsp; q</td><td>Afirmar el antecedente permite afirmar el consecuente</td></tr>
+              <tr><td><span class="tag p">MT · Modus Tollens</span></td><td>p → q &nbsp;·&nbsp; ¬q &nbsp;⟹&nbsp; ¬p</td><td>Negar el consecuente obliga a negar el antecedente</td></tr>
+              <tr><td><span class="tag c">SD · Silogismo disyuntivo</span></td><td>p ∨ q &nbsp;·&nbsp; ¬p &nbsp;⟹&nbsp; q</td><td>Descartada una opción, queda la otra (o inclusivo)</td></tr>
+              <tr><td><span class="tag c">HS · Silogismo hipotético</span></td><td>p → q &nbsp;·&nbsp; q → r &nbsp;⟹&nbsp; p → r</td><td>Enlazar condicionales en cadena</td></tr>
+              <tr><td><span class="tag x">Simp · Simplificación</span></td><td>p ∧ q &nbsp;⟹&nbsp; p</td><td>De una conjunción puedes sacar cada mitad</td></tr>
+              <tr><td><span class="tag x">Conj · Conjunción</span></td><td>p &nbsp;·&nbsp; q &nbsp;⟹&nbsp; p ∧ q</td><td>Dos líneas verdaderas pueden juntarse en una</td></tr>
+            </tbody>
+          </table>
+          <div class="def">
+            <span class="def-tag">Las dos trampas hermanas (de la sesión 2, ahora con nombre)</span>
+            <p><strong>Afirmar el consecuente</strong> (p → q · q ∴ p) y <strong>negar el antecedente</strong> (p → q · ¬p ∴ ¬q) <em>parecen</em> MP y MT pero no lo son: son las falacias formales que el validador de la sesión 2 marcó como inválidas. La tabla de verdad ya lo había demostrado; la regla ahora lo prohíbe por nombre.</p>
+          </div>
+        </article>
+
+        <!-- 10.2 -->
+        <article class="sec" id="t2">
+          <div class="sec-no">10.2</div>
+          <h3>Reglas de reemplazo: expresiones gemelas</h3>
+          <p>Las reglas de inferencia van de líneas completas a líneas nuevas. Las de <strong>reemplazo</strong> trabajan <em>dentro</em> de una línea: sustituyen una pieza por otra <strong>equivalente</strong> — como sustituir en álgebra x²−4 por (x+2)(x−2). Son bidireccionales: se leen en ambos sentidos.</p>
+          <table class="tbl">
+            <thead><tr><th>Regla</th><th>Equivalencia</th><th>Lectura</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag p">DM · De Morgan</span></td><td>¬(p ∧ q) ≡ ¬p ∨ ¬q &nbsp;·&nbsp; ¬(p ∨ q) ≡ ¬p ∧ ¬q</td><td>La negación reparte y voltea el conectivo: «no (ambos)» = «uno no, otro no»</td></tr>
+              <tr><td><span class="tag p">DN · Doble negación</span></td><td>¬¬p ≡ p</td><td>Negar dos veces devuelve al original</td></tr>
+              <tr><td><span class="tag c">Impl · Implicación material</span></td><td>p → q ≡ ¬p ∨ q</td><td>Un condicional es «o se cumple lo prometido, o falla el antecedente»</td></tr>
+              <tr><td><span class="tag c">Contr · Contraposición</span></td><td>p → q ≡ ¬q → ¬p</td><td>La tautología que verificaste con tablas en la sesión 9</td></tr>
+              <tr><td><span class="tag x">Dist · Distributividad</span></td><td>p ∧ (q ∨ r) ≡ (p∧q) ∨ (p∧r)</td><td>Idéntica a la distributiva algebraica: a(b+c) = ab+ac</td></tr>
+            </tbody>
+          </table>
+          <div class="ex">
+            <span class="ex-tag">De Morgan en código — el caso más práctico</span>
+            <p><code>!(activo && conectado)</code> es exactamente <code>!activo || !conectado</code>. Cuando una condición negada se vuelve ilegible, De Morgan la «abre»: negación repartida y conectivo volteado (∧↔∨). El simplificador del laboratorio te hará aplicar esto en pseudocódigo real — y el ahorro de circuitos y ciclos de CPU es el ticket de cierre.</p>
+          </div>
+        </article>
+
+        <!-- 10.3 -->
+        <article class="sec" id="t3">
+          <div class="sec-no">10.3</div>
+          <h3>La demostración formal: cadena con recibo</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p>Una <strong>demostración formal</strong> es una secuencia de proposiciones donde: (1) cada una es una <strong>premisa</strong>, o (2) se deriva de líneas anteriores <strong>citando una sola regla</strong>; y la última es la <strong>conclusión</strong>. Si todas las citas son correctas, la demostración es válida — punto.</p>
+          </div>
+          <div class="demo">
+            <div class="demo-line"><span class="dl-n">1.</span><span class="dl-p">p → (m ∨ n)</span><span class="dl-j">premisa</span></div>
+            <div class="demo-line"><span class="dl-n">2.</span><span class="dl-p">p</span><span class="dl-j">premisa</span></div>
+            <div class="demo-line"><span class="dl-n">3.</span><span class="dl-p">m ∨ n</span><span class="dl-j">1, <b>MP</b></span></div>
+            <div class="demo-line"><span class="dl-n">4.</span><span class="dl-p">¬m</span><span class="dl-j">premisa</span></div>
+            <div class="demo-line final"><span class="dl-n">5.</span><span class="dl-p">n</span><span class="dl-j">3,4, <b>SD</b></span></div>
+          </div>
+          <p>Dos observaciones de método. Primera: el orden de las premisas no importa; la cadena puede saltar entre ellas. Segunda: <strong>hay muchos caminos válidos</strong> al mismo objetivo — lo que no hay son pasos sin recibo. El Deductor del laboratorio valida tu cadena línea por línea y acepta cualquier ruta correcta que llegue a la meta.</p>
+        </article>
+
+        <!-- 10.4 -->
+        <article class="sec" id="t4">
+          <div class="sec-no">10.4</div>
+          <h3>El paralelo con el álgebra: simplificar es lo mismo</h3>
+          <p>La planeación de esta sesión lo pide explícitamente: comparar la simplificación lógica con la algebraica. Míralas lado a lado — <em>la estructura del razonamiento es idéntica</em>:</p>
+          <table class="tbl">
+            <thead><tr><th>Paso</th><th>Álgebra</th><th>Lógica</th></tr></thead>
+            <tbody>
+              <tr><td>Inicio</td><td>(x+2)(x−2)</td><td>(p ∧ q) ∨ (p ∧ ¬q)</td></tr>
+              <tr><td>Expandir / distribuir</td><td>x² − 2x + 2x − 4</td><td>(p∧q) ∨ (p∧¬q)</td></tr>
+              <tr><td>Simplificar / absorber</td><td>x² − 4</td><td>p ∧ (q ∨ ¬q)</td></tr>
+              <tr><td>Identidad (tercero excluido / conjugados)</td><td>= x² − 4</td><td>q ∨ ¬q ≡ V ⟹ p ∧ V ≡ p</td></tr>
+            </tbody>
+          </table>
+          <p>En ambas columnas, cada paso <em>cita</em> una propiedad (conjugados, distributiva, identidad) y el resultado es una expresión <strong>equivalente</strong>: misma verdad o mismo valor, forma más simple. En Programación esa simplificación no es estética: menos condiciones anidadas = menos ramas = menos casos de prueba = menos ciclos de CPU. El ahorro del ticket de cierre es literal.</p>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LABORATORIO ==================== -->
+<section class="view" id="v-laboratorio" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">ABPr · deducción con recibo</p>
+      <h2>Laboratorio de inferencia y simplificación</h2>
+      <p class="sub">Cuatro estaciones: reconocer reglas, construir demostraciones con el Deductor, recorrer el paralelo lógica↔álgebra, y simplificar condiciones de pseudocódigo para ahorrar cómputo.</p>
+    </div>
+
+    <!-- Parte 1: Identificador de reglas -->
+    <div class="lab-block">
+      <h3>1 · Identificador de reglas</h3>
+      <p class="lab-desc">Seis pases cortos. ¿Qué regla autoriza cada conclusión — o qué falacia formal se coló?</p>
+      <div id="irList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnIrCheck"><i data-lucide="check-check"></i>Comprobar identificaciones</button>
+        <button class="btn ghost" id="btnIrReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+        <div class="quiz-result" id="irResult"></div>
+      </div>
+    </div>
+
+    <!-- Parte 2: Deductor -->
+    <div class="lab-block">
+      <h3>2 · El Deductor: tres demostraciones guiadas</h3>
+      <p class="lab-desc">Para cada línea te proponemos la proposición correcta: tu trabajo es <strong>elegir la regla y citar las líneas</strong> que la justifican. Al completar todas las líneas, la demostración se imprime con su recibo completo.</p>
+      <div id="dedList"></div>
+    </div>
+
+    <!-- Parte 3: Lógica ↔ álgebra -->
+    <div class="lab-block">
+      <h3>3 · Mismo pensamiento, dos ropajes</h3>
+      <p class="lab-desc">El recorrido de la teoría 10.4, ahora interactivo: empareja cada paso algebraico con su gemelo lógico y la propiedad que comparten.</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="simp-grid">
+            <div class="simp-col">
+              <h4>Álgebra</h4>
+              <div class="simp-line"><span class="expr">(x + 2)(x − 2)</span><span class="simp-why">inicio</span></div>
+              <div class="simp-line"><span class="expr">x² − 2x + 2x − 4</span><span class="simp-why">distributiva</span></div>
+              <div class="simp-line"><span class="expr">x² − 4</span><span class="simp-why">conjugados</span></div>
+            </div>
+            <div class="simp-col">
+              <h4>Lógica</h4>
+              <div class="simp-line"><span class="expr">(p ∧ q) ∨ (p ∧ ¬q)</span><span class="simp-why">inicio</span></div>
+              <div class="simp-line"><span class="expr">p ∧ (q ∨ ¬q)</span><span class="simp-why">distributividad (al revés)</span></div>
+              <div class="simp-line"><span class="expr">p ∧ V ≡ p</span><span class="simp-why">q ∨ ¬q ≡ V (tercero excluido)</span></div>
+            </div>
+          </div>
+          <p class="hint" style="margin-top:14px">Ambas columnas hacen lo mismo: reescriben una expresión en otra <strong>equivalente</strong> pero más simple, citando en cada paso una propiedad con nombre. Simplificar no cambia el valor de verdad — cambia el costo de evaluarlo.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parte 4: Simplificador de pseudocódigo -->
+    <div class="lab-block">
+      <h3>4 · Simplificador de condiciones (ahorro de cómputo)</h3>
+      <p class="lab-desc">Cuatro condiciones de producción, tal como llegan a revisión. Elige la forma equivalente más simple y qué se ahorra. Al comprobar, cada caso explica su regla y su ganancia.</p>
+      <div id="psList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnPsCheck"><i data-lucide="check-check"></i>Comprobar simplificaciones</button>
+        <button class="btn ghost" id="btnPsReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+        <div class="quiz-result" id="psResult"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DIAGNÓSTICO ==================== -->
+<section class="view" id="v-diagnostico" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Autoevaluación formativa</p>
+      <h2>Diagnóstico exprés</h2>
+      <p class="sub">Seis preguntas sobre reglas de inferencia, reemplazo y simplificación. Retroalimentación inmediata en cada una.</p>
+    </div>
+    <div id="quizList"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnGrade"><i data-lucide="check-check"></i>Calificar</button>
+      <button class="btn ghost" id="btnQuizReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ACTIVIDADES ==================== -->
+<section class="view" id="v-actividades" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Zona de cierre</p>
+      <h2>Taller ABPr, rúbrica y ticket de tres pasos</h2>
+      <p class="sub">Instrumentos alineados a las fases de la sesión: encuadre, inicio, desarrollo y cierre.</p>
+    </div>
+
+    <!-- Guía del taller -->
+    <div class="act-block">
+      <h3>Guía del taller (ABPr)</h3>
+      <p class="act-desc">En equipo, trabajen el <strong>Laboratorio</strong> completo y después preparen, por escrito:</p>
+      <ol style="margin-left:20px;font-size:14.5px;max-width:72ch">
+        <li style="margin-bottom:9px">Dos demostraciones completas del workbook (fuera del Deductor), justificadas línea por línea, con nota de dónde podían tomar un camino distinto al elegido.</li>
+        <li style="margin-bottom:9px">La verificación por tabla de verdad de UNA regla de reemplazo (sugerida: De Morgan con ¬(p ∧ q)), demostrando que la equivalencia se sostiene en las cuatro filas.</li>
+        <li>Un ejemplo real — suyo o de una app que usen — donde simplificar una condición evite una ejecución innecesaria; describan la condición original, la simplificada y la regla aplicada.</li>
+      </ol>
+    </div>
+
+    <!-- Rúbrica -->
+    <div class="act-block">
+      <h3>Ponderación de la sesión</h3>
+      <span class="pill-flag"><i data-lucide="alert-triangle"></i>Propuesta preliminar — pendiente de validación en Academia (colegiada)</span>
+      <p class="act-desc">Esta ponderación cubre solo los instrumentos de esta sesión.</p>
+      <div class="rub-row"><span class="rub-name">Deductor (3 demostraciones completas)</span><div class="rub-bar"><div style="width:30%"></div></div><span class="rub-pct">30%</span></div>
+      <div class="rub-row"><span class="rub-name">Identificador de reglas (6 casos)</span><div class="rub-bar"><div style="width:15%"></div></div><span class="rub-pct">15%</span></div>
+      <div class="rub-row"><span class="rub-name">Simplificador de condiciones (4 casos)</span><div class="rub-bar"><div style="width:15%"></div></div><span class="rub-pct">15%</span></div>
+      <div class="rub-row"><span class="rub-name">Ticket de tres pasos (ahorro de recursos)</span><div class="rub-bar"><div style="width:10%"></div></div><span class="rub-pct">10%</span></div>
+      <div class="rub-row"><span class="rub-name">Diagnóstico exprés</span><div class="rub-bar"><div style="width:5%"></div></div><span class="rub-pct">5%</span></div>
+      <div class="rub-row"><span class="rub-name">Reflexión de cierre</span><div class="rub-bar"><div style="width:0%"></div></div><span class="rub-pct">—</span></div>
+      <div class="rub-row"><span class="rub-name">Perseverancia, orden lógico y colaboración (eje Ser)</span><div class="rub-bar"><div style="width:25%"></div></div><span class="rub-pct">25%</span></div>
+    </div>
+
+    <!-- Reflexión + ticket -->
+    <div class="act-block">
+      <h3>Reflexión y ticket — tres pasos de ahorro</h3>
+      <p class="act-desc">El ticket literal de la planeación: la deducción de tres pasos sobre <strong>ahorro de recursos computacionales y algebraicos</strong>, más la reflexión sobre qué ventaja tiene simplificar antes de ejecutar.</p>
+      <div class="task-panel">
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="ticket"></i>Ticket — deducción en tres pasos</div>
+          <div class="panel-body">
+            <div id="ticketEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu ticket.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="ticketForm" hidden>
+              <p class="hint" style="margin-bottom:12px">Completa la demostración que ahorra trabajo a la computadora (y al lector):</p>
+              <div class="demo" style="max-width:none">
+                <div class="demo-line"><span class="dl-n">1.</span><span class="dl-p">¬(servidorActivo ∧ datosCargados) → mostrarError &nbsp;·&nbsp; mostrarError</span><span class="dl-j">premisas</span></div>
+                <div class="demo-line"><span class="dl-n">2.</span><span class="dl-p"><input id="tkP2" type="text" maxlength="90" placeholder="Tu línea 2 aquí" style="font-family:Fraunces,serif;font-size:1rem;border:none;background:transparent;outline:none;width:100%"></span><span class="dl-j"><select id="tkR2" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;border:none;background:transparent;color:var(--gold-ink);max-width:180px"><option value="">regla…</option><option>1, modus tollens (MT)</option><option>1, modus ponens (MP)</option><option>1, silogismo disyuntivo (SD)</option></select></span></div>
+                <div class="demo-line final"><span class="dl-n">3.</span><span class="dl-p"><input id="tkP3" type="text" maxlength="90" placeholder="Tu conclusión final aquí" style="font-family:Fraunces,serif;font-size:1rem;font-weight:700;border:none;background:transparent;outline:none;width:100%"></span><span class="dl-j"><select id="tkR3" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;border:none;background:transparent;color:var(--gold-ink);max-width:180px"><option value="">regla…</option><option>2, De Morgan (DM)</option><option>2, doble negación (DN)</option><option>2, simplificación (Simp)</option></select></span></div>
+              </div>
+              <p class="hint" style="margin:10px 0 12px">Meta: concluir que el servidor no está activo <em>o</em> los datos no están cargados… dicho sin negación compuesta.</p>
+              <div class="field" style="margin-bottom:12px">
+                <label for="tkAhorro">¿Qué se ahorra exactamente con esta forma final? (una frase)</label>
+                <input id="tkAhorro" type="text" maxlength="200" placeholder="Ej. El sistema evalúa…">
+              </div>
+              <button class="btn" id="btnSaveTicket" style="width:100%;justify-content:center"><i data-lucide="save"></i>Guardar mi ticket de tres pasos</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="brain"></i>Reflexión de cierre</div>
+          <div class="panel-body">
+            <div id="reflexionEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu reflexión.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="reflexionForm" hidden>
+              <div class="field">
+                <label for="refVentaja">¿Qué ventaja tiene simplificar una expresión ANTES de ejecutarla — en lógica, en álgebra y en código? (2–4 líneas)</label>
+                <textarea id="refVentaja" maxlength="500" placeholder="En lógica… en álgebra… en código…"></textarea>
+              </div>
+              <button class="btn" id="btnSaveReflexion" style="width:100%;justify-content:center;margin-top:12px"><i data-lucide="save"></i>Guardar mi reflexión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compromisos -->
+    <div class="act-block">
+      <h3>Compromisos de aprendizaje</h3>
+      <p class="act-desc">Márcalos conforme los asumas. Se guardan junto con tu registro.</p>
+      <div id="compromisosList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Registro individual</p>
+      <h2>Registro y monitoreo de avance</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
+    </div>
+
+    <div class="storage-note" id="storageNote">
+      <i data-lucide="info"></i>
+      <span>Verificando almacenamiento disponible…</span>
+    </div>
+
+    <div style="max-width:480px" id="perfilForm">
+      <div class="panel">
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
+        <div class="panel-body">
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
+            <div class="field">
+              <label for="pNombre">Nombre completo</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
+            </div>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilDash" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div><strong>Sesión 10 · Reglas de inferencia, reemplazo y deducción natural.</strong><br>Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1.</div>
+    <div style="max-width:420px">El Deductor valida cualquier ruta correcta hacia la meta; las reglas y equivalencias siguen la notación estándar de Hurley.</div>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<!-- ============================================================
+     >>> AQUÍ PEGARÁS LA PARTE 2 <<<
+     (el bloque <script> completo con toda la lógica,
+     sin CDN de lucide — los iconos van incrustados)
+============================================================ -->
+<script>
+/* ============================================================
+   ICONOS SIN INTERNET — sustituye al CDN de lucide.
+============================================================ */
+(function(){
+  if(window.lucide && window.lucide.createIcons) return;
+  var P = {
+    'scale':'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+    'home':'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    'book-open':'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'flask-conical':'<path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/>',
+    'clipboard-check':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'clipboard-list':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'award':'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+    'arrow-right':'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'check-check':'<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+    'rotate-ccw':'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    'check':'<path d="M20 6 9 17l-5-5"/>',
+    'circle':'<circle cx="12" cy="12" r="10"/>',
+    'user-plus':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'save':'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+    'list-checks':'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+    'brain':'<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>',
+    'pencil':'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+    'download':'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'info':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'alert-triangle':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'check-circle-2':'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    'alert-circle':'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'shield-check':'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'ticket':'<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>'
+  };
+  function createIcons(){
+    var nodes = document.querySelectorAll('i[data-lucide]');
+    for(var k=0;k<nodes.length;k++){
+      var el = nodes[k];
+      var name = el.getAttribute('data-lucide');
+      var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 24 24');
+      svg.setAttribute('fill','none');
+      svg.setAttribute('stroke','currentColor');
+      svg.setAttribute('stroke-width','2');
+      svg.setAttribute('stroke-linecap','round');
+      svg.setAttribute('stroke-linejoin','round');
+      svg.setAttribute('class','lucide');
+      svg.innerHTML = P[name] || '<circle cx="12" cy="12" r="9"/>';
+      el.replaceWith(svg);
+    }
+  }
+  window.lucide = { createIcons: createIcons };
+})();
+</script>
+<script>
+/* ============================================================
+   UTILIDADES
+============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, type='ok'){
+  const box=$('#toasts'), t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML = `<i data-lucide="${type==='ok'?'check-circle-2':'alert-circle'}"></i><span>${esc(msg)}</span>`;
+  box.appendChild(t); refreshIcons();
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 320); }, 3200);
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ============================================================
+   NAVEGACIÓN DE VISTAS
+============================================================ */
+function showView(v){
+  $$('.view').forEach(s => s.hidden = true);
+  $('#v-'+v).hidden = false;
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='perfil') renderPerfil();
+  if(v==='actividades') refreshCierrePanel();
+}
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
+
+/* ============================================================
+   ALMACENAMIENTO
+============================================================ */
+const memStore = new Map();
+function hasWS(){ return typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'; }
+async function stGet(key){
+  if(hasWS()){
+    try{ const r = await window.storage.get(key); return r ? r.value : null; }
+    catch(e){ return null; }
+  }
+  return memStore.has(key) ? memStore.get(key) : null;
+}
+async function stSet(key, value){
+  if(hasWS()){
+    try{ await window.storage.set(key, value); return true; }
+    catch(e){ return false; }
+  }
+  memStore.set(key, value); return true;
+}
+async function stDelete(key){
+  if(hasWS()){
+    try{ await window.storage.delete(key); return true; }
+    catch(e){ return false; }
+  }
+  memStore.delete(key); return true;
+}
+async function loadJSON(key, fallback){
+  const v = await stGet(key);
+  if(v==null) return fallback;
+  try{ return JSON.parse(v); }catch(e){ return fallback; }
+}
+async function saveJSON(key, obj){ return stSet(key, JSON.stringify(obj)); }
+
+const PERFIL_KEY = 'perfilAlumno';
+const K = {
+  ir:'s10_ident',
+  ded:'s10_deductor',
+  ps:'s10_simpl',
+  par:'s10_paralelo',
+  quiz:'s10_quiz',
+  ticket:'s10_ticket',
+  reflexion:'s10_reflexion',
+  compromisos:'s10_compromisos'
+};
+
+/* ============================================================
+   PARTE 1 · IDENTIFICADOR DE REGLAS
+============================================================ */
+const IR_OPTS=[
+  ['MP','Modus ponens'],['MT','Modus tollens'],['SD','Silogismo disyuntivo'],
+  ['HS','Silogismo hipotético'],['AC','Falacia: afirmar el consecuente'],['NA','Falacia: negar el antecedente']
+];
+const IR=[
+ {txt:'Si llueve, cancelamos el partido. Llueve. Por lo tanto, cancelamos el partido.', a:'MP',
+  why:'Condicional + antecedente afirmado: MP en estado puro.'},
+ {txt:'Si estudiaste, apruebas. No apruebas. Por lo tanto, no estudiaste.', a:'MT',
+  why:'Condicional + consecuente negado: MT — la regla que la tabla de verdad de la sesión 9 validó.'},
+ {txt:'Es lunes o es martes. No es lunes. Por lo tanto, es martes.', a:'SD',
+  why:'Disyunción + negación de una parte: SD descarta y queda la otra (el «o» es inclusivo; da igual, aquí vale).'},
+ {txt:'Si hay red, hay acceso. Hay acceso. Por lo tanto, hay red.', a:'AC',
+  why:'Se afirma el CONSECUENTE: falacia formal. El acceso pudo venir de otra causa (conexión por cable, caché).'},
+ {txt:'Si compila, se despliega. No compila. Por lo tanto, no se despliega.', a:'NA',
+  why:'Se niega el ANTECEDENTE: falacia formal. Podría fallar la compilación y desplegarse la versión anterior por otro canal.'},
+ {txt:'Si pides mesa, hay lugar. Si hay lugar, se cena tranquila. Por lo tanto, si pides mesa, se cena tranquila.', a:'HS',
+  why:'Enlace de condicionales: HS encadena p→q con q→r para producir p→r.'}
+];
+function renderIr(){
+  $('#irList').innerHTML = IR.map((it,i)=>`
+    <div class="caso-card" data-i="${i}">
+      <div class="caso-text"><span class="qnum mono" style="margin-right:10px">P${i+1}</span>${esc(it.txt)}</div>
+      <div class="caso-row">
+        <select data-i="${i}">
+          <option value="">— ¿qué regla o falacia? —</option>
+          ${IR_OPTS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}
+        </select>
+      </div>
+      <div class="caso-explain" hidden></div>
+    </div>`).join('');
+}
+ $('#btnIrCheck').addEventListener('click', async ()=>{
+  let score=0, missing=0;
+  $$('#irList .caso-card').forEach((card,i)=>{
+    const sel=card.querySelector('select'), ex=card.querySelector('.caso-explain');
+    sel.classList.remove('is-correct','is-wrong');
+    if(sel.value===''){ missing++; }
+    const ok = sel.value===IR[i].a;
+    if(ok){ sel.classList.add('is-correct'); score++; }
+    else if(sel.value!==''){ sel.classList.add('is-wrong'); }
+    ex.hidden=false;
+    const label=IR_OPTS.find(o=>o[0]===IR[i].a)[1];
+    ex.innerHTML=`<strong>${label}.</strong> ${esc(IR[i].why)}`;
+  });
+  if(missing) toast(`Faltan ${missing} pase${missing>1?'s':''} por identificar.`,'err');
+  $('#irResult').innerHTML=`<strong>${score}/${IR.length}</strong> ${score>=5?'Ojo entrenado para reglas y trampas.':score>=4?'Bien: distingue reglas de falacias hermanas.':'Repasa la tabla de 10.1 — sobre todo las dos trampas.'}`;
+  await saveJSON(K.ir,{score,total:IR.length,ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+ $('#btnIrReset').addEventListener('click', ()=>{ renderIr(); $('#irResult').textContent=''; refreshIcons(); });
+
+/* ============================================================
+   PARTE 2 · EL DEDUCTOR
+============================================================ */
+const RULE_OPTS=['MP','MT','SD','HS','Simp','Conj','DM','DN','Impl','Contr','Dist'];
+const RULE_LABEL={MP:'MP · modus ponens',MT:'MT · modus tollens',SD:'SD · silogismo disyuntivo',HS:'HS · silogismo hipotético',Simp:'Simp · simplificación',Conj:'Conj · conjunción',DM:'DM · De Morgan',DN:'DN · doble negación',Impl:'Impl · implicación material',Contr:'Contr · contraposición',Dist:'Dist · distributividad'};
+function genCites(n){
+  const out=[];
+  for(let i=1;i<n;i++) out.push(String(i));
+  for(let i=1;i<=n-1;i++) for(let j=i+1;j<=n-1;j++) out.push(i+', '+j);
+  return out;
+}
+const DED=[
+ {title:'Demostración 1 · Modus ponens',
+  given:[['p → q','premisa'],['p','premisa']],
+  goal:'q',
+  steps:[
+   {n:3, prop:'q', aRule:'MP', aCite:'1, 2',
+    why:'El condicional (1) más su antecedente afirmado (2): MP autoriza el consecuente q.'}
+  ]},
+ {title:'Demostración 2 · MP y silogismo disyuntivo',
+  given:[['p → (m ∨ n)','premisa'],['p','premisa'],['¬m','premisa']],
+  goal:'n',
+  steps:[
+   {n:4, prop:'m ∨ n', aRule:'MP', aCite:'1, 2',
+    why:'MP con el condicional (1) y su antecedente p (2): se desprende m ∨ n.'},
+   {n:5, prop:'n', aRule:'SD', aCite:'3, 4',
+    why:'De m ∨ n (4), con ¬m (3), SD descarta m y deja n en pie.'}
+  ]},
+ {title:'Demostración 3 · Modus tollens y doble negación',
+  given:[['¬(b ∧ c) → h','premisa'],['¬h','premisa']],
+  goal:'b ∧ c',
+  steps:[
+   {n:3, prop:'¬¬(b ∧ c)', aRule:'MT', aCite:'1, 2',
+    why:'MT: el condicional (1) con el consecuente negado (¬h, línea 2) obliga a negar el antecedente.'},
+   {n:4, prop:'b ∧ c', aRule:'DN', aCite:'3',
+    why:'Doble negación: ¬¬X ≡ X — el reemplazo se aplica dentro de la línea 3.'}
+  ]}
+];
+function renderDed(){
+  $('#dedList').innerHTML = DED.map((d,di)=>{
+    const given=d.given.map((g,i)=>`<div><span class="dn-num">${i+1}.</span> ${esc(g[0])} <span class="dn-why">(premisa)</span></div>`).join('');
+    const steps=d.steps.map((s,si)=>{
+      const cites=genCites(s.n);
+      return `
+      <div class="ded-row">
+        <span class="dn-num">${s.n}.</span>
+        <select class="prop" disabled><option>${esc(s.prop)}</option></select>
+        <select class="rule" data-d="${di}" data-s="${si}">
+          <option value="">— regla —</option>
+          ${RULE_OPTS.map(r=>`<option value="${r}">${RULE_LABEL[r]}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ded-row" style="grid-template-columns:44px 1fr 260px">
+        <span></span>
+        <span class="hint">…justificado por las líneas:</span>
+        <select class="cite" data-d="${di}" data-s="${si}">
+          <option value="">— líneas —</option>
+          ${cites.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>`;
+    }).join('');
+    return `
+    <div class="ded-wrap" data-d="${di}">
+      <h4 style="font-size:1.05rem;margin-bottom:8px">${d.title}</h4>
+      <div class="ded-given">${given}</div>
+      <div class="ded-goal"><span class="syl-badge">Meta</span> ${esc(d.goal)}</div>
+      ${steps}
+      <div class="ded-fb"></div>
+      <div style="margin-top:12px"><button class="btn sm" data-dedcheck="${di}"><i data-lucide="check-check"></i>Verificar demostración</button></div>
+      <div class="ded-proof"></div>
+      <div class="ded-verdict"></div>
+    </div>`;
+  }).join('');
+  refreshIcons();
+}
+ $('#dedList').addEventListener('click', async e=>{
+  const b=e.target.closest('[data-dedcheck]'); if(!b) return;
+  const di=+b.dataset.dedcheck;
+  const wrap=b.closest('.ded-wrap');
+  const d=DED[di];
+  let allOk=true; const msgs=[];
+  d.steps.forEach((s,si)=>{
+    const rsel=wrap.querySelector(`select.rule[data-d="${di}"][data-s="${si}"]`);
+    const csel=wrap.querySelector(`select.cite[data-d="${di}"][data-s="${si}"]`);
+    rsel.classList.remove('is-correct','is-wrong');
+    csel.classList.remove('is-correct','is-wrong');
+    if(!rsel.value || !csel.value){
+      allOk=false;
+      if(!rsel.value) rsel.classList.add('is-wrong');
+      if(!csel.value) csel.classList.add('is-wrong');
+      return;
+    }
+    const rOk=rsel.value===s.aRule, cOk=csel.value===s.aCite;
+    rsel.classList.add(rOk?'is-correct':'is-wrong');
+    csel.classList.add(cOk?'is-correct':'is-wrong');
+    if(!rOk){ allOk=false; msgs.push(`Línea ${s.n}: «${rsel.value}» no autoriza ese paso — busca la regla cuyo molde calce exacto.`); }
+    if(!cOk){ allOk=false; msgs.push(`Línea ${s.n}: revisa las líneas citadas — deben ser las que contienen el molde de la regla.`); }
+  });
+  const fb=wrap.querySelector('.ded-fb');
+  if(!allOk){
+    fb.className='ded-fb show';
+    fb.innerHTML=(msgs.length?msgs.map(esc).join('<br>'):'Elige regla y líneas en todas las filas.')+'<br><em>Pista:</em> '+esc(d.steps[0].why);
+    return;
+  }
+  fb.className='ded-fb';
+  let rows=d.given.map((g,i)=>`<div class="demo-line"><span class="dl-n">${i+1}.</span><span class="dl-p">${esc(g[0])}</span><span class="dl-j">premisa</span></div>`).join('');
+  d.steps.forEach((s,si)=>{
+    const rv=wrap.querySelector(`select.rule[data-d="${di}"][data-s="${si}"]`).value;
+    const cv=wrap.querySelector(`select.cite[data-d="${di}"][data-s="${si}"]`).value;
+    rows+=`<div class="demo-line ${si===d.steps.length-1?'final':''}"><span class="dl-n">${s.n}.</span><span class="dl-p">${esc(s.prop)}</span><span class="dl-j">${esc(cv)}, <b>${esc(rv)}</b></span></div>`;
+  });
+  wrap.querySelector('.ded-proof').innerHTML=`<div class="demo" style="max-width:none">${rows}</div>`;
+  const verd=wrap.querySelector('.ded-verdict');
+  verd.className='ded-verdict ok';
+  verd.textContent='✓ Demostración completa y justificada. '+d.steps.map(s=>s.why).join(' ');
+  refreshIcons();
+  const dd=await loadJSON(K.ded,{done:[]});
+  if(!dd.done.includes(di)){
+    dd.done.push(di);
+    await saveJSON(K.ded,dd);
+    updateAvance();
+    if(!$('#v-perfil').hidden) renderPerfil();
+  }
+});
+
+/* ============================================================
+   PARTE 3 · PARALELO LÓGICA–ÁLGEBRA (registro formativo)
+============================================================ */
+(function(){
+  const block=$$('.lab-block').find(b=>b.querySelector('.simp-grid'));
+  if(!block) return;
+  const pb=block.querySelector('.panel-body');
+  const btn=document.createElement('button');
+  btn.className='btn ghost sm'; btn.style.marginTop='14px';
+  btn.innerHTML='<i data-lucide="check"></i> Ya recorrí el paralelo lado a lado';
+  btn.addEventListener('click', async ()=>{
+    btn.disabled=true;
+    btn.innerHTML='<i data-lucide="check-check"></i> Registrado';
+    await saveJSON(K.par,{used:true,ts:Date.now()});
+    updateAvance();
+    toast('Paralelo lógica–álgebra registrado (formativo).');
+  });
+  pb.appendChild(btn);
+})();
+
+/* ============================================================
+   PARTE 4 · SIMPLIFICADOR DE CONDICIONES
+============================================================ */
+const PS=[
+ {code:'if (!(conectado && autorizado)) { bloquear(); }',
+  opts:['if (!conectado || !autorizado)','if (!conectado && !autorizado)','if (conectado || autorizado)','if (!(conectado || autorizado))'],
+  a:0, rule:'De Morgan (DM)',
+  why:'¬(p ∧ q) ≡ ¬p ∨ ¬q: la negación se reparte y el ∧ se voltea ∨. La opción con ∧ es la trampa clásica.',
+  gain:'Misma conducta sin negación compuesta; con evaluación en cortocircuito, sale en la primera parte verdadera.'},
+ {code:'if (!!usuario) { saludar(); }',
+  opts:['if (!usuario)','if (usuario === true && usuario !== false)','if (usuario)','if (!!(!usuario))'],
+  a:2, rule:'Doble negación (DN)',
+  why:'¬¬p ≡ p: negar dos veces devuelve el original.',
+  gain:'Dos evaluaciones menos en cada corrida del if — y una línea que se lee a la primera.'},
+ {code:'if (!(enviado || fallido)) { reintentar(); }',
+  opts:['if (!enviado || !fallido)','if (!enviado && !fallido)','if (enviado && fallido)','if (!(enviado && fallido))'],
+  a:1, rule:'De Morgan (DM)',
+  why:'¬(p ∨ q) ≡ ¬p ∧ ¬q: aquí el ∨ se voltea ∧.',
+  gain:'La condición del reintento queda en positivo: menos paréntesis, menos errores de mantenimiento.'},
+ {code:'if (vip && (miembro || !miembro)) { descuento(); }',
+  opts:['if (vip && miembro)','if (vip || miembro)','if (miembro)','if (vip)'],
+  a:3, rule:'Distributividad + tercero excluido + identidad',
+  why:'p ∧ (q ∨ ¬q) ≡ p ∧ V ≡ p: (miembro ∨ ¬miembro) es siempre verdadero y V es neutro para ∧.',
+  gain:'De tres evaluaciones a una: la simplificación más lucrativa del lote — y la prueba de que lógica y álgebra absorben igual.'}
+];
+function renderPs(){
+  $('#psList').innerHTML = PS.map((p,i)=>`
+    <div class="caso-card" data-i="${i}">
+      <div class="caso-text"><span class="qnum mono" style="margin-right:10px">C${i+1}</span><code>${esc(p.code)}</code></div>
+      <div class="caso-row">
+        <select data-i="${i}">
+          <option value="">— forma equivalente más simple —</option>
+          ${p.opts.map((o,j)=>`<option value="${j}">${esc(o)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="caso-explain" hidden></div>
+    </div>`).join('');
+}
+ $('#btnPsCheck').addEventListener('click', async ()=>{
+  let score=0, missing=0;
+  $$('#psList .caso-card').forEach((card,i)=>{
+    const sel=card.querySelector('select'), ex=card.querySelector('.caso-explain');
+    sel.classList.remove('is-correct','is-wrong');
+    if(sel.value===''){ missing++; }
+    const ok = sel.value!=='' && +sel.value===PS[i].a;
+    if(ok){ sel.classList.add('is-correct'); score++; }
+    else if(sel.value!==''){ sel.classList.add('is-wrong'); }
+    ex.hidden=false;
+    ex.innerHTML=`<strong>${ok?'Correcto':'La forma era '+esc(PS[i].opts[PS[i].a])}.</strong> Regla: ${esc(PS[i].rule)}. ${esc(PS[i].why)}<br><em>Ahorro:</em> ${esc(PS[i].gain)}`;
+  });
+  if(missing) toast(`Faltan ${missing} condición${missing>1?'es':''} por simplificar.`,'err');
+  $('#psResult').innerHTML=`<strong>${score}/${PS.length}</strong> ${score>=3?'Código más barato de ejecutar y de leer.':score>=2?'Bien: revisa las reglas de las que fallaron.':'Vuelve a la teoría 10.2 — De Morgan primero.'}`;
+  await saveJSON(K.ps,{score,total:PS.length,ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+ $('#btnPsReset').addEventListener('click', ()=>{ renderPs(); $('#psResult').textContent=''; refreshIcons(); });
+
+/* ============================================================
+   DIAGNÓSTICO EXPRÉS
+============================================================ */
+const QUIZ=[
+ {q:'El molde del modus ponens es…',
+  opts:['p → q · ¬q ∴ ¬p','p → q · p ∴ q','p ∨ q · ¬p ∴ q','p → q · q → r ∴ p → r'],
+  a:1,
+  ex:'MP: condicional más antecedente afirmado autoriza el consecuente. La opción A es MT y la C es SD.'},
+ {q:'De «p → q» y «¬q», la regla que autoriza concluir «¬p» es…',
+  opts:['modus ponens','silogismo disyuntivo','modus tollens','De Morgan'],
+  a:2,
+  ex:'MT: negar el consecuente obliga a negar el antecedente. Es la versión formal del «el suelo no está mojado, luego no llovió».'},
+ {q:'Por De Morgan, ¬(p ∧ q) equivale a…',
+  opts:['¬p ∧ ¬q','¬p ∨ ¬q','p ∨ q','¬(p ∨ q)'],
+  a:1,
+  ex:'La negación se reparte y el conectivo se voltea: ∧↔∨. «No (ambos)» = «uno falla o falla el otro».'},
+ {q:'«Si hay red, hay acceso. Hay acceso. Por lo tanto, hay red» comete…',
+  opts:['modus tollens','la falacia de afirmar el consecuente','silogismo hipotético','doble negación'],
+  a:1,
+  ex:'Afirmar el consecuente parece MP pero no lo es: el acceso pudo venir de otra causa. Es la trampa hermana de la sesión 2.'},
+ {q:'La regla de reemplazo p → q ≡ ¬p ∨ q se llama…',
+  opts:['contraposición','distributividad','implicación material','doble negación'],
+  a:2,
+  ex:'Impl: un condicional equivale a «se cumple lo prometido, o el antecedente falla». Contraposition es ¬q → ¬p.'},
+ {q:'En una demostración formal, toda línea que no es premisa debe…',
+  opts:['ser verdadera en el mundo real','derivarse de líneas anteriores citando una sola regla','repentir la conclusión','ser más corta que la anterior'],
+  a:1,
+  ex:'La validez de la cadena vive en las citas: cada paso con su recibo. La verdad de las premisas es otro asunto (solidez, sesión 2).'}
+];
+
+let quizSel = QUIZ.map(()=>null);
+function renderQuiz(){
+  quizSel = QUIZ.map(()=>null);
+  $('#quizList').innerHTML = QUIZ.map((q,i)=>`
+    <div class="quiz-q" data-q="${i}">
+      <header><span class="qnum mono">P${i+1}</span><span class="q-text">${q.q}</span></header>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button type="button" class="opt" data-q="${i}" data-j="${j}">
+          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
+        </button>`).join('')}
+      </div>
+      <div class="explain" hidden>${q.ex}</div>
+    </div>`).join('');
+  $('#quizResult').innerHTML='';
+}
+ $('#quizList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const card = b.closest('.quiz-q');
+  if(card.classList.contains('graded')) return;
+  quizSel[+b.dataset.q] = +b.dataset.j;
+  card.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+});
+ $('#btnGrade').addEventListener('click', async ()=>{
+  let score=0, unanswered=0;
+  QUIZ.forEach((q,i)=>{
+    const chosen = quizSel[i];
+    const card=document.querySelector(`.quiz-q[data-q="${i}"]`);
+    card.classList.add('graded');
+    card.querySelectorAll('.opt').forEach((opt,j)=>{
+      opt.classList.remove('selected');
+      opt.classList.add('locked');
+      opt.classList.remove('is-correct','is-wrong');
+      if(j===q.a) opt.classList.add('is-correct');
+      else if(chosen!==null && chosen===j) opt.classList.add('is-wrong');
+    });
+    card.querySelector('.explain').hidden=false;
+    if(chosen!==null && chosen===q.a) score++;
+    if(chosen===null) unanswered++;
+  });
+  if(unanswered) toast(`Faltan ${unanswered} pregunta${unanswered>1?'s':''} por responder.`,'err');
+  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Reglas firmes bajo la mano.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a 10.1 y 10.2 antes del cierre.'}`;
+  await saveJSON(K.quiz,{score,total:QUIZ.length,answers:quizSel,ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+ $('#btnQuizReset').addEventListener('click', ()=>{ renderQuiz(); refreshIcons(); });
+
+/* ============================================================
+   TICKET (con corrección de erratas) Y REFLEXIÓN
+============================================================ */
+/* Erratas de la Parte 1 corregidas desde aquí: la segunda premisa
+   debe ser ¬mostrarError para que MT aplique, y la meta coherente
+   con la cadena MT + DN es «servidorActivo ∧ datosCargados». */
+(function fixTicketText(){
+  const form=$('#ticketForm'); if(!form) return;
+  const demo=form.querySelector('.demo'); if(!demo) return;
+  const line0=demo.querySelector('.demo-line .dl-p');
+  if(line0) line0.textContent='¬(servidorActivo ∧ datosCargados) → mostrarError   ·   ¬mostrarError';
+  const meta=demo.nextElementSibling;
+  if(meta && meta.classList.contains('hint')){
+    meta.innerHTML='<strong>Meta:</strong> concluir que el servidor <em>está activo</em> y los datos <em>están cargados</em> — sin doble negación. (La segunda premisa es ¬mostrarError: sin ella, el MT no arranca.)';
+  }
+})();
+function paint(el, ok){
+  el.style.borderColor = ok ? 'var(--pine)' : 'var(--terra)';
+  el.style.background  = ok ? 'var(--ok-bg)' : 'var(--err-bg)';
+}
+ $('#btnSaveTicket').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero para guardar tu ticket.','err'); showView('perfil'); return; }
+  const r2=$('#tkR2').value, r3=$('#tkR3').value;
+  const p2=$('#tkP2').value.trim(), p3=$('#tkP3').value.trim(), ah=$('#tkAhorro').value.trim();
+  const norm=s=>s.toLowerCase().replace(/\s+/g,'');
+  const n2=norm(p2), n3=norm(p3);
+  const okR2 = r2.includes('modus tollens');
+  const okR3 = r3.includes('doble negación');
+  const okP2 = n2.includes('¬¬') && n2.includes('activo') && n2.includes('datos');
+  const okP3 = !n3.includes('¬') && n3.includes('activo') && n3.includes('datos');
+  const okA  = ah.length>=10;
+  paint($('#tkR2'),okR2); paint($('#tkR3'),okR3);
+  paint($('#tkP2'),okP2); paint($('#tkP3'),okP3); paint($('#tkAhorro'),okA);
+  if(!(okR2&&okR3&&okP2&&okP3&&okA)){
+    let m=[];
+    if(!okR2) m.push('la línea 2 se justifica con MT (línea 1)');
+    if(!okP2) m.push('la línea 2 debe ser la doble negación: ¬¬(servidorActivo ∧ datosCargados)');
+    if(!okR3) m.push('la línea 3 se justifica con DN (línea 2)');
+    if(!okP3) m.push('la línea 3 debe quedar sin ninguna ¬: servidorActivo ∧ datosCargados');
+    if(!okA)  m.push('explica el ahorro en una frase (mínimo unas palabras)');
+    toast('Revisa tu demostración: '+m.join('; ')+'.','err');
+    return;
+  }
+  await saveJSON(K.ticket,{p2,p3,r2,r3,ahorro:ah,saved:true,ts:Date.now()});
+  toast('Ticket de tres pasos guardado y verificado.');
+  updateAvance();
+  renderPerfil();
+});
+ $('#btnSaveReflexion').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero para guardar tu reflexión.','err'); showView('perfil'); return; }
+  const v=$('#refVentaja').value.trim();
+  if(v.length<20){ toast('Desarrolla la reflexión (mínimo 2–3 líneas).','err'); return; }
+  await saveJSON(K.reflexion,{ventaja:v, saved:true, ts:Date.now()});
+  toast('Reflexión guardada.');
+  updateAvance();
+  renderPerfil();
+});
+async function refreshCierrePanel(){
+  const savedT = await loadJSON(K.ticket,null);
+  const savedR = await loadJSON(K.reflexion,null);
+  const has = !!perfil;
+  $('#ticketEmpty').hidden = has;
+  $('#ticketForm').hidden = !has;
+  $('#reflexionEmpty').hidden = has;
+  $('#reflexionForm').hidden = !has;
+  if(has){
+    if(savedT){
+      $('#tkP2').value = savedT.p2||'';
+      $('#tkP3').value = savedT.p3||'';
+      $('#tkAhorro').value = savedT.ahorro||'';
+      if(savedT.r2) $('#tkR2').value = savedT.r2;
+      if(savedT.r3) $('#tkR3').value = savedT.r3;
+    }
+    if(savedR) $('#refVentaja').value = savedR.ventaja||'';
+  }
+  refreshIcons();
+}
+
+/* ============================================================
+   COMPROMISOS
+============================================================ */
+const COMPROMISOS=[
+  'Cada línea de mis demostraciones citará su regla: nada se acepta «porque sí».',
+  'Antes de simplificar una condición, verificaré la equivalencia — no la inventaré.',
+  'Usaré De Morgan para abrir las negaciones compuestas de mi código.',
+  'Aplicaré el paralelo álgebra–lógica: una misma propiedad, dos ropajes.'
+];
+async function renderCompromisos(){
+  const done = await loadJSON(K.compromisos,[]);
+  $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
+    <label class="chk ${done.includes(i)?'done':''}">
+      <input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}>
+      <span>${c}</span>
+    </label>`).join('');
+}
+ $('#compromisosList').addEventListener('change', async e=>{
+  const cb = e.target.closest('input[type=checkbox]'); if(!cb) return;
+  const done = new Set(await loadJSON(K.compromisos,[]));
+  const i = +cb.dataset.i;
+  cb.checked ? done.add(i) : done.delete(i);
+  cb.closest('.chk').classList.toggle('done', cb.checked);
+  await saveJSON(K.compromisos, [...done].sort((a,b)=>a-b));
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PERFIL / REGISTRO
+============================================================ */
+let perfil = null;
+function initials(n){ return n.trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function fmtDate(ts){ return new Date(ts).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}); }
+
+function buildRows(ir,ded,ps,ticket,quiz,refl,par){
+  return [
+    {name:'Identificador de reglas', go:'laboratorio', max:15,
+     pct:ir?ir.score/ir.total:0, status:ir?'done':'pend',
+     pts:ir?Math.round(ir.score/ir.total*15):0,
+     detail:ir?`${ir.score}/${ir.total} pases`:'Sin comprobar aún'},
+    {name:'Deductor (3 demostraciones)', go:'laboratorio', max:30,
+     pct:ded?(ded.done.length/3):0, status:(ded&&ded.done.length>=3)?'done':'pend',
+     pts:ded?Math.min(ded.done.length,3)*10:0,
+     detail:ded?`${ded.done.length}/3 demostraciones cerradas`:'Ninguna cerrada aún'},
+    {name:'Simplificador de condiciones', go:'laboratorio', max:15,
+     pct:ps?ps.score/ps.total:0, status:ps?'done':'pend',
+     pts:ps?Math.round(ps.score/ps.total*15):0,
+     detail:ps?`${ps.score}/${ps.total} casos`:'Sin comprobar aún'},
+    {name:'Ticket de tres pasos', go:'actividades', max:10,
+     pct:(ticket&&ticket.saved)?1:0, status:(ticket&&ticket.saved)?'done':'pend',
+     pts:(ticket&&ticket.saved)?10:0,
+     detail:(ticket&&ticket.saved)?'Verificado por el motor':'Pendiente'},
+    {name:'Diagnóstico exprés', go:'diagnostico', max:5,
+     pct:quiz?quiz.score/quiz.total:0, status:quiz?'done':'pend',
+     pts:quiz?Math.round(quiz.score/quiz.total*5):0,
+     detail:quiz?`${quiz.score}/${quiz.total} aciertos`:'Sin calificar aún'},
+    {name:'Reflexión de cierre', go:'actividades', max:0,
+     pct:(refl&&refl.saved)?1:0, status:(refl&&refl.saved)?'done':'pend',
+     pts:0,
+     detail:(refl&&refl.saved)?'Registrada — alimenta el eje Ser':'Pendiente (no pondera)'},
+    {name:'Paralelo lógica–álgebra (formativo)', go:'laboratorio', max:0,
+     pct:(par&&par.used)?1:0, status:(par&&par.used)?'done':'pend',
+     pts:0,
+     detail:(par&&par.used)?'Recorrido registrado':'Sin registrar'}
+  ];
+}
+async function loadAll(){
+  return Promise.all([
+    loadJSON(K.ir,null), loadJSON(K.ded,null), loadJSON(K.ps,null),
+    loadJSON(K.par,null), loadJSON(K.quiz,null), loadJSON(K.ticket,null),
+    loadJSON(K.reflexion,null), loadJSON(K.compromisos,[])
+  ]);
+}
+async function initPerfil(){
+  perfil = await loadJSON(PERFIL_KEY,null);
+  const note=$('#storageNote');
+  if(hasWS()){
+    note.innerHTML=`<i data-lucide="shield-check"></i><span><strong>Almacenamiento institucional disponible.</strong> Tu registro y tu avance se guardarán de forma persistente en tu cuenta.</span>`;
+  } else {
+    note.innerHTML=`<i data-lucide="alert-triangle"></i><span><strong>Sin almacenamiento persistente en este entorno.</strong> El registro vivirá solo en la memoria de esta pestaña; descarga tu evidencia antes de cerrar para no perder tu avance.</span>`;
+  }
+  renderPerfil();
+}
+async function renderPerfil(){
+  const form=$('#perfilForm'), dash=$('#perfilDash');
+  if(!perfil){ form.hidden=false; dash.hidden=true; refreshIcons(); return; }
+  form.hidden=true; dash.hidden=false;
+  const [ir,ded,ps,par,quiz,ticket,refl,comp] = await loadAll();
+  const rows = buildRows(ir,ded,ps,ticket,quiz,refl,par);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const pend = rows.filter(r=>r.status==='pend' && r.max>0);
+  dash.innerHTML=`
+    <div class="result-id">
+      <div class="result-avatar">${esc(initials(perfil.nombre))}</div>
+      <div>
+        <div class="result-name">${esc(perfil.nombre)}</div>
+        <div class="result-mat">Matrícula ${esc(perfil.matricula)} · Registrado el ${fmtDate(perfil.ts)}</div>
+      </div>
+      <div class="panel-head-actions" style="margin-left:auto">
+        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i>Editar</button>
+        <button class="btn sm" data-action="download-evidence"><i data-lucide="download"></i>Descargar evidencia</button>
+      </div>
+    </div>
+    <div class="result-rows">
+      ${rows.map(r=>`
+        <div class="result-row">
+          <div><div class="result-name" style="font-size:14px">${r.name}</div><div class="result-mat">${r.detail}</div></div>
+          <div class="rub-bar"><div style="width:${Math.round(Math.min(1,r.pct)*100)}%"></div></div>
+          <span class="status-b ${r.status==='done'?'done':'pend'}" style="justify-self:end">${r.max ? r.pts+' / '+r.max+' pts' : (r.status==='done'?'realizada':'pendiente')}</span>
+        </div>`).join('')}
+    </div>
+    <div class="result-total"><span>Puntos autoevaluables</span><strong>${total} / 75</strong></div>
+    <p class="hint" style="margin-bottom:22px">Los 25 puntos restantes corresponden a «Perseverancia, orden lógico y colaboración horizontal (eje Ser)», que se evalúa en el aula. La reflexión de cierre no pondera aquí, pero es insumo del eje Ser.</p>
+    <div class="panel">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        ${pend.length || (comp&&comp.length<COMPROMISOS.length) ? `
+        <div class="pending-list">
+          ${pend.map(r=>`
+            <div class="pending-item"><span><i data-lucide="circle"></i>${r.name}</span><button class="btn ghost sm" data-view="${r.go}">Ir</button></div>`).join('')}
+          ${comp && comp.length<COMPROMISOS.length ? `
+            <div class="pending-item"><span><i data-lucide="circle"></i>Compromisos de aprendizaje (${comp.length}/${COMPROMISOS.length} asumidos)</span><button class="btn ghost sm" data-view="actividades">Ir</button></div>`:''}
+        </div>` : `<p class="hint">Todo completo en esta sesión. <strong>¡Bien trabajado!</strong></p>`}
+      </div>
+    </div>`;
+  refreshIcons();
+}
+ $('#formPerfil').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<4){ toast('Escribe tu matrícula institucional.','err'); return; }
+  perfil = {nombre, matricula, ts: perfil?perfil.ts:Date.now()};
+  await saveJSON(PERFIL_KEY, perfil);
+  toast('Registro guardado.');
+  renderPerfil();
+});
+function enterEditMode(){
+  if(!perfil) return;
+  $('#pNombre').value = perfil.nombre;
+  $('#pMatricula').value = perfil.matricula;
+  $('#perfilDash').hidden = true;
+  $('#perfilForm').hidden = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG)
+============================================================ */
+async function generateEvidenceImage(){
+  if(!perfil){ toast('Regístrate primero para generar tu evidencia.','err'); return; }
+  const [ir,ded,ps,par,quiz,ticket,refl,comp] = await loadAll();
+  const rows = buildRows(ir,ded,ps,ticket,quiz,refl,par);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const W=1000, H=170 + rows.length*74 + 250;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  x.fillStyle='#f7f3eb'; x.fillRect(0,0,W,H);
+  x.fillStyle='#1c2b25'; x.fillRect(0,0,W,6); x.fillRect(0,H-6,W,6);
+  x.fillStyle='#c2542f'; x.font='700 13px "Instrument Sans", Arial';
+  x.fillText('RAZONAMIENTO LÓGICO-MATEMÁTICO · UNITI — LPID, MÓDULO 1',60,64);
+  x.fillStyle='#1c2b25'; x.font='600 30px Fraunces, Georgia, serif';
+  x.fillText('Sesión 10 · Deducción natural y simplificación',60,104);
+  x.font='500 15px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.75)';
+  x.fillText(`${perfil.nombre} · Matrícula ${perfil.matricula} · ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,60,132);
+  let y=180;
+  rows.forEach(r=>{
+    x.fillStyle='#1c2b25'; x.font='600 15px "Instrument Sans", Arial'; x.fillText(r.name,60,y+18);
+    x.fillStyle='rgba(28,43,37,.55)'; x.font='400 12px "Instrument Sans", Arial'; x.fillText(r.detail,60,y+38);
+    const bx=430, bw=350;
+    x.strokeStyle='rgba(28,43,37,.4)'; x.lineWidth=1; x.strokeRect(bx,y+10,bw,12);
+    x.fillStyle=r.pct>0?'#1e4636':'rgba(28,43,37,.15)';
+    x.fillRect(bx+1,y+11,Math.max(0,(bw-2)*Math.min(1,r.pct)),10);
+    x.fillStyle='#1c2b25'; x.font='700 14px "Instrument Sans", Arial';
+    x.fillText(r.max ? r.pts+' / '+r.max+' pts' : '—',810,y+21);
+    y+=74;
+  });
+  x.strokeStyle='#1c2b25'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(60,y); x.lineTo(W-60,y); x.stroke();
+  x.font='600 26px Fraunces, Georgia, serif'; x.fillStyle='#1e4636';
+  x.fillText(`Puntos autoevaluables: ${total} / 75`,60,y+46);
+  x.font='400 13px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.6)';
+  x.fillText('Los 25 puntos restantes corresponden a «Perseverancia, orden lógico y colaboración (eje Ser)», evaluada en el aula.',60,y+72);
+  x.fillText(`Compromisos asumidos: ${comp?comp.length:0} de ${COMPROMISOS.length}${ded?` · Demostraciones cerradas: ${ded.done.length}/3`:''}`,60,y+94);
+  if(ticket && ticket.saved){
+    x.font='700 14px "Instrument Sans", Arial'; x.fillStyle='#1c2b25';
+    x.fillText('Ticket — línea 2:',60,y+126);
+    x.font='italic 400 13px Fraunces, Georgia, serif';
+    x.fillText(ticket.p2,60,y+146);
+    x.font='700 14px "Instrument Sans", Arial';
+    x.fillText('Ticket — línea 3 (conclusión):',60,y+168);
+    x.font='italic 400 13px Fraunces, Georgia, serif';
+    x.fillText(ticket.p3,60,y+188);
+  }
+  const a=document.createElement('a');
+  a.download='evidencia-sesion10-'+perfil.matricula+'.png';
+  a.href=c.toDataURL('image/png');
+  a.click();
+  toast('Evidencia descargada.');
+}
+
+/* ============================================================
+   AVANCE (inicio)
+============================================================ */
+async function updateAvance(){
+  const [ir,ded,ps,par,quiz,ticket,refl,comp] = await loadAll();
+  const flags=[ !!ir, !!(ded&&ded.done.length>=3), !!ps, !!(ticket&&ticket.saved), !!quiz, !!(refl&&refl.saved), (comp||[]).length>0, !!(par&&par.used) ];
+  const pct=Math.round(flags.filter(Boolean).length/flags.length*100);
+  const el=$('#statAvance'); if(el) el.textContent=pct+'%';
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+============================================================ */
+(async function init(){
+  renderIr();
+  renderDed();
+  renderPs();
+  renderQuiz();
+  await renderCompromisos();
+  await initPerfil();
+  await updateAvance();
+  refreshIcons();
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
