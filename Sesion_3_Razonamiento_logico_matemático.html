@@ -250,9 +250,6 @@ input[type="range"]{border:none!important;background:transparent!important;paddi
 .opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
 .opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
 .opt.locked{cursor:default}
-.opt{color:var(--ink);text-align:left}
-.opt.selected{border-color:var(--pine);background:#eef3ec}
-.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
 .explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
 .quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
 .quiz-result{font-size:15px}
@@ -1011,61 +1008,65 @@ function renderCasos(){
 /* ============================================================
    DIAGNÓSTICO EXPRÉS
 ============================================================ */
-/* ============================================================
-   DIAGNÓSTICO EXPRÉS
-============================================================ */
-/* Estado de selección: sel[i] = índice de la opción elegida, o null */
-let sel = QUIZ.map(()=>null);
-
+const QUIZ=[
+  {q:'La diferencia esencial entre un argumento deductivo y uno inductivo está en…',
+   opts:['si las premisas son verdaderas o falsas','qué promete el apoyo: necesidad o probabilidad','el número de premisas que usa','el tema del que trata'],
+   a:1,
+   ex:'La verdad de las premisas y el tema no deciden el tipo. Lo decide la clase de apoyo que el argumento ofrece: garantía (deducción) o probabilidad (inducción).'},
+  {q:'«Las últimas seis veces que la cafetería sirvió tamales, se agotaron antes de las 11. Hoy sirven tamales; probablemente se agotarán antes de las 11.» Este argumento es…',
+   opts:['deductivo, porque usa la palabra «probablemente»','deductivo, porque sus premisas son verdaderas','inductivo: extrapola casos pasados a un caso nuevo','no es un argumento: solo describe'],
+   a:2,
+   ex:'La conclusión va más allá de lo observado (apuesta por un caso nuevo): eso es inducción. Que las premisas sean ciertas no cambia el tipo — aquí el indicador solo confirma la intención.'},
+  {q:'¿Cuál cambio haría MÁS fuerte la generalización «Probé 5 galletas de la bolsa y todas tienen chispas; todas las galletas tienen chispas»?',
+   opts:['Probar 5 galletas más, todas de la orilla superior','Probar 30 galletas elegidas al azar de toda la bolsa','Concluir además que las galletas de todas las marcas tienen chispas','Nada puede cambiar la fuerza de una generalización'],
+   a:1,
+   ex:'Aumentar tamaño y representatividad (azar sobre toda la bolsa) sube la fuerza. Ampliar el alcance (todas las marcas) la bajaría; agregar casos sesgados apenas ayuda.'},
+  {q:'Un argumento inductivo fuerte con todas sus premisas verdaderas…',
+   opts:['garantiza su conclusión, igual que uno deductivo sólido','hace muy probable su conclusión, pero esta podría resultar falsa','se convierte en deductivo si añades más casos','se convierte en deductivo si el autor escribe «por lo tanto»'],
+   a:1,
+   ex:'Fuerza no es garantía. Ningun número de casos —salvo agotarlos todos— convierte una inducción en deducción, y ningún conector cambia la estructura del apoyo.'},
+  {q:'¿Cuál de los siguientes es un argumento deductivo?',
+   opts:['«La mayoría de los ingenieros resuelven este problema en menos de una hora. Sofía es ingeniera; probablemente ella también.»','«Todos los cuadrados tienen cuatro lados. Esta figura es un cuadrado; por lo tanto, tiene cuatro lados.»','«Cada vez que llueve, el patio se moja. El patio está mojado; probablemente llovió.»','«De diez ratones alimentados con la dieta nueva, ocho bajaron de peso; la dieta probablemente adelgaza.»'],
+   a:1,
+   ex:'Solo la opción B promete necesidad: la conclusión está contenida en las premisas por la regla general y el caso. Las otras extrapolan o invierten una condicional — inducción.'},
+  {q:'La llamada «inducción matemática», que se usa para demostrar propiedades de todos los números naturales, es en realidad…',
+   opts:['un argumento inductivo: prueba los casos uno por uno','un argumento inductivo muy fuerte, pero sin garantía','una técnica deductiva: una regla general garantiza todos los casos a la vez','una analogía entre números'],
+   a:2,
+   ex:'A pesar del nombre, es deducción: si P(1) es cierta y de P(k) se sigue P(k+1), entonces P(n) vale para todo n. No hay salto de muestra a población; hay una regla que cubre la totalidad. El nombre es histórico.'}
+];
 function renderQuiz(){
-  sel = QUIZ.map(()=>null);
   $('#quizList').innerHTML = QUIZ.map((q,i)=>`
     <div class="quiz-q" data-q="${i}">
       <header><span class="qnum mono">P${i+1}</span><span class="q-text">${q.q}</span></header>
       <div class="opts">${q.opts.map((o,j)=>`
-        <button type="button" class="opt" data-q="${i}" data-j="${j}">
-          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
-        </button>`).join('')}
+        <label class="opt"><input type="radio" name="qz${i}" value="${j}"><span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span></label>`).join('')}
       </div>
       <div class="explain" hidden>${q.ex}</div>
     </div>`).join('');
 }
-
-/* Selección por delegación: feedback visual inmediato, sin radios ocultos */
- $('#quizList').addEventListener('click', e=>{
-  const b = e.target.closest('button.opt'); if(!b) return;
-  const card = b.closest('.quiz-q');
-  if(card.classList.contains('graded')) return;      // bloqueado tras calificar
-  sel[+b.dataset.q] = +b.dataset.j;
-  card.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
-  b.classList.add('selected');
-});
-
  $('#btnGrade').addEventListener('click', async ()=>{
   let score=0, unanswered=0;
   QUIZ.forEach((q,i)=>{
-    const chosen = sel[i];
-    const card = document.querySelector(`.quiz-q[data-q="${i}"]`);
-    card.classList.add('graded');
+    const sel=document.querySelector(`input[name="qz${i}"]:checked`);
+    const card=document.querySelector(`.quiz-q[data-q="${i}"]`);
     card.querySelectorAll('.opt').forEach((opt,j)=>{
-      opt.classList.remove('selected');
       opt.classList.add('locked');
       opt.classList.remove('is-correct','is-wrong');
       if(j===q.a) opt.classList.add('is-correct');
-      else if(chosen!==null && chosen===j) opt.classList.add('is-wrong');
+      else if(sel && +sel.value===j) opt.classList.add('is-wrong');
     });
     card.querySelector('.explain').hidden=false;
-    if(chosen!==null && chosen===q.a) score++;
-    if(chosen===null) unanswered++;
+    if(sel && +sel.value===q.a) score++;
+    if(!sel) unanswered++;
   });
   if(unanswered) toast(`Faltan ${unanswered} pregunta${unanswered>1?'s':''} por responder.`,'err');
-  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Dominas el tema de la sesión.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a la teoría antes del cierre.'}`;
+  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Dominas la distinción.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a la teoría antes del cierre.'}`;
   await saveJSON(K.quiz,{score,total:QUIZ.length,ts:Date.now()});
   updateAvance();
   if(!$('#v-perfil').hidden) renderPerfil();
 });
-
  $('#btnQuizReset').addEventListener('click', ()=>{ renderQuiz(); $('#quizResult').textContent=''; refreshIcons(); });
+
 /* ============================================================
    COMPROMISOS
 ============================================================ */
