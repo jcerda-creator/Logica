@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 6 · Primer examen parcial (sesiones 1–5) — Razonamiento Lógico-Matemático</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+============================================================ */
+:root{
+  --paper:#f7f3eb;
+  --card:#fffdf8;
+  --ink:#1c2b25;
+  --pine:#1e4636;
+  --pine-soft:#2c5e49;
+  --terra:#c2542f;
+  --terra-soft:#f3e0d6;
+  --gold:#c9a227;
+  --gold-soft:#f2e8c9;
+  --gold-ink:#7a6210;
+  --line:rgba(28,43,37,.16);
+  --line-strong:rgba(28,43,37,.4);
+  --muted:rgba(28,43,37,.62);
+  --ok-bg:#e7efe6;
+  --err-bg:#f7e6dd;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:150px}
+[hidden]{display:none!important}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:radial-gradient(rgba(30,70,54,.075) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4,.display{font-family:'Fraunces',serif;font-weight:600;line-height:1.16;letter-spacing:-.01em}
+.overline{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra)}
+.mono{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--pine)}
+svg.lucide{width:16px;height:16px;stroke-width:2}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(247,243,235,.93);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--ink);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+.brand .brand-ico{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper)}
+.brand .brand-ico svg{width:17px;height:17px}
+.brand small{display:block;font-family:'Instrument Sans';font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.topbar-side{font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;color:var(--pine);
+  font-weight:600;font-size:13.5px;padding:8px 14px;border-radius:999px;
+  transition:all .18s ease;
+}
+.nav-btn svg{width:15px;height:15px}
+.nav-btn:hover{border-color:var(--line-strong)}
+.nav-btn.active{background:var(--ink);color:var(--paper)}
+
+/* ============================================================
+   VISTAS
+============================================================ */
+.view{padding:0 0 80px}
+.view-head{border-bottom:2px solid var(--ink);padding:52px 0 26px;margin-bottom:36px}
+.view-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 10px}
+.view-head p.sub{max-width:700px;color:var(--muted)}
+
+/* ============================================================
+   BOTONES / FORMULARIOS
+============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink);border-radius:10px;
+  padding:11px 18px;font-weight:600;font-size:14px;
+  transition:all .18s ease;
+}
+.btn:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(28,43,37,.06);transform:translateY(-1px)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:14px;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);
+  border-radius:8px;padding:10px 12px;width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.field input.is-correct,.field select.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.field input.is-wrong,.field select.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.hint{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   INICIO / HERO
+============================================================ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:64px 0 56px}
+.hero h1{font-size:clamp(2.2rem,4.3vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero .lead{font-size:1.05rem;color:var(--muted);max-width:540px}
+.hero-actions{display:flex;gap:12px;margin:26px 0 30px;flex-wrap:wrap}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-strong);max-width:520px}
+.meta-grid>div{padding:12px 14px 12px 0;border-bottom:1px solid var(--line)}
+.meta-grid dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meta-grid dd{font-weight:600;font-size:14.5px}
+.hero-fig{border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--card);overflow:hidden;box-shadow:6px 6px 0 rgba(28,43,37,.12)}
+.hero-fig .diagram-box{padding:26px 20px 10px}
+.hero-fig figcaption{padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.home-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:44px;border-top:1.5px solid var(--ink);padding-top:38px}
+.route-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;border-top:1px solid var(--line);padding:22px 4px;cursor:pointer;transition:background .15s}
+.route-item:first-child{border-top:none}
+.route-item:hover{background:rgba(28,43,37,.045)}
+.route-no{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:400;color:rgba(30,70,54,.28)}
+.route-item h3{font-size:1.2rem;margin-bottom:4px}
+.route-item p{font-size:13.5px;color:var(--muted)}
+.route-go{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);transition:all .18s}
+.route-item:hover .route-go{background:var(--ink);color:var(--paper)}
+.side-stats{display:flex;flex-direction:column;gap:12px}
+.stat{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:14px 18px}
+.stat .num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;line-height:1}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* ============================================================
+   DIAGRAMA DEL HÉROE (5 sesiones → examen)
+============================================================ */
+.arg-svg{width:100%;height:auto;display:block}
+.scale-box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+.scale-box.v{stroke:var(--pine)}
+.scale-box.f{stroke:var(--terra)}
+.scale-label{font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.scale-label.v{fill:var(--pine)}
+.scale-label.f{fill:var(--terra)}
+.scale-text{font-family:'Instrument Sans',sans-serif;font-size:12px;fill:var(--ink)}
+.scale-conn{font-family:'Fraunces',serif;font-style:italic;font-size:12.5px;fill:var(--muted);text-anchor:middle}
+#argHead1 path{fill:var(--pine)}
+.exam-arrow{stroke:var(--pine);stroke-width:1.8;fill:none;stroke-dasharray:160;stroke-dashoffset:160;animation:drawArrow6 .8s ease forwards}
+@keyframes drawArrow6{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.exam-arrow{animation:none;stroke-dashoffset:0}}
+
+/* ============================================================
+   REPASO
+============================================================ */
+.theory{display:grid;grid-template-columns:230px 1fr;gap:52px;align-items:start}
+.toc{position:sticky;top:150px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column}
+.toc-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 10px 16px}
+.toc a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:9px 16px;font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin-left:-1.5px;transition:all .15s}
+.toc a span{font-family:'Fraunces',serif;color:var(--terra);font-weight:600;min-width:30px}
+.toc a:hover{border-left-color:var(--pine);background:rgba(28,43,37,.05)}
+.sec{border-top:1px solid var(--line);padding:44px 0}
+.sec:first-child{border-top:none;padding-top:0}
+.sec-no{font-family:'Fraunces',serif;font-size:3rem;font-weight:400;color:rgba(30,70,54,.22);line-height:1}
+.sec h3{font-size:1.5rem;margin:6px 0 16px}
+.prose p{margin:0 0 14px;max-width:72ch}
+.prose ul,.prose ol{margin:0 0 14px 22px;max-width:72ch}
+.prose li{margin-bottom:6px}
+.def{background:#ecf1ea;border:1px solid rgba(30,70,54,.28);border-radius:0 10px 10px 0;border-left:4px solid var(--pine);padding:18px 22px;margin:20px 0}
+.def .def-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pine)}
+.def p{margin:6px 0 0}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.tbl th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:hover{background:rgba(28,43,37,.04)}
+.formula-card{background:var(--card);border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:16px 20px;margin:14px 0}
+.formula-card .f-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-ink)}
+.formula-card .f-body{font-family:'Fraunces',serif;font-size:1.1rem;margin-top:4px}
+
+/* ============================================================
+   PANELES / PRÁCTICA / EXAMEN
+============================================================ */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.panel-body{padding:20px 18px}
+.note{font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line-strong);margin-top:18px;padding-top:12px}
+.lab-block{margin-bottom:40px}
+.lab-block>h3{font-size:1.35rem;margin:6px 0 4px}
+.lab-block>.lab-desc{color:var(--muted);max-width:72ch;margin-bottom:16px;font-size:14px}
+
+/* --- Quiz (práctica y examen) --- */
+.quiz-q{border-top:1px solid var(--line);padding:24px 4px}
+.quiz-q header{display:flex;gap:14px;margin-bottom:14px}
+.qnum{flex:none;font-family:'Fraunces',serif;font-weight:700;color:var(--terra);border:1.5px solid var(--terra);border-radius:8px;padding:2px 9px;height:fit-content}
+.quiz-q .q-text{font-weight:600;font-size:15.5px;padding-top:4px}
+.opts{display:grid;gap:9px;margin-left:56px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14.5px;text-align:left;color:var(--ink);width:100%;font-family:inherit;line-height:1.45}
+.opt:hover{border-color:var(--pine)}
+.opt-key{flex:none;width:26px;height:26px;border:1.5px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;transition:all .15s}
+.opt.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.opt.is-correct .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
+.opt.locked{cursor:default}
+.opt.selected{border-color:var(--pine);background:#eef3ec}
+.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+.quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
+.quiz-result{font-size:15px}
+.quiz-result strong{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--pine);margin-right:8px}
+.pr-item{border:1px solid var(--line-strong);border-radius:10px;padding:16px 18px;margin-bottom:14px;background:var(--card)}
+.pr-text{font-weight:600;font-size:14.5px;margin-bottom:12px;max-width:72ch}
+.pr-fb{font-size:13px;margin-top:10px;display:none;border-left:3px solid var(--gold);padding:8px 12px;background:var(--gold-soft);max-width:64ch}
+.pr-fb.show{display:block}
+.pr-fb.ok{color:var(--pine)}
+.pr-fb.bad{color:var(--terra)}
+
+/* --- Ficha y carta de honestidad --- */
+.ficha{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden;margin:18px 0}
+.ficha>div{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--card)}
+.ficha>div:nth-child(odd){border-right:1px solid var(--line)}
+.ficha>div:nth-last-child(-n+2){border-bottom:none}
+.ficha dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.ficha dd{font-weight:600;font-size:14.5px;margin-top:2px}
+.honor-box{background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 22px;margin:20px 0}
+.honor-box h4{font-size:1.05rem;margin-bottom:8px}
+.honor-box p{font-size:14px;max-width:70ch}
+
+/* --- Barra de tiempo del examen --- */
+.exam-meter{
+  position:sticky;top:132px;z-index:40;
+  display:flex;align-items:center;gap:16px;
+  background:var(--card);border:1.5px solid var(--ink);border-radius:10px;
+  padding:10px 16px;margin-bottom:24px;box-shadow:0 4px 14px rgba(28,43,37,.08);
+}
+.timer-pill{flex:none;font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;color:var(--pine);min-width:96px}
+.timer-pill.low{color:var(--terra)}
+.meter{flex:1;height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.meter>div{height:100%;background:var(--pine);transition:width 1s linear}
+.meter>div.low{background:var(--terra)}
+.exam-progress{flex:none;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+.exam-section{margin:34px 0 6px;display:flex;align-items:baseline;gap:12px}
+.exam-section h3{font-size:1.2rem;margin:0}
+.exam-section .hint{margin-top:2px}
+
+/* --- Resultado / veredicto --- */
+.verdict{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);padding:24px 22px;margin:20px 0}
+.verdict .v-big{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:700;color:var(--pine);line-height:1}
+.verdict .v-big.low{color:var(--terra)}
+.verdict .v-sub{color:var(--muted);font-size:13.5px;margin-top:6px}
+.doc-note{background:var(--card);border:1px dashed var(--line-strong);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--muted);margin-top:18px}
+.doc-note strong{color:var(--ink)}
+
+/* --- Modal de enfoque --- */
+.focus-overlay{position:fixed;inset:0;background:rgba(28,43,37,.55);z-index:300;display:grid;place-items:center;padding:24px}
+.focus-card{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);padding:34px 30px;max-width:380px;width:100%;text-align:center}
+.breath-circle{width:130px;height:130px;margin:22px auto;border-radius:50%;background:var(--pine);opacity:.85;animation:breathe 12s ease-in-out infinite}
+@keyframes breathe{0%{transform:scale(.55)}33%{transform:scale(1)}66%{transform:scale(1)}100%{transform:scale(.55)}}
+@media (prefers-reduced-motion: reduce){.breath-circle{animation:none;transform:scale(.8)}}
+.breath-text{font-size:14px;color:var(--muted);max-width:34ch;margin:0 auto}
+.focus-timer{font-family:'Fraunces',serif;font-weight:700;font-size:1.4rem;margin-top:14px;color:var(--pine)}
+
+/* ============================================================
+   CIERRE / ACTIVIDADES
+============================================================ */
+.act-block{margin-bottom:52px}
+.act-block>h3{font-size:1.45rem;margin:8px 0 6px}
+.act-block>.act-desc{color:var(--muted);max-width:72ch;margin-bottom:20px}
+.rub-row{display:grid;grid-template-columns:1fr 1fr 60px;gap:16px;align-items:center;border-top:1px solid var(--line);padding:14px 4px}
+.rub-row:last-child{border-bottom:1px solid var(--line)}
+.rub-row .rub-name{font-weight:600;font-size:14.5px}
+.rub-bar{height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.rub-bar>div{height:100%;background:var(--pine)}
+.rub-pct{text-align:right;font-family:'Fraunces',serif;font-weight:600}
+.pill-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-radius:999px;padding:4px 11px;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);padding:10px 14px;margin-bottom:9px;cursor:pointer;transition:all .15s;font-size:14.5px}
+.chk:hover{border-color:var(--pine)}
+.chk input{width:16px;height:16px;accent-color:var(--pine)}
+.chk.done{background:var(--ok-bg);border-color:var(--pine)}
+.task-panel{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 20px;color:var(--muted);text-align:center}
+.empty svg{width:30px;height:30px;stroke-width:1.5}
+
+/* ============================================================
+   MI PROGRESO
+============================================================ */
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
+.status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
+.status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   TOASTS / FOOTER
+============================================================ */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:400;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:10px;padding:12px 16px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .28s ease}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#8fd0a5}
+.toast.err svg{color:#f0a284}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
+.foot-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.foot-row strong{color:var(--ink)}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:34px}
+  .home-grid{grid-template-columns:1fr}
+  .theory{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;overflow-x:auto;border-left:none;border-bottom:1.5px solid var(--ink);gap:2px}
+  .toc-title{display:none}
+  .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .toc a:hover{border-bottom-color:var(--pine)}
+  .task-panel{grid-template-columns:1fr}
+  .ficha{grid-template-columns:1fr}
+  .ficha>div:nth-child(odd){border-right:none}
+  .ficha>div:nth-last-child(-n+2){border-bottom:1px solid var(--line)}
+  .ficha>div:last-child{border-bottom:none}
+  .exam-meter{top:120px;flex-wrap:wrap}
+  .result-row{grid-template-columns:1fr;gap:4px}
+  .rub-row{grid-template-columns:1fr;gap:8px}
+  .rub-pct{text-align:left}
+  .meta-grid{max-width:none}
+  .opts{margin-left:0}
+  .explain{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand">
+      <span class="brand-ico"><i data-lucide="scale"></i></span>
+      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 6 · Primer examen parcial - Dr. Adrián Cerda</small></span>
+    </div>
+    <div class="topbar-side">UNITI<br>LPID · Módulo 1</div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="mainNav">
+      <button class="nav-btn active" data-view="inicio"><i data-lucide="home"></i>Inicio</button>
+      <button class="nav-btn" data-view="repaso"><i data-lucide="book-open"></i>Repaso</button>
+      <button class="nav-btn" data-view="practica"><i data-lucide="dumbbell"></i>Práctica</button>
+      <button class="nav-btn" data-view="examen"><i data-lucide="clipboard-check"></i>Examen</button>
+      <button class="nav-btn" data-view="cierre"><i data-lucide="clipboard-list"></i>Cierre</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del alumno</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== INICIO ==================== -->
+<section class="view" id="v-inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="overline">Razonamiento Lógico-Matemático · UNITI — LPID, Módulo 1</p>
+      <h1>Primer examen parcial: lo aprendido, <em>demostrado</em></h1>
+      <p class="lead">Cinco sesiones construyeron una caja de herramientas: anatomía del argumento, validez y solidez, deducción e inducción, porcentajes auditables y funciones que modelan. Hoy las usas juntas, solo, en tiempo medido. El examen no estrena nada: todo lo que evalúa ya practicaste — esta es la oportunidad de demostrarlo con autonomía y honestidad.</p>
+      <div class="hero-actions">
+        <button class="btn" data-view="repaso"><i data-lucide="book-open"></i>Repaso guiado</button>
+        <button class="btn ghost" data-view="practica"><i data-lucide="dumbbell"></i>Simulacro de práctica</button>
+      </div>
+      <dl class="meta-grid">
+        <div><dt>Sesión</dt><dd>6 / 12</dd></div>
+        <div><dt>Duración del examen</dt><dd>75 min (sesión: 110 min)</dd></div>
+        <div><dt>Hilo conductor</dt><dd>¿Cómo demostramos que integramos las herramientas lógicas y cuantitativas?</dd></div>
+        <div><dt>Aprendizaje esperado</dt><dd>Integra de manera individual los aprendizajes de las sesiones 1 a 5 en una evaluación sumativa</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-fig">
+      <div class="diagram-box">
+        <svg class="arg-svg" viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="argHead1" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z"></path>
+            </marker>
+          </defs>
+
+          <rect class="scale-box" x="14" y="14" width="88" height="54" rx="8"></rect>
+          <text class="scale-label" x="26" y="36">S1</text>
+          <text class="scale-text" x="26" y="56">Anatomía</text>
+
+          <rect class="scale-box" x="116" y="14" width="88" height="54" rx="8"></rect>
+          <text class="scale-label" x="128" y="36">S2</text>
+          <text class="scale-text" x="128" y="56">Validez</text>
+
+          <rect class="scale-box" x="218" y="14" width="88" height="54" rx="8"></rect>
+          <text class="scale-label" x="230" y="36">S3</text>
+          <text class="scale-text" x="230" y="56">Deducción</text>
+
+          <rect class="scale-box" x="320" y="14" width="88" height="54" rx="8"></rect>
+          <text class="scale-label" x="332" y="36">S4</text>
+          <text class="scale-text" x="332" y="56">Porcentajes</text>
+
+          <rect class="scale-box" x="422" y="14" width="84" height="54" rx="8"></rect>
+          <text class="scale-label" x="434" y="36">S5</text>
+          <text class="scale-text" x="434" y="56">Funciones</text>
+
+          <path class="exam-arrow" style="animation-delay:.2s" d="M58,72 C70,110 180,140 235,172" marker-end="url(#argHead1)"></path>
+          <path class="exam-arrow" style="animation-delay:.35s" d="M160,72 C168,110 215,140 245,172" marker-end="url(#argHead1)"></path>
+          <path class="exam-arrow" style="animation-delay:.5s" d="M262,72 C262,110 260,140 260,170" marker-end="url(#argHead1)"></path>
+          <path class="exam-arrow" style="animation-delay:.65s" d="M364,72 C356,110 305,140 275,172" marker-end="url(#argHead1)"></path>
+          <path class="exam-arrow" style="animation-delay:.8s" d="M464,72 C452,110 340,140 285,172" marker-end="url(#argHead1)"></path>
+
+          <rect class="scale-box v" x="150" y="180" width="220" height="58" rx="10"></rect>
+          <text class="scale-label v" x="166" y="203">Examen parcial</text>
+          <text class="scale-text" x="166" y="224">20 reactivos · 75 minutos · 1 intento</text>
+        </svg>
+      </div>
+      <figcaption><strong>Integración, no novedad.</strong> Cada reactivo del examen proviene de una sesión ya vista y ya practicada. El simulacro y el repaso te permiten llegar al examen sin sorpresas: la evaluación mide lo que dominas, no lo que adivinas.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap home-grid">
+    <div>
+      <p class="overline" style="margin-bottom:14px">Ruta de la sesión</p>
+      <div class="route-item" data-view="repaso">
+        <span class="route-no">01</span>
+        <div><h3>Repaso guiado</h3><p>Mapa compacto de lo que entra: un parágrafo por sesión y las fórmulas clave en una sola tabla.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="practica">
+        <span class="route-no">02</span>
+        <div><h3>Simulacro de práctica</h3><p>Ocho preguntas tipo examen, ilimitadas y con retroalimentación inmediata. Sin pena: aquí se equivoca quien aprende.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="examen">
+        <span class="route-no">03</span>
+        <div><h3>Examen parcial</h3><p>Carta de honestidad, ejercicio de enfoque y 20 reactivos cronometrados en un solo intento.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="cierre">
+        <span class="route-no">04</span>
+        <div><h3>Cierre y reflexión</h3><p>Tras conocer tu resultado: una fortaleza y un aspecto por mejorar, para el segundo parcial.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <aside>
+      <p class="overline" style="margin-bottom:14px">En un vistazo</p>
+      <div class="side-stats">
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
+        <div class="stat"><div class="num">20</div><div class="lbl">Reactivos del examen</div></div>
+        <div class="stat"><div class="num">75'</div><div class="lbl">Tiempo del examen</div></div>
+        <div class="stat"><div class="num">1</div><div class="lbl">Intento del examen</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== REPASO ==================== -->
+<section class="view" id="v-repaso" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Antes del examen · 15 minutos</p>
+      <h2>Repaso guiado</h2>
+      <p class="sub">Lo que entra, en un parágrafo por sesión. Si algún renglón no lo reconoces como propio, esa es tu prioridad de repaso — y una buena duda para resolver en la plenaria previa al examen.</p>
+    </div>
+
+    <div class="theory">
+      <aside class="toc">
+        <p class="toc-title">Contenido</p>
+        <a href="#r1"><span>1</span>Anatomía del argumento</a>
+        <a href="#r2"><span>2</span>Verdad, validez, solidez</a>
+        <a href="#r3"><span>3</span>Deducción e inducción</a>
+        <a href="#r4"><span>4</span>Porcentajes y regla de tres</a>
+        <a href="#r5"><span>5</span>Álgebra y funciones</a>
+        <a href="#rf"><span>★</span>Fórmulas de bolsillo</a>
+      </aside>
+
+      <div class="prose">
+
+        <article class="sec" id="r1">
+          <div class="sec-no">1</div>
+          <h3>Sesión 1 · Anatomía del argumento</h3>
+          <p>Argumento = premisas que apoyan una conclusión. La posición en el texto no manda: la conclusión puede ir al inicio, en medio o al final. Los indicadores orientan: <em>porque, ya que, puesto que</em> suelen anunciar premisa; <em>por lo tanto, en consecuencia, así que</em>, conclusión. Y no todo es argumento: describir, narrar y <strong>explicar</strong> (dar el porqué de algo ya aceptado) no defienden nada disputado.</p>
+        </article>
+
+        <article class="sec" id="r2">
+          <div class="sec-no">2</div>
+          <h3>Sesión 2 · Verdad, validez y solidez</h3>
+          <p><strong>Validez</strong> es de la forma: si las premisas fueran ciertas, ¿la conclusión se seguiría necesariamente? <strong>Verdad</strong> es de cada enunciado por separado. <strong>Sólido</strong> = válido + todas las premisas verdaderas. Un argumento válido con premisa falsa sigue siendo válido pero no sólido; uno inválido puede tener premisas verdaderas y aun así no garantizar nada. <strong>Fuerte/débil</strong> es vocabulario de lo inductivo, no de lo deductivo.</p>
+        </article>
+
+        <article class="sec" id="r3">
+          <div class="sec-no">3</div>
+          <h3>Sesión 3 · Deducción e inducción</h3>
+          <p>Deductivo: promete necesidad (la conclusión está contenida en las premisas). Inductivo: extrapola y solo promete probabilidad. Tipos de inducción: <strong>generalización</strong> (de la muestra a la población), <strong>analogía</strong> (de un caso a otro por semejanza), <strong>inferencia causal</strong> (de la co-ocurrencia a la causa). La fuerza de una generalización depende de tamaño, representatividad y alcance. Y cuidado con las falacias: atacar a la persona en vez del argumento (<em>ad hominem</em>) o generalizar apresuradamente no son argumentos buenos, son atajos.</p>
+        </article>
+
+        <article class="sec" id="r4">
+          <div class="sec-no">4</div>
+          <h3>Sesión 4 · Porcentajes y regla de tres</h3>
+          <p>Un porcentaje es una razón con base 100 — y siempre pregunta: <strong>¿de qué, y de cuántos?</strong> Al subir un precio, el aumento se calcula sobre la base vieja, pero puede medirse contra la nueva: cambia la fracción. De 40% a 50% hay <strong>10 puntos porcentuales</strong>, que en términos relativos son un aumento de 25%. La regla de tres solo es legítima si la razón es constante: donde hay cargo fijo, frauda.</p>
+        </article>
+
+        <article class="sec" id="r5">
+          <div class="sec-no">5</div>
+          <h3>Sesión 5 · Álgebra y funciones</h3>
+          <p>Una variable es la caja con etiqueta; evaluar es sustituir y operar; despejar es aislar la variable haciendo lo mismo en ambos lados. La función lineal <strong>y = mx + b</strong> lleva la tarifa (m, pendiente: cuánto cambia y por cada unidad de x) por separado del punto de partida (b, ordenada al origen: el valor cuando x = 0). Una inecuación traduce una condición ("no pasarme del presupuesto"). Y "si x &gt; 5, entonces y = 2x" es, en código, un <em>if</em> con comparación: álgebra y lógica son el mismo pensamiento.</p>
+        </article>
+
+        <article class="sec" id="rf">
+          <div class="sec-no">★</div>
+          <h3>Fórmulas de bolsillo</h3>
+          <div class="formula-card"><span class="f-tag">Porcentaje de una cantidad</span><div class="f-body">x% de N = (x/100) × N</div></div>
+          <div class="formula-card"><span class="f-tag">Aumento relativo</span><div class="f-body">(nuevo − viejo) / viejo × 100</div></div>
+          <div class="formula-card"><span class="f-tag">Regla de tres (solo si la razón es constante)</span><div class="f-body">a/b = c/d → c = (a × d) / b</div></div>
+          <div class="formula-card"><span class="f-tag">Función lineal</span><div class="f-body">y = mx + b &nbsp;·&nbsp; m = (y₂ − y₁)/(x₂ − x₁)</div></div>
+          <div class="formula-card"><span class="f-tag">Despeje</span><div class="f-body">misma operación en ambos lados, hasta dejar la x sola</div></div>
+          <div class="def">
+            <span class="def-tag">Estrategia sugerida</span>
+            <p>Responde primero lo que sabes; marca los difíciles y vuelve a ellos. En los numéricos, revisa que la respuesta responda <em>exactamente</em> lo preguntado (¿pidieron GB, pesos, o el porcentaje relativo?). El tiempo es suficiente si no te estancas.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRÁCTICA (SIMULACRO) ==================== -->
+<section class="view" id="v-practica" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Simulacro ilimitado · no se califica</p>
+      <h2>Práctica tipo examen</h2>
+      <p class="sub">Ocho preguntas del mismo estilo que las del examen, con retroalimentación inmediata y reintentos ilimitados. Úsala para calentar y detectar dudas antes de entrar al examen real.</p>
+    </div>
+
+    <div id="prList"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnPrReset"><i data-lucide="rotate-ccw"></i>Nuevo simulacro (mezclar)</button>
+      <div class="quiz-result" id="prResult"></div>
+    </div>
+    <p class="note">El simulacro no pondera en la nota y no consume tu intento del examen: puedes repetirlo todas las veces que quieras.</p>
+  </div>
+</section>
+
+<!-- ==================== EXAMEN ==================== -->
+<section class="view" id="v-examen" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Evaluación sumativa · un intento</p>
+      <h2>Examen parcial — sesiones 1 a 5</h2>
+      <p class="sub">Antes de iniciar, lee con calma la ficha técnica y la carta de honestidad académica. El examen arranca cuando la firmas: desde ese momento corre el cronómetro de 75 minutos y tus respuestas se guardan automáticamente.</p>
+    </div>
+
+    <!-- Estado: no iniciado -->
+    <div id="examStart">
+      <dl class="ficha">
+        <div><dt>Reactivos</dt><dd>20 (4 por sesión, en 4 secciones)</dd></div>
+        <div><dt>Calificación</dt><dd>3 pts por reactivo · 60 pts</dd></div>
+        <div><dt>Tiempo límite</dt><dd>75 minutos, con autoguardado</dd></div>
+        <div><dt>Intentos</dt><dd>Uno. La revisión se abre al entregar</dd></div>
+      </dl>
+
+      <div style="margin:22px 0">
+        <button class="btn ghost" id="btnFocus"><i data-lucide="wind"></i>Ejercicio de enfoque (1 min)</button>
+        <p class="hint" style="margin-top:8px">Tres respiraciones guiadas para bajar el pulso antes de empezar. Opcional, pero funciona.</p>
+      </div>
+
+      <div class="honor-box">
+        <h4>Carta de honestidad académica</h4>
+        <p>Declaro que realizaré este examen de manera individual, sin ayuda de otras personas, apuntes, buscadores ni herramientas de inteligencia artificial, y que registraré mis tiempos y resultados tal como ocurran. Entiendo que la nota es una referencia para mi aprendizaje y que su valor depende de que sea honesta.</p>
+        <label class="chk" style="margin-top:12px">
+          <input type="checkbox" id="honorChk">
+          <span>Firmo la carta de honestidad académica</span>
+        </label>
+      </div>
+
+      <button class="btn" id="btnStartExam" disabled><i data-lucide="play"></i>Iniciar examen (arranca el cronómetro)</button>
+      <p class="hint" style="margin-top:10px">Al presionar, el tiempo corre aunque cierres esta página. Si la recargas, retomarás donde ibas con el tiempo restante real.</p>
+    </div>
+
+    <!-- Estado: en curso -->
+    <div id="examRunning" hidden>
+      <div class="exam-meter">
+        <span class="timer-pill mono" id="timerPill">75:00</span>
+        <div class="meter"><div id="timerBar" style="width:100%"></div></div>
+        <span class="exam-progress" id="examProgress">0/20 respondidas</span>
+      </div>
+      <div id="examList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnSubmitExam"><i data-lucide="send"></i>Entregar examen</button>
+        <span class="hint">Puedes entregar antes de que acabe el tiempo. Al agotarse, se entrega automáticamente.</span>
+      </div>
+    </div>
+
+    <!-- Estado: terminado -->
+    <div id="examDone" hidden></div>
+  </div>
+
+  <!-- Modal de enfoque -->
+  <div class="focus-overlay" id="focusOverlay" hidden>
+    <div class="focus-card">
+      <h3 style="font-size:1.2rem">Enfoque en tres respiraciones</h3>
+      <div class="breath-circle"></div>
+      <p class="breath-text">Sigue el círculo: crece mientras inhalas (4s), se sostiene (4s), decrece mientras exhalas (4s).</p>
+      <div class="focus-timer mono" id="focusTimer">01:00</div>
+      <button class="btn ghost sm" id="btnFocusClose" style="margin-top:18px">Cerrar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CIERRE ==================== -->
+<section class="view" id="v-cierre" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Zona de cierre · retroalimentación en plenaria</p>
+      <h2>Reflexión post-examen</h2>
+      <p class="sub">Conocido tu resultado, la parte más valiosa empieza: convertir el examen en información para el segundo parcial. La planeación pide dos cosas: registrar una fortaleza y un aspecto por mejorar.</p>
+    </div>
+
+    <!-- Guía de plenaria (docente) -->
+    <div class="act-block">
+      <h3>Retroalimentación en plenaria</h3>
+      <span class="pill-flag"><i data-lucide="users"></i>Para conducir en clase — los reactivos de mayor complejidad</span>
+      <p class="act-desc" style="max-width:72ch">Al revisar el examen en plenaria, dedica tiempo especial a tres reactivos que suelen costar más: el <strong>R10</strong> (ad hominem: el ataque va a la persona, no al argumento), el <strong>R14</strong> (de 30% a 45%: 15 puntos porcentuales = 50% de aumento relativo) y el <strong>R19</strong> (punto de equilibrio entre dos planes: igualar las dos funciones y despejar). Pedir a quien los acertó que explique su razonamiento en voz alta multiplica el valor del cierre.</p>
+    </div>
+
+    <!-- Rúbrica -->
+    <div class="act-block">
+      <h3>Ponderación de la sesión</h3>
+      <span class="pill-flag"><i data-lucide="alert-triangle"></i>Propuesta preliminar — pendiente de validación en Academia (colegiada)</span>
+      <p class="act-desc">Esta ponderación cubre solo los instrumentos de esta sesión.</p>
+      <div class="rub-row"><span class="rub-name">Examen parcial (20 reactivos × 3 pts)</span><div class="rub-bar"><div style="width:80%"></div></div><span class="rub-pct">80%</span></div>
+      <div class="rub-row"><span class="rub-name">Reflexión post-examen (fortaleza + aspecto)</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">20%</span></div>
+    </div>
+
+    <!-- Reflexión -->
+    <div class="act-block">
+      <h3>Tu reflexión de cierre</h3>
+      <p class="act-desc">Dos campos breves, con tus palabras. Se guarda junto con tu registro y te servirá al preparar el segundo parcial. La reflexión vale 15 de los 75 puntos autoevaluables de esta sesión.</p>
+      <div class="task-panel">
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="brain"></i>Fortaleza detectada</div>
+          <div class="panel-body">
+            <div id="reflexionEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu reflexión.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="reflexionForm" hidden>
+              <div class="field" style="margin-bottom:14px">
+                <label for="refFortaleza">¿Qué fue lo que mejor se te dio? ¿Por qué crees que fue así?</label>
+                <textarea id="refFortaleza" maxlength="500" placeholder="Ej. Los reactivos de porcentajes me salieron rápido porque…"></textarea>
+              </div>
+              <div class="field" style="margin-bottom:14px">
+                <label for="refMejora">¿Cuál es tu aspecto por mejorar y qué harás distinto antes del segundo parcial?</label>
+                <textarea id="refMejora" maxlength="500" placeholder="Ej. Se me trabó el despeje con negativos; voy a…"></textarea>
+              </div>
+              <button class="btn" id="btnSaveReflexion" style="width:100%;justify-content:center"><i data-lucide="save"></i>Guardar mi reflexión</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="list-checks"></i>Compromisos de aprendizaje</div>
+          <div class="panel-body">
+            <p class="hint" style="margin-bottom:12px">Márcalos conforme los asumas. Se guardan junto con tu registro.</p>
+            <div id="compromisosList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Registro individual</p>
+      <h2>Registro y monitoreo de avance</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
+    </div>
+
+    <div class="storage-note" id="storageNote">
+      <i data-lucide="info"></i>
+      <span>Verificando almacenamiento disponible…</span>
+    </div>
+
+    <div style="max-width:480px" id="perfilForm">
+      <div class="panel">
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
+        <div class="panel-body">
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
+            <div class="field">
+              <label for="pNombre">Nombre completo</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
+            </div>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilDash" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div><strong>Sesión 6 · Primer examen parcial (sesiones 1 a 5).</strong><br>Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1.</div>
+    <div style="max-width:420px">Evaluación sumativa de un intento, cronometrada y con autoguardado. El control de condiciones (individual, sin apoyos) se realiza en el aula; esta herramienta registra el proceso.</div>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<!-- ============================================================
+     >>> AQUÍ PEGARÁS LA PARTE 2 <<<
+     (el bloque <script> completo con toda la lógica,
+     sin CDN de lucide — los iconos van incrustados)
+============================================================ -->
+<script>
+/* ============================================================
+   ICONOS SIN INTERNET — sustituye al CDN de lucide.
+============================================================ */
+(function(){
+  if(window.lucide && window.lucide.createIcons) return;
+  var P = {
+    'scale':'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+    'home':'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    'book-open':'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'dumbbell':'<path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l1.767-1.768a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/>',
+    'clipboard-check':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'clipboard-list':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'award':'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+    'arrow-right':'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'wind':'<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>',
+    'play':'<polygon points="5 3 19 12 5 21 5 3"/>',
+    'send':'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+    'check-check':'<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+    'rotate-ccw':'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    'check':'<path d="M20 6 9 17l-5-5"/>',
+    'circle':'<circle cx="12" cy="12" r="10"/>',
+    'user-plus':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'users':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'save':'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+    'list-checks':'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+    'brain':'<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>',
+    'pencil':'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+    'download':'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'info':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'alert-triangle':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'check-circle-2':'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    'alert-circle':'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'shield-check':'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>'
+  };
+  function createIcons(){
+    var nodes = document.querySelectorAll('i[data-lucide]');
+    for(var k=0;k<nodes.length;k++){
+      var el = nodes[k];
+      var name = el.getAttribute('data-lucide');
+      var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 24 24');
+      svg.setAttribute('fill','none');
+      svg.setAttribute('stroke','currentColor');
+      svg.setAttribute('stroke-width','2');
+      svg.setAttribute('stroke-linecap','round');
+      svg.setAttribute('stroke-linejoin','round');
+      svg.setAttribute('class','lucide');
+      svg.innerHTML = P[name] || '<circle cx="12" cy="12" r="9"/>';
+      el.replaceWith(svg);
+    }
+  }
+  window.lucide = { createIcons: createIcons };
+})();
+</script>
+<script>
+/* ============================================================
+   UTILIDADES
+============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, type='ok'){
+  const box=$('#toasts'), t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML = `<i data-lucide="${type==='ok'?'check-circle-2':'alert-circle'}"></i><span>${esc(msg)}</span>`;
+  box.appendChild(t); refreshIcons();
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 320); }, 3200);
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ============================================================
+   NAVEGACIÓN DE VISTAS
+============================================================ */
+function showView(v){
+  $$('.view').forEach(s => s.hidden = true);
+  $('#v-'+v).hidden = false;
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='perfil') renderPerfil();
+  if(v==='cierre') refreshReflexionPanel();
+  if(v==='examen') renderExamState();
+}
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
+
+/* ============================================================
+   ALMACENAMIENTO (window.storage con respaldo en memoria)
+============================================================ */
+const memStore = new Map();
+function hasWS(){ return typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'; }
+async function stGet(key){
+  if(hasWS()){
+    try{ const r = await window.storage.get(key); return r ? r.value : null; }
+    catch(e){ return null; }
+  }
+  return memStore.has(key) ? memStore.get(key) : null;
+}
+async function stSet(key, value){
+  if(hasWS()){
+    try{ await window.storage.set(key, value); return true; }
+    catch(e){ return false; }
+  }
+  memStore.set(key, value); return true;
+}
+async function stDelete(key){
+  if(hasWS()){
+    try{ await window.storage.delete(key); return true; }
+    catch(e){ return false; }
+  }
+  memStore.delete(key); return true;
+}
+async function loadJSON(key, fallback){
+  const v = await stGet(key);
+  if(v==null) return fallback;
+  try{ return JSON.parse(v); }catch(e){ return fallback; }
+}
+async function saveJSON(key, obj){ return stSet(key, JSON.stringify(obj)); }
+
+const PERFIL_KEY = 'perfilAlumno';
+const K = {
+  practica:'s6_practica',
+  exam:'s6_examen',
+  reflexion:'s6_reflexion',
+  compromisos:'s6_compromisos'
+};
+
+/* ============================================================
+   SIMULACRO DE PRÁCTICA (banco de 10, se presentan 8 al azar)
+============================================================ */
+const PR_POOL=[
+ {q:'¿Cuál de estas palabras suele anunciar una PREMISA?',
+  opts:['por lo tanto','en consecuencia','ya que','así que'], a:2,
+  ex:'"Ya que" (como "porque" y "puesto que") introduce la razón; los otros tres anuncian conclusión.'},
+ {q:'"El agua hierve a 100 °C a nivel del mar porque ahí su presión de vapor iguala a la atmosférica." Este texto es…',
+  opts:['un argumento: defiende que el agua hierve','una explicación: da el porqué de algo ya aceptado','una narración de hechos','una falacia'], a:1,
+  ex:'Nadie duda de que el agua hierve a 100 °C; el "porque" solo explica la causa. Explicar no es argumentar.'},
+ {q:'"Todo lo que es pez vive en árboles. El salmón es un pez. Por lo tanto, el salmón vive en árboles." Este argumento es…',
+  opts:['inválido, porque la conclusión es falsa','válido pero no sólido: la forma es correcta, la premisa es falsa','sólido','fuerte'], a:1,
+  ex:'La forma "todo X es Y; esto es X; luego es Y" es válida siempre. Que la premisa sea absurda lo hace no sólido, no inválido.'},
+ {q:'"Fuerte" y "débil" son los calificativos correctos para…',
+  opts:['argumentos deductivos','argumentos inductivos','cualquier argumento','solo definiciones'], a:1,
+  ex:'A lo inductivo se le dice fuerte/débil (probabilidad); a lo deductivo, válido/inválido y sólido (necesidad).'},
+ {q:'¿Cuánto es 85% de 40 personas?',
+  opts:['30','34','38','3.4'], a:1,
+  ex:'0.85 × 40 = 34. El porcentaje es la razón 85/100 multiplicada por la base.'},
+ {q:'Un precio sube 20%. ¿Qué fracción del NUEVO precio representa el aumento?',
+  opts:['1/5','1/6','1/10','1/12'], a:1,
+  ex:'Con precio viejo 100: nuevo 120, aumento 20 → 20/120 = 1/6. Cambiar de base cambia la fracción.'},
+ {q:'El apoyo a una propuesta pasó de 40% a 50% de las y los encuestados. Eso significa…',
+  opts:['un aumento de 10% relativo','un aumento de 10 puntos porcentuales, o 25% relativo','un aumento de 50%','que no se puede saber'], a:1,
+  ex:'50 − 40 = 10 puntos porcentuales; en relativo, 10/40 = 25%. Dos bases, dos cifras.'},
+ {q:'Si 5 kg de café cuestan $180, ¿cuánto cuestan 8 kg?',
+  opts:['$288','$144','$250','$28'], a:0,
+  ex:'x = (8 × 180)/5 = 288. La razón 36 $/kg es constante: regla de tres legítima.'},
+ {q:'El costo de un plan es C(g) = 150 + 2g. ¿Qué es C(10) = 170?',
+  opts:['El costo de 10 GB: $170','La pendiente de la recta','El cargo fijo','El máximo permitido'], a:0,
+  ex:'Evaluar es sustituir g = 10: 150 + 2×10 = 170. La función responde "¿cuánto cuesto para este consumo?".'},
+ {q:'En y = mx + b, la pendiente m nos dice…',
+  opts:['cuánto cambia y cuando x aumenta en 1','el valor de y cuando x = 0','dónde termina la recta','el promedio de los datos'], a:0,
+  ex:'m es el ritmo de cambio (tarifa por unidad); el valor en x = 0 es b (cargo fijo).'}
+];
+let prItems=[], prAns=[], prScore=0;
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+function renderPractica(){
+  prItems = shuffle(PR_POOL).slice(0,8);
+  prAns = prItems.map(()=>null);
+  prScore = 0;
+  $('#prList').innerHTML = prItems.map((q,i)=>`
+    <div class="pr-item" data-i="${i}">
+      <div class="pr-text"><span class="qnum mono" style="margin-right:10px">S${i+1}</span>${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button type="button" class="opt" data-i="${i}" data-j="${j}">
+          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
+        </button>`).join('')}
+      </div>
+      <div class="pr-fb"></div>
+    </div>`).join('');
+  $('#prResult').innerHTML='';
+  refreshIcons();
+}
+ $('#prList').addEventListener('click', async e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const card = b.closest('.pr-item');
+  if(card.classList.contains('graded')) return;
+  const i = +b.dataset.i, j = +b.dataset.j, q = prItems[i];
+  card.classList.add('graded');
+  prAns[i]=j;
+  card.querySelectorAll('.opt').forEach((x,k)=>{
+    x.classList.add('locked');
+    if(k===q.a) x.classList.add('is-correct');
+    else if(k===j) x.classList.add('is-wrong');
+  });
+  const ok = j===q.a; if(ok) prScore++;
+  const fb = card.querySelector('.pr-fb');
+  fb.className = 'pr-fb show '+(ok?'ok':'bad');
+  fb.innerHTML = (ok?'✔ Correcto. ':'✕ La correcta era '+String.fromCharCode(65+q.a)+'. ') + q.ex;
+  const answered = prAns.filter(v=>v!==null).length;
+  $('#prResult').innerHTML=`<strong>${prScore}/${answered}</strong> aciertos acumulados${answered===8?' · simulacro completo':''}`;
+  if(answered===8){
+    await saveJSON(K.practica,{done:true, lastScore:prScore, ts:Date.now()});
+    updateAvance();
+  }
+});
+ $('#btnPrReset').addEventListener('click', ()=>{ renderPractica(); });
+
+/* ============================================================
+   BANCO DEL EXAMEN — 20 reactivos (3 pts c/u = 60 pts)
+   type:'mc' = opción múltiple · type:'num' = entrada numérica
+============================================================ */
+const SECCIONES=[
+  {letra:'A', titulo:'Sección A · Sesiones 1 y 2 · Anatomía, verdad y validez'},
+  {letra:'B', titulo:'Sección B · Sesión 3 · Deducción, inducción y falacias'},
+  {letra:'C', titulo:'Sección C · Sesión 4 · Porcentajes y regla de tres'},
+  {letra:'D', titulo:'Sección D · Sesión 5 · Álgebra, funciones y modelado'}
+];
+const EXAM=[
+ /* A */
+ {sec:0, type:'mc', q:'En un argumento, una premisa es…',
+  opts:['la afirmación que se busca sostener','un enunciado que se ofrece como razón para aceptar otro','cualquier oración con verbo','una opinión sin respaldo'], a:1,
+  ex:'La premisa es la razón; la conclusión, lo que esa razón busca sostener.'},
+ {sec:0, type:'mc', q:'"El cielo estaba nublado esta mañana y, después, salió el sol." Este texto es principalmente…',
+  opts:['un argumento','una narración/descripción de hechos','una definición','una inecuación'], a:1,
+  ex:'Relata hechos en secuencia sin defender afirmación disputada: no hay conclusión que sostener.'},
+ {sec:0, type:'mc', q:'¿Cuál de estas expresiones suele anunciar una CONCLUSIÓN?',
+  opts:['puesto que','dado que','por lo tanto','ya que'], a:2,
+  ex:'"Por lo tanto" (y "en consecuencia", "así que") introduce lo sostenido; las otras tres introducen razones.'},
+ {sec:0, type:'mc', q:'Un argumento VÁLIDO con al menos una premisa falsa es…',
+  opts:['inválido automáticamente','válido pero no sólido','sólido','un argumento fuerte'], a:1,
+  ex:'La validez depende de la forma; la premisa falsa rompe la solidez, no la validez.'},
+ {sec:0, type:'mc', q:'"Todos los gatos son mamíferos. Todos los perros son mamíferos. Por lo tanto, todos los gatos son perros." Este argumento es…',
+  opts:['válido y sólido','válido pero no sólido','inválido, aunque ambas premisas son verdaderas','fuerte'], a:2,
+  ex:'Premisas verdaderas no garantizan validez: la forma no conecta bien los términos.'},
+ {sec:0, type:'mc', q:'"Sólido" es la etiqueta para un argumento que es…',
+  opts:['válido y con todas sus premisas verdaderas','difícil de refutar','popular y repetido','inductivo con buena muestra'], a:0,
+  ex:'Sólido = válido + todas las premisas verdaderas → conclusión garantizada.'},
+ /* B */
+ {sec:1, type:'mc', q:'"Las últimas seis veces que la cafetería sirvió tamales se agotaron antes de las 11. Hoy sirven tamales; probablemente se agotarán antes de las 11." Este argumento es…',
+  opts:['deductivo','inductivo: extrapola casos pasados a un caso nuevo','una explicación causal','inválido por definición'], a:1,
+  ex:'Apuesta por un caso no observado: inducción. Su fuerza depende de las seis ocasiones previas.'},
+ {sec:1, type:'mc', q:'¿Cuál cambio haría MÁS FUERTE la generalización "Probé 5 galletas de la bolsa y todas tienen chispas; todas tienen chispas"?',
+  opts:['probar 5 más, todas de la orilla superior','probar 30 elegidas al azar de toda la bolsa','concluir lo mismo para todas las marcas','no hay cambio posible'], a:1,
+  ex:'Tamaño y representatividad suben la fuerza; ampliar el alcance (todas las marcas) la bajaría.'},
+ {sec:1, type:'mc', q:'"9 de cada 10 médicos recomiendan X" (preguntamos a 10 médicos de un solo hospital). Como generalización, este argumento es…',
+  opts:['fuerte, porque la base está explícita','débil: muestra muy pequeña y no representativa','deductivo','una explicación'], a:1,
+  ex:'Base explícita pero muestra de 10 personas de un solo lugar: la fuerza se derrumba.'},
+ {sec:1, type:'mc', q:'En un debate, alguien responde a los datos con "¿qué va a saber un recién egresado?". Ese giro comete…',
+  opts:['una generalización apresurada','una falacia ad hominem: ataca a la persona, no al argumento','una regla de tres','un silogismo válido'], a:1,
+  ex:'Descalificar al emisor en lugar de evaluar su evidencia es la falacia de relevancia ad hominem.'},
+ /* C */
+ {sec:2, type:'num', q:'¿Cuánto es 85% de 40 personas? (solo el número)', a:34, tol:0.001,
+  ex:'0.85 × 40 = 34. Respuesta correcta: 34.'},
+ {sec:2, type:'mc', q:'Un precio sube 20%. ¿Qué fracción del NUEVO precio representa el aumento?',
+  opts:['1/5','1/6','1/10','1/12'], a:1,
+  ex:'Viejo 100 → nuevo 120, aumento 20 → 20/120 = 1/6. El "20%" inicial vivía en otra base.'},
+ {sec:2, type:'num', q:'Si 5 kg de café cuestan $80, ¿cuánto cuestan 8 kg? (solo el número)', a:128, tol:0.001,
+  ex:'x = (8 × 80)/5 = 128. Respuesta correcta: 128.'},
+ {sec:2, type:'mc', q:'El apoyo a un proyecto pasó de 30% a 45% de las y los encuestados. La lectura correcta es…',
+  opts:['subió 15% en términos relativos','subió 15 puntos porcentuales, equivalentes a un aumento relativo de 50%','subió 45%','no se puede saber sin nombres'], a:1,
+  ex:'45 − 30 = 15 puntos; en relativo, 15/30 = 50%. La base cambia de 30 a 45.'},
+ /* D */
+ {sec:3, type:'num', q:'Si C(g) = 150 + 2g, ¿cuánto es C(12)? (solo el número)', a:174, tol:0.001,
+  ex:'150 + 2×12 = 174. Respuesta correcta: 174.'},
+ {sec:3, type:'mc', q:'En y = mx + b, la ordenada al origen b representa…',
+  opts:['cuánto cambia y por cada unidad de x','el valor de y cuando x = 0 (el punto de partida)','el cruce con el eje x','la pendiente'], a:1,
+  ex:'En el plan de datos, b = 150: lo que pagas antes de consumir nada.'},
+ {sec:3, type:'num', q:'Despeja x en 4x + 9 = 33. (solo el número)', a:6, tol:0.001,
+  ex:'4x = 33 − 9 = 24 → x = 6. Restaste 9 y dividiste entre 4, ambos lados.'},
+ {sec:3, type:'mc', q:'Con presupuesto de $200 y plan C(g) = 150 + 2g, la condición "no pasarme del presupuesto" se escribe…',
+  opts:['150 + 2g = 200','150 + 2g ≥ 200','150 + 2g ≤ 200','2g = 200'], a:2,
+  ex:'"A lo más" es ≤. Su solución, g ≤ 25, es el conjunto de consumos permitidos.'},
+ {sec:3, type:'mc', q:'Plan A: C(g) = 150 + 2g. Plan B: C(g) = 200 + 1g. ¿Desde cuántos GB conviene el B?',
+  opts:['desde 25 GB','desde 50 GB','desde 100 GB','nunca conviene'], a:1,
+  ex:'150 + 2g = 200 + g → g = 50. Con más de 50 GB la tarifa menor del B gana.'},
+ {sec:3, type:'mc', q:'"Si x > 5, entonces y = 2x" escrito en un programa sería…',
+  opts:['y = 2*x sin condición','if (x > 5) { y = 2*x; }','un comentario','y = 5x'], a:1,
+  ex:'La condición lógica se traduce directo a una estructura condicional con comparación: el puente que formalizaremos en la sesión 9.'}
+];
+
+/* ============================================================
+   EXAMEN — MÁQUINA DE ESTADOS
+============================================================ */
+const EXAM_MS = 75*60*1000;
+let examState = null;          // {started,startTs,deadlineTs,submitted,submittedTs,score,auto,ans,elapsedMs}
+let timerInt = null;
+let confirmSubmit = false;
+
+function emptyAns(){ return EXAM.map(()=>null); }
+
+async function renderExamState(){
+  examState = await loadJSON(K.exam,null);
+  $('#examStart').hidden    = !!(examState && (examState.started || examState.submitted));
+  $('#examRunning').hidden  = true;
+  $('#examDone').hidden     = true;
+  if(!examState || !examState.started){
+    $('#examStart').hidden = false;
+    refreshIcons();
+    return;
+  }
+  if(examState.submitted){
+    renderExamDone();
+    return;
+  }
+  const remaining = examState.deadlineTs - Date.now();
+  if(remaining <= 0){
+    await submitExam(true);
+    return;
+  }
+  $('#examRunning').hidden = false;
+  renderExamQuestions(false);
+  startTimer(remaining);
+}
+
+function qHTML(q,i,reviewMode,chosen){
+  const head = `<header><span class="qnum mono">R${i+1}</span><span class="q-text">${q.q}</span></header>`;
+  if(q.type==='mc'){
+    const opts = q.opts.map((o,j)=>{
+      let cls='opt';
+      if(reviewMode){
+        cls+=' locked';
+        if(j===q.a) cls+=' is-correct';
+        else if(chosen===j) cls+=' is-wrong';
+      }
+      return `<button type="button" class="${cls}" data-i="${i}" data-j="${j}" ${reviewMode?'disabled':''}>
+        <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span></button>`;
+    }).join('');
+    return `<div class="quiz-q" data-i="${i}">${head}<div class="opts">${opts}</div><div class="explain" hidden>${q.ex}</div></div>`;
+  }
+  const val = chosen!=null ? chosen : '';
+  const cls = reviewMode ? (Math.abs(parseFloat(val)-q.a)<q.tol ? 'is-correct':'is-wrong') : '';
+  return `<div class="quiz-q" data-i="${i}">${head}
+    <div class="opts" style="max-width:240px;margin-left:56px">
+      <div class="field"><label for="exnum${i}">Tu respuesta</label>
+      <input id="exnum${i}" data-i="${i}" type="number" inputmode="decimal" placeholder="Solo el número" value="${val}" class="${cls}" ${reviewMode?'disabled':''}></div>
+      <div class="explain" hidden></div>
+    </div></div>`;
+}
+function renderExamQuestions(reviewMode){
+  let html='';
+  SECCIONES.forEach((s,si)=>{
+    html += `<div class="exam-section"><h3>${s.titulo}</h3><span class="hint">${EXAM.filter(q=>q.sec===si).length} reactivos · 3 pts c/u</span></div>`;
+    EXAM.forEach((q,i)=>{ if(q.sec===si) html += qHTML(q,i,reviewMode,examState.ans[i]); });
+  });
+  $('#examList').innerHTML = html;
+  updateExamProgress();
+  refreshIcons();
+}
+function updateExamProgress(){
+  const n = EXAM.reduce((s,q,i)=> s + (answeredIdx(i)?1:0), 0);
+  $('#examProgress').textContent = `${n}/20 respondidas`;
+}
+function answeredIdx(i){
+  const v = examState.ans[i];
+  if(v===null || v===undefined) return false;
+  if(EXAM[i].type==='num') return String(v).trim()!=='';
+  return true;
+}
+ $('#examList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b || b.disabled) return;
+  const i = +b.dataset.i;
+  examState.ans[i] = +b.dataset.j;
+  b.closest('.quiz-q').querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+  persistAnswers(); updateExamProgress();
+});
+ $('#examList').addEventListener('input', e=>{
+  const inp = e.target.closest('input[data-i]'); if(!inp) return;
+  examState.ans[+inp.dataset.i] = inp.value;
+  persistAnswers(); updateExamProgress();
+});
+let persistT=null;
+function persistAnswers(){
+  if(persistT) return;
+  persistT = setTimeout(async ()=>{
+    persistT=null;
+    await saveJSON(K.exam, examState);
+  }, 400);
+}
+
+/* --- Timer --- */
+function fmtMS(ms){
+  const s=Math.max(0,Math.floor(ms/1000));
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+function startTimer(remaining){
+  stopTimer();
+  const deadline = Date.now()+remaining;
+  const tick = ()=>{
+    const rem = deadline - Date.now();
+    const pill=$('#timerPill'), bar=$('#timerBar');
+    if(rem<=0){
+      pill.textContent='00:00'; bar.style.width='0%';
+      stopTimer();
+      submitExam(true);
+      return;
+    }
+    pill.textContent = fmtMS(rem);
+    bar.style.width = (rem/EXAM_MS*100)+'%';
+    if(rem < 10*60*1000){ pill.classList.add('low'); bar.firstElementChild && bar.firstElementChild.classList.add('low'); bar.classList.add('low'); }
+  };
+  tick();
+  timerInt = setInterval(tick,1000);
+}
+function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt=null; } }
+
+/* --- Inicio --- */
+ $('#honorChk').addEventListener('change', e=>{
+  $('#btnStartExam').disabled = !e.target.checked;
+});
+ $('#btnFocus').addEventListener('click', ()=>{
+  $('#focusOverlay').hidden=false;
+  let left=60;
+  $('#focusTimer').textContent='01:00';
+  focusInt = setInterval(()=>{
+    left--;
+    $('#focusTimer').textContent = '00:'+String(left).padStart(2,'0');
+    if(left<=0){ clearInterval(focusInt); focusInt=null; $('#focusOverlay').hidden=true; }
+  },1000);
+});
+let focusInt=null;
+ $('#btnFocusClose').addEventListener('click', ()=>{
+  if(focusInt){ clearInterval(focusInt); focusInt=null; }
+  $('#focusOverlay').hidden=true;
+});
+ $('#btnStartExam').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero en Registro y nota del alumno.','err'); showView('perfil'); return; }
+  const now=Date.now();
+  examState = {started:true, startTs:now, deadlineTs:now+EXAM_MS, submitted:false, ans:emptyAns()};
+  await saveJSON(K.exam, examState);
+  $('#examStart').hidden=true;
+  $('#examRunning').hidden=false;
+  renderExamQuestions(false);
+  startTimer(EXAM_MS);
+  toast('Examen iniciado. El cronómetro corre — mucho ánimo.');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* --- Entrega --- */
+ $('#btnSubmitExam').addEventListener('click', ()=>{
+  const missing = EXAM.reduce((s,q,i)=> s + (answeredIdx(i)?0:1), 0);
+  if(missing>0 && !confirmSubmit){
+    confirmSubmit=true;
+    $('#btnSubmitExam').innerHTML = `<i data-lucide="send"></i>Entregar de todas formas (${missing} sin responder)`;
+    refreshIcons();
+    toast(`Tienes ${missing} reactivo${missing>1?'s':''} sin responder. Presiona de nuevo para entregar así.`,'err');
+    return;
+  }
+  submitExam(false);
+});
+async function submitExam(auto){
+  stopTimer();
+  let score=0;
+  const secScore=[0,0,0,0], secMax=[0,0,0,0];
+  EXAM.forEach((q,i)=>{
+    secMax[q.sec]+=3;
+    const v=examState.ans[i];
+    let ok=false;
+    if(q.type==='mc') ok = v===q.a;
+    else ok = v!=null && String(v).trim()!=='' && Math.abs(parseFloat(v)-q.a)<q.tol;
+    if(ok){ score+=3; secScore[q.sec]+=3; }
+  });
+  examState.submitted=true;
+  examState.submittedTs=Date.now();
+  examState.score=score;
+  examState.secScore=secScore;
+  examState.secMax=secMax;
+  examState.auto=!!auto;
+  examState.elapsedMs=Math.min(EXAM_MS, Date.now()-examState.startTs);
+  await saveJSON(K.exam, examState);
+  renderExamDone();
+  updateAvance();
+  toast(auto?'Tiempo agotado: el examen se entregó automáticamente.':'Examen entregado. Revisión disponible abajo.');
+}
+
+/* --- Revisión --- */
+function renderExamDone(){
+  $('#examStart').hidden=true;
+  $('#examRunning').hidden=true;
+  const done=$('#examDone');
+  done.hidden=false;
+  const st=examState;
+  const pct=Math.round(st.score/60*100);
+  const low = st.score<36;
+  const msg = st.score>=51?'Dominio sólido del primer bloque del curso.'
+            : st.score>=42?'Buen desempeño: repasa las secciones con menos aciertos.'
+            : st.score>=30?'Desempeño en proceso: conviene reforzar antes del segundo parcial.'
+            : 'Agenda asesoría con tu docente y repasa desde la sesión 1.';
+  const mins = Math.round(st.elapsedMs/60000);
+  done.innerHTML = `
+    <div class="verdict">
+      <div class="v-big ${low?'low':''}">${st.score} / 60</div>
+      <div class="v-sub">${pct}% · ${msg}</div>
+      <div class="v-sub">Usaste ${mins} de 75 min · ${st.auto?'entrega automática por tiempo':'entrega voluntaria'} · ${new Date(st.submittedTs).toLocaleString('es-MX')}</div>
+      <div style="margin-top:14px;display:grid;gap:8px">
+        ${SECCIONES.map((s,si)=>`
+          <div class="result-row" style="grid-template-columns:280px 1fr 110px;font-size:13px">
+            <div>${s.letra} · ${s.titulo.split('· ')[1]}</div>
+            <div class="rub-bar"><div style="width:${Math.round(st.secScore[si]/st.secMax[si]*100)}%"></div></div>
+            <span class="status-b ${st.secScore[si]>=st.secMax[si]*.7?'done':'pend'}">${st.secScore[si]} / ${st.secMax[si]} pts</span>
+          </div>`).join('')}
+      </div>
+      <div class="doc-note"><strong>Para la plenaria:</strong> los reactivos R10, R14 y R19 suelen costar más; revisa sus explicaciones abajo y lleva tus dudas al cierre.</div>
+    </div>
+    <div class="quiz-foot">
+      <button class="btn ghost" data-view="cierre"><i data-lucide="clipboard-list"></i>Ir al cierre: tu fortaleza y tu aspecto por mejorar</button>
+    </div>
+    <h3 style="margin:30px 0 4px">Revisión razonada</h3>
+    <p class="hint" style="margin-bottom:10px">En verde, la respuesta correcta; en naranja, la tuya si fue distinta.</p>
+    <div id="examList"></div>`;
+  renderExamQuestions(true);
+  // explica los numéricos
+  EXAM.forEach((q,i)=>{
+    if(q.type!=='num') return;
+    const card=done.querySelector(`.quiz-q[data-i="${i}"]`);
+    const ex=card.querySelector('.explain');
+    ex.hidden=false;
+    ex.textContent=q.ex;
+  });
+  refreshIcons();
+  done.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ============================================================
+   CIERRE — REFLEXIÓN Y COMPROMISOS
+============================================================ */
+const COMPROMISOS=[
+  'Repasaré las secciones con menos aciertos usando los archivos de esas sesiones.',
+  'Llevaré mis dudas de R10, R14 o R19 a la plenaria de cierre.',
+  'Antes del segundo parcial haré al menos tres simulacros completos.',
+  'Registraré mi reflexión de fortaleza y aspecto por mejorar hoy mismo.'
+];
+async function renderCompromisos(){
+  const done = await loadJSON(K.compromisos,[]);
+  $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
+    <label class="chk ${done.includes(i)?'done':''}">
+      <input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}>
+      <span>${c}</span>
+    </label>`).join('');
+}
+ $('#compromisosList').addEventListener('change', async e=>{
+  const cb = e.target.closest('input[type=checkbox]'); if(!cb) return;
+  const done = new Set(await loadJSON(K.compromisos,[]));
+  const i = +cb.dataset.i;
+  cb.checked ? done.add(i) : done.delete(i);
+  cb.closest('.chk').classList.toggle('done', cb.checked);
+  await saveJSON(K.compromisos, [...done].sort((a,b)=>a-b));
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+ $('#btnSaveReflexion').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero.','err'); showView('perfil'); return; }
+  const ex = await loadJSON(K.exam,null);
+  if(!ex || !ex.submitted){ toast('Realiza y entrega el examen antes de guardar tu reflexión.','err'); showView('examen'); return; }
+  const f=$('#refFortaleza').value.trim(), m=$('#refMejora').value.trim();
+  if(f.length<10 || m.length<10){ toast('Desarrolla ambos campos (mínimo unas líneas).','err'); return; }
+  await saveJSON(K.reflexion,{fortaleza:f, mejora:m, saved:true, ts:Date.now()});
+  toast('Reflexión guardada.');
+  updateAvance();
+  renderPerfil();
+});
+async function refreshReflexionPanel(){
+  const saved = await loadJSON(K.reflexion,null);
+  const has = !!perfil;
+  $('#reflexionEmpty').hidden = has;
+  $('#reflexionForm').hidden = !has;
+  if(saved && has){
+    $('#refFortaleza').value = saved.fortaleza||'';
+    $('#refMejora').value = saved.mejora||'';
+  }
+  refreshIcons();
+}
+
+/* ============================================================
+   PERFIL / REGISTRO
+============================================================ */
+let perfil = null;
+function initials(n){ return n.trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function fmtDate(ts){ return new Date(ts).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}); }
+
+function buildRows(exam,refl){
+  return [
+    {name:'Examen parcial (20 reactivos)', go:'examen', max:60,
+     pct:exam?exam.score/60:0, status:exam?'done':'pend',
+     pts:exam?exam.score:0,
+     detail:exam?`${exam.score}/60 · ${Math.round(exam.elapsedMs/60000)} min usados`:'Sin presentar'},
+    {name:'Reflexión post-examen', go:'cierre', max:15,
+     pct:(refl&&refl.saved)?1:0, status:(refl&&refl.saved)?'done':'pend',
+     pts:(refl&&refl.saved)?15:0,
+     detail:(refl&&refl.saved)?'Fortaleza y aspecto registrados':'Pendiente (tras entregar el examen)'}
+  ];
+}
+async function loadAll(){
+  return Promise.all([
+    loadJSON(K.exam,null), loadJSON(K.reflexion,null), loadJSON(K.compromisos,[]),
+    loadJSON(K.practica,null)
+  ]);
+}
+async function initPerfil(){
+  perfil = await loadJSON(PERFIL_KEY,null);
+  const note=$('#storageNote');
+  if(hasWS()){
+    note.innerHTML=`<i data-lucide="shield-check"></i><span><strong>Almacenamiento institucional disponible.</strong> Tu registro y tu avance se guardarán de forma persistente en tu cuenta.</span>`;
+  } else {
+    note.innerHTML=`<i data-lucide="alert-triangle"></i><span><strong>Sin almacenamiento persistente en este entorno.</strong> El registro vivirá solo en la memoria de esta pestaña; descarga tu evidencia antes de cerrar para no perder tu avance.</span>`;
+  }
+  renderPerfil();
+}
+async function renderPerfil(){
+  const form=$('#perfilForm'), dash=$('#perfilDash');
+  if(!perfil){ form.hidden=false; dash.hidden=true; refreshIcons(); return; }
+  form.hidden=true; dash.hidden=false;
+  const [exam,refl,comp,pract] = await loadAll();
+  const rows = buildRows(exam,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const pend = rows.filter(r=>r.status==='pend');
+  dash.innerHTML=`
+    <div class="result-id">
+      <div class="result-avatar">${esc(initials(perfil.nombre))}</div>
+      <div>
+        <div class="result-name">${esc(perfil.nombre)}</div>
+        <div class="result-mat">Matrícula ${esc(perfil.matricula)} · Registrado el ${fmtDate(perfil.ts)}</div>
+      </div>
+      <div class="panel-head-actions" style="margin-left:auto">
+        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i>Editar</button>
+        <button class="btn sm" data-action="download-evidence"><i data-lucide="download"></i>Descargar evidencia</button>
+      </div>
+    </div>
+    <div class="result-rows">
+      ${rows.map(r=>`
+        <div class="result-row">
+          <div><div class="result-name" style="font-size:14px">${r.name}</div><div class="result-mat">${r.detail}</div></div>
+          <div class="rub-bar"><div style="width:${Math.round(Math.min(1,r.pct)*100)}%"></div></div>
+          <span class="status-b ${r.status==='done'?'done':'pend'}" style="justify-self:end">${r.pts} / ${r.max} pts</span>
+        </div>`).join('')}
+    </div>
+    <div class="result-total"><span>Puntos de la sesión</span><strong>${total} / 75</strong></div>
+    <p class="hint" style="margin-bottom:22px">Los 25 puntos restantes corresponden a «Honestidad académica y autorregulación (eje Ser)», que evalúa tu docente en el aula${exam&&exam.submitted?` · Simulacro más reciente: ${pract?pract.lastScore+'/8':'sin realizar'}`:''}.</p>
+    <div class="panel">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        ${pend.length || (comp&&comp.length<COMPROMISOS.length) ? `
+        <div class="pending-list">
+          ${pend.map(r=>`
+            <div class="pending-item"><span><i data-lucide="circle"></i>${r.name}</span><button class="btn ghost sm" data-view="${r.go}">Ir</button></div>`).join('')}
+          ${comp && comp.length<COMPROMISOS.length ? `
+            <div class="pending-item"><span><i data-lucide="circle"></i>Compromisos de aprendizaje (${comp.length}/${COMPROMISOS.length} asumidos)</span><button class="btn ghost sm" data-view="cierre">Ir</button></div>`:''}
+        </div>` : `<p class="hint">Todo completo en esta sesión. <strong>¡Buen trabajo!</strong></p>`}
+      </div>
+    </div>`;
+  refreshIcons();
+}
+ $('#formPerfil').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<4){ toast('Escribe tu matrícula institucional.','err'); return; }
+  perfil = {nombre, matricula, ts: perfil?perfil.ts:Date.now()};
+  await saveJSON(PERFIL_KEY, perfil);
+  toast('Registro guardado.');
+  renderPerfil();
+});
+function enterEditMode(){
+  if(!perfil) return;
+  $('#pNombre').value = perfil.nombre;
+  $('#pMatricula').value = perfil.matricula;
+  $('#perfilDash').hidden = true;
+  $('#perfilForm').hidden = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG)
+============================================================ */
+async function generateEvidenceImage(){
+  if(!perfil){ toast('Regístrate primero para generar tu evidencia.','err'); return; }
+  const [exam,refl,comp,pract] = await loadAll();
+  const rows = buildRows(exam,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const W=1000, H=170 + rows.length*74 + 240;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  x.fillStyle='#f7f3eb'; x.fillRect(0,0,W,H);
+  x.fillStyle='#1c2b25'; x.fillRect(0,0,W,6); x.fillRect(0,H-6,W,6);
+  x.fillStyle='#c2542f'; x.font='700 13px "Instrument Sans", Arial';
+  x.fillText('RAZONAMIENTO LÓGICO-MATEMÁTICO · UNITI — LPID, MÓDULO 1',60,64);
+  x.fillStyle='#1c2b25'; x.font='600 30px Fraunces, Georgia, serif';
+  x.fillText('Sesión 6 · Primer examen parcial (sesiones 1–5)',60,104);
+  x.font='500 15px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.75)';
+  x.fillText(`${perfil.nombre} · Matrícula ${perfil.matricula} · ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,60,132);
+  let y=180;
+  rows.forEach(r=>{
+    x.fillStyle='#1c2b25'; x.font='600 15px "Instrument Sans", Arial'; x.fillText(r.name,60,y+18);
+    x.fillStyle='rgba(28,43,37,.55)'; x.font='400 12px "Instrument Sans", Arial'; x.fillText(r.detail,60,y+38);
+    const bx=430, bw=350;
+    x.strokeStyle='rgba(28,43,37,.4)'; x.lineWidth=1; x.strokeRect(bx,y+10,bw,12);
+    x.fillStyle=r.pct>0?'#1e4636':'rgba(28,43,37,.15)';
+    x.fillRect(bx+1,y+11,Math.max(0,(bw-2)*Math.min(1,r.pct)),10);
+    x.fillStyle='#1c2b25'; x.font='700 14px "Instrument Sans", Arial';
+    x.fillText(r.pts+' / '+r.max+' pts',810,y+21);
+    y+=74;
+  });
+  x.strokeStyle='#1c2b25'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(60,y); x.lineTo(W-60,y); x.stroke();
+  x.font='600 26px Fraunces, Georgia, serif'; x.fillStyle='#1e4636';
+  x.fillText(`Puntos de la sesión: ${total} / 75`,60,y+46);
+  x.font='400 13px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.6)';
+  x.fillText('Los 25 puntos restantes corresponden a «Honestidad académica y autorregulación (eje Ser)», evaluada en el aula.',60,y+72);
+  x.fillText(`Compromisos asumidos: ${comp?comp.length:0} de ${COMPROMISOS.length}${pract?` · Simulacro reciente: ${pract.lastScore}/8`:''}`,60,y+94);
+  if(exam && exam.submitted){
+    x.font='700 13px "Instrument Sans", Arial'; x.fillStyle='#1c2b25';
+    x.fillText(`Detalle por sección — A: ${exam.secScore[0]}/${exam.secMax[0]} · B: ${exam.secScore[1]}/${exam.secMax[1]} · C: ${exam.secScore[2]}/${exam.secMax[2]} · D: ${exam.secScore[3]}/${exam.secMax[3]}`,60,y+122);
+    x.font='italic 400 12px Fraunces, Georgia, serif';
+    x.fillText(`Entrega: ${exam.auto?'automática por tiempo':'voluntaria'} · ${Math.round(exam.elapsedMs/60000)} min de 75`,60,y+142);
+  }
+  const a=document.createElement('a');
+  a.download='evidencia-sesion6-'+perfil.matricula+'.png';
+  a.href=c.toDataURL('image/png');
+  a.click();
+  toast('Evidencia descargada.');
+}
+
+/* ============================================================
+   AVANCE (inicio)
+============================================================ */
+async function updateAvance(){
+  const [exam,refl,comp,pract] = await loadAll();
+  const flags=[ !!(pract&&pract.done), !!(exam&&exam.submitted), !!(refl&&refl.saved), (comp||[]).length>0 ];
+  const pct=Math.round(flags.filter(Boolean).length/flags.length*100);
+  const el=$('#statAvance'); if(el) el.textContent=pct+'%';
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+============================================================ */
+(async function init(){
+  renderPractica();
+  await renderCompromisos();
+  await initPerfil();
+  await updateAvance();
+  refreshIcons();
+})();
+</script>
+</body>
+</html>
