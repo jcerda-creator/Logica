@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 3 · Deducción e inducción — Razonamiento Lógico-Matemático</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+============================================================ */
+:root{
+  --paper:#f7f3eb;
+  --card:#fffdf8;
+  --ink:#1c2b25;
+  --pine:#1e4636;
+  --pine-soft:#2c5e49;
+  --terra:#c2542f;
+  --terra-soft:#f3e0d6;
+  --gold:#c9a227;
+  --gold-soft:#f2e8c9;
+  --gold-ink:#7a6210;
+  --line:rgba(28,43,37,.16);
+  --line-strong:rgba(28,43,37,.4);
+  --muted:rgba(28,43,37,.62);
+  --ok-bg:#e7efe6;
+  --err-bg:#f7e6dd;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:150px}
+[hidden]{display:none!important}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:radial-gradient(rgba(30,70,54,.075) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4,.display{font-family:'Fraunces',serif;font-weight:600;line-height:1.16;letter-spacing:-.01em}
+.overline{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra)}
+.mono{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--pine)}
+svg.lucide{width:16px;height:16px;stroke-width:2}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(247,243,235,.93);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--ink);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+.brand .brand-ico{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper)}
+.brand .brand-ico svg{width:17px;height:17px}
+.brand small{display:block;font-family:'Instrument Sans';font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.topbar-side{font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;color:var(--pine);
+  font-weight:600;font-size:13.5px;padding:8px 14px;border-radius:999px;
+  transition:all .18s ease;
+}
+.nav-btn svg{width:15px;height:15px}
+.nav-btn:hover{border-color:var(--line-strong)}
+.nav-btn.active{background:var(--ink);color:var(--paper)}
+
+/* ============================================================
+   VISTAS
+============================================================ */
+.view{padding:0 0 80px}
+.view-head{border-bottom:2px solid var(--ink);padding:52px 0 26px;margin-bottom:36px}
+.view-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 10px}
+.view-head p.sub{max-width:700px;color:var(--muted)}
+
+/* ============================================================
+   BOTONES / FORMULARIOS
+============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink);border-radius:10px;
+  padding:11px 18px;font-weight:600;font-size:14px;
+  transition:all .18s ease;
+}
+.btn:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(28,43,37,.06);transform:translateY(-1px)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:14px;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);
+  border-radius:8px;padding:10px 12px;width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.field select.is-correct,.caso-row select.is-correct,.ind-item select.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.field select.is-wrong,.caso-row select.is-wrong,.ind-item select.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+input[type="range"]{border:none!important;background:transparent!important;padding:0!important;box-shadow:none!important;accent-color:var(--pine);width:100%}
+.hint{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   INICIO / HERO
+============================================================ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:64px 0 56px}
+.hero h1{font-size:clamp(2.2rem,4.3vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero .lead{font-size:1.05rem;color:var(--muted);max-width:540px}
+.hero-actions{display:flex;gap:12px;margin:26px 0 30px;flex-wrap:wrap}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-strong);max-width:520px}
+.meta-grid>div{padding:12px 14px 12px 0;border-bottom:1px solid var(--line)}
+.meta-grid dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meta-grid dd{font-weight:600;font-size:14.5px}
+.hero-fig{border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--card);overflow:hidden;box-shadow:6px 6px 0 rgba(28,43,37,.12)}
+.hero-fig .diagram-box{padding:26px 20px 10px}
+.hero-fig figcaption{padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.home-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:44px;border-top:1.5px solid var(--ink);padding-top:38px}
+.route-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;border-top:1px solid var(--line);padding:22px 4px;cursor:pointer;transition:background .15s}
+.route-item:first-child{border-top:none}
+.route-item:hover{background:rgba(28,43,37,.045)}
+.route-no{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:400;color:rgba(30,70,54,.28)}
+.route-item h3{font-size:1.2rem;margin-bottom:4px}
+.route-item p{font-size:13.5px;color:var(--muted)}
+.route-go{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);transition:all .18s}
+.route-item:hover .route-go{background:var(--ink);color:var(--paper)}
+.side-stats{display:flex;flex-direction:column;gap:12px}
+.stat{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:14px 18px}
+.stat .num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;line-height:1}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* ============================================================
+   DIAGRAMA DE LOS DOS CAMINOS (SVG del héroe)
+============================================================ */
+.arg-svg{width:100%;height:auto;display:block}
+.scale-box{fill:var(--card);stroke:var(--ink);stroke-width:1.4}
+.scale-box.v{stroke:var(--pine)}
+.scale-box.f{stroke:var(--terra)}
+.scale-label{font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.scale-label.v{fill:var(--pine)}
+.scale-label.f{fill:var(--terra)}
+.scale-label.ded{fill:var(--pine)}
+.scale-label.ind{fill:var(--terra)}
+.scale-text{font-family:'Instrument Sans',sans-serif;font-size:12px;fill:var(--ink)}
+#dedHead path{fill:var(--pine)}
+#indHead path{fill:var(--terra)}
+.ded-arrow{stroke:var(--pine);stroke-width:2;fill:none;stroke-dasharray:200;stroke-dashoffset:200;animation:drawArrow3 1s .3s ease forwards}
+.ind-arrow{stroke:var(--terra);stroke-width:2;fill:none;stroke-dasharray:6 6;animation:fadeArrow3 .8s .9s ease both}
+@keyframes drawArrow3{to{stroke-dashoffset:0}}
+@keyframes fadeArrow3{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){.ded-arrow{animation:none;stroke-dashoffset:0}.ind-arrow{animation:none}}
+
+/* ============================================================
+   TEORÍA
+============================================================ */
+.theory{display:grid;grid-template-columns:230px 1fr;gap:52px;align-items:start}
+.toc{position:sticky;top:150px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column}
+.toc-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 10px 16px}
+.toc a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:9px 16px;font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin-left:-1.5px;transition:all .15s}
+.toc a span{font-family:'Fraunces',serif;color:var(--terra);font-weight:600;min-width:30px}
+.toc a:hover{border-left-color:var(--pine);background:rgba(28,43,37,.05)}
+.sec{border-top:1px solid var(--line);padding:44px 0}
+.sec:first-child{border-top:none;padding-top:0}
+.sec-no{font-family:'Fraunces',serif;font-size:3rem;font-weight:400;color:rgba(30,70,54,.22);line-height:1}
+.sec h3{font-size:1.5rem;margin:6px 0 16px}
+.prose p{margin:0 0 14px;max-width:72ch}
+.prose ul,.prose ol{margin:0 0 14px 22px;max-width:72ch}
+.prose li{margin-bottom:6px}
+.def{background:#ecf1ea;border:1px solid rgba(30,70,54,.28);border-radius:0 10px 10px 0;border-left:4px solid var(--pine);padding:18px 22px;margin:20px 0}
+.def .def-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pine)}
+.def p{margin:6px 0 0}
+.ex{background:var(--card);border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 22px;margin:20px 0}
+.ex .ex-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-ink)}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.tbl th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:hover{background:rgba(28,43,37,.04)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid}
+.tag.p{color:var(--pine);border-color:rgba(30,70,54,.45);background:#ecf1ea}
+.tag.c{color:var(--terra);border-color:rgba(194,84,47,.45);background:var(--terra-soft)}
+.tag.x{color:var(--gold-ink);border-color:rgba(201,162,39,.5);background:var(--gold-soft)}
+
+/* ============================================================
+   PANELES / LABORATORIO
+============================================================ */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.panel-body{padding:20px 18px}
+.lab-block{margin-bottom:40px}
+.lab-block>h3{font-size:1.35rem;margin:6px 0 4px}
+.lab-block>.lab-desc{color:var(--muted);max-width:72ch;margin-bottom:16px;font-size:14px}
+.ticket-preview{border:1px dashed var(--line-strong);border-radius:10px;padding:16px 18px;margin:16px 0;font-family:'Fraunces',serif;font-size:1.02rem;line-height:1.55;min-height:52px;color:var(--ink)}
+.ticket-preview em{color:var(--terra);font-style:normal;font-weight:600}
+
+/* --- Máquina de generalizar --- */
+.gmk-controls{display:flex;flex-direction:column;gap:12px}
+.gmk-verdict{display:flex;align-items:center;gap:9px;font-weight:700;margin-bottom:10px}
+.gmk-verdict svg{width:18px;height:18px}
+.gmk-verdict.weak{color:var(--terra)}
+.gmk-verdict.mid{color:var(--gold-ink)}
+.gmk-verdict.strong,.gmk-verdict.ded{color:var(--pine)}
+.meter{height:14px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden;margin-bottom:12px;background:var(--card)}
+.meter>div{height:100%;background:var(--pine);transition:width .35s ease}
+.gmk-result{border-top:1.5px solid var(--ink);margin-top:16px;padding-top:16px}
+.gmk-result p{font-size:13.5px;color:var(--muted);max-width:64ch;margin-bottom:8px}
+
+/* --- Indicadores (práctica formativa) --- */
+.ind-item{border:1px solid var(--line-strong);border-radius:10px;padding:16px 18px;margin-bottom:14px;background:var(--card)}
+.ind-text{font-size:14.5px;line-height:2.2}
+.ind-item select{
+  display:inline-block;max-width:230px;
+  font:inherit;font-size:14px;color:var(--ink);background:var(--card);
+  border:1px solid var(--line-strong);border-radius:8px;padding:4px 10px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.ind-item select:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.ind-fb{font-size:12.5px;margin-top:8px;display:none}
+.ind-fb.show{display:block}
+.ind-fb.ok{color:var(--pine)}
+.ind-fb.bad{color:var(--terra)}
+
+/* --- Clasificador / Diagnóstico --- */
+.quiz-q{border-top:1px solid var(--line);padding:24px 4px}
+.quiz-q header{display:flex;gap:14px;margin-bottom:14px}
+.qnum{flex:none;font-family:'Fraunces',serif;font-weight:700;color:var(--terra);border:1.5px solid var(--terra);border-radius:8px;padding:2px 9px;height:fit-content}
+.quiz-q .q-text{font-weight:600;font-size:15.5px;padding-top:4px}
+.opts{display:grid;gap:9px;margin-left:56px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14.5px}
+.opt:hover{border-color:var(--pine)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt-key{flex:none;width:26px;height:26px;border:1.5px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;transition:all .15s}
+.opt.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.opt.is-correct .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
+.opt.locked{cursor:default}
+.opt{color:var(--ink);text-align:left}
+.opt.selected{border-color:var(--pine);background:#eef3ec}
+.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+.quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
+.quiz-result{font-size:15px}
+.quiz-result strong{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--pine);margin-right:8px}
+.caso-card{border-top:1px solid var(--line);padding:22px 4px}
+.caso-text{font-weight:600;font-size:14.5px;margin-bottom:12px;max-width:72ch}
+.caso-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.caso-row select{
+  max-width:340px;font:inherit;font-size:14px;color:var(--ink);background:var(--card);
+  border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.caso-row select:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.caso-explain{margin-top:10px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+
+/* ============================================================
+   ACTIVIDADES
+============================================================ */
+.act-block{margin-bottom:52px}
+.act-block>h3{font-size:1.45rem;margin:8px 0 6px}
+.act-block>.act-desc{color:var(--muted);max-width:72ch;margin-bottom:20px}
+.rub-row{display:grid;grid-template-columns:1fr 1fr 60px;gap:16px;align-items:center;border-top:1px solid var(--line);padding:14px 4px}
+.rub-row:last-child{border-bottom:1px solid var(--line)}
+.rub-row .rub-name{font-weight:600;font-size:14.5px}
+.rub-bar{height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.rub-bar>div{height:100%;background:var(--pine)}
+.rub-pct{text-align:right;font-family:'Fraunces',serif;font-weight:600}
+.pill-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-radius:999px;padding:4px 11px;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);padding:10px 14px;margin-bottom:9px;cursor:pointer;transition:all .15s;font-size:14.5px}
+.chk:hover{border-color:var(--pine)}
+.chk input{width:16px;height:16px;accent-color:var(--pine)}
+.chk.done{background:var(--ok-bg);border-color:var(--pine)}
+.task-panel{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 20px;color:var(--muted);text-align:center}
+.empty svg{width:30px;height:30px;stroke-width:1.5}
+
+/* ============================================================
+   MI PROGRESO (perfil individual)
+============================================================ */
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
+.status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
+.status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   TOASTS / FOOTER
+============================================================ */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:10px;padding:12px 16px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .28s ease}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#8fd0a5}
+.toast.err svg{color:#f0a284}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
+.foot-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.foot-row strong{color:var(--ink)}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:34px}
+  .home-grid{grid-template-columns:1fr}
+  .theory{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;overflow-x:auto;border-left:none;border-bottom:1.5px solid var(--ink);gap:2px}
+  .toc-title{display:none}
+  .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .toc a:hover{border-bottom-color:var(--pine)}
+  .task-panel{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+  .result-row{grid-template-columns:1fr;gap:4px}
+  .rub-row{grid-template-columns:1fr;gap:8px}
+  .rub-pct{text-align:left}
+  .meta-grid{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand">
+      <span class="brand-ico"><i data-lucide="scale"></i></span>
+      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 3 - Dr. Adrián Cerda</small></span>
+    </div>
+    <div class="topbar-side">UNITI<br>LPID · Módulo 1</div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="mainNav">
+      <button class="nav-btn active" data-view="inicio"><i data-lucide="home"></i>Inicio</button>
+      <button class="nav-btn" data-view="teoria"><i data-lucide="book-open"></i>Teoría</button>
+      <button class="nav-btn" data-view="laboratorio"><i data-lucide="flask-conical"></i>Laboratorio</button>
+      <button class="nav-btn" data-view="diagnostico"><i data-lucide="clipboard-check"></i>Diagnóstico</button>
+      <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del alumno</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== INICIO ==================== -->
+<section class="view" id="v-inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="overline">Razonamiento Lógico-Matemático · UNITI — LPID, Módulo 1</p>
+      <h1>Deducción e inducción: de lo <em>necesario</em> a lo probable</h1>
+      <p class="lead">Hasta hoy sabes encontrar el esqueleto de un argumento y juzgar su forma y su contenido. Falta la pregunta que decide todo lo demás: ¿qué clase de apoyo está prometiendo? Un mismo argumento puede ser impecable como apuesta y fracasar como garantía. Hoy aprendes a saber qué tienes entre manos antes de exigirle lo que no puede dar.</p>
+      <div class="hero-actions">
+        <button class="btn" data-view="teoria"><i data-lucide="book-open"></i>Entrar a la teoría</button>
+        <button class="btn ghost" data-view="laboratorio"><i data-lucide="flask-conical"></i>Ir al laboratorio</button>
+      </div>
+      <dl class="meta-grid">
+        <div><dt>Sesión</dt><dd>3 / 12</dd></div>
+        <div><dt>Duración aprox.</dt><dd>110 min</dd></div>
+        <div><dt>Hilo conductor</dt><dd>De la necesidad a la probabilidad</dd></div>
+        <div><dt>Aprendizaje esperado</dt><dd>Distingue argumentos deductivos de inductivos y evalúa su fuerza</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-fig">
+      <div class="diagram-box">
+        <svg class="arg-svg" viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="dedHead" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z"></path>
+            </marker>
+            <marker id="indHead" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z"></path>
+            </marker>
+          </defs>
+
+          <rect class="scale-box" x="150" y="14" width="220" height="56" rx="10"></rect>
+          <text class="scale-label" x="166" y="38">Evidencia</text>
+          <text class="scale-text" x="166" y="60">Lo que ya observaste o sabes</text>
+
+          <path class="ded-arrow" d="M200,76 C178,110 152,140 150,180" marker-end="url(#dedHead)"></path>
+          <path class="ind-arrow" d="M320,76 C342,110 368,140 370,180" marker-end="url(#indHead)"></path>
+
+          <text class="scale-label ded" x="36" y="130">Deducción</text>
+          <text class="scale-text" x="36" y="150">garantiza</text>
+          <text class="scale-label ind" x="398" y="130">Inducción</text>
+          <text class="scale-text" x="398" y="150">hace probable</text>
+
+          <rect class="scale-box v" x="40" y="186" width="205" height="54" rx="10"></rect>
+          <text class="scale-label v" x="56" y="209">Conclusión necesaria</text>
+          <text class="scale-text" x="56" y="229">No puede fallar</text>
+
+          <rect class="scale-box f" x="275" y="186" width="205" height="54" rx="10"></rect>
+          <text class="scale-label f" x="291" y="209">Conclusión probable</text>
+          <text class="scale-text" x="291" y="229">Puede fallar aun así</text>
+        </svg>
+      </div>
+      <figcaption><strong>Dos caminos a la conclusión.</strong> Ambos parten de la misma evidencia, pero prometen cosas distintas. La deducción garantiza; la inducción hace probable. Exigirle garantías a una inducción —o conformarse con probabilidades ante una deducción— es usar el estándar equivocado.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap home-grid">
+    <div>
+      <p class="overline" style="margin-bottom:14px">Ruta de la sesión</p>
+      <div class="route-item" data-view="teoria">
+        <span class="route-no">01</span>
+        <div><h3>Dos formas de apoyar una conclusión</h3><p>Deducción e inducción, los criterios para distinguirlas y la prueba del contraejemplo imaginable.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="laboratorio">
+        <span class="route-no">02</span>
+        <div><h3>Laboratorio</h3><p>La máquina de generalizar, práctica de indicadores y clasificador de ocho argumentos.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="actividades">
+        <span class="route-no">03</span>
+        <div><h3>Diagnóstico y cierre</h3><p>Diagnóstico exprés, taller colaborativo, reflexión de cierre y compromisos de aprendizaje.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <aside>
+      <p class="overline" style="margin-bottom:14px">En un vistazo</p>
+      <div class="side-stats">
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
+        <div class="stat"><div class="num">8</div><div class="lbl">Casos por clasificar</div></div>
+        <div class="stat"><div class="num">6</div><div class="lbl">Preguntas del diagnóstico exprés</div></div>
+        <div class="stat"><div class="num">12</div><div class="lbl">Sesiones del curso</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== TEORÍA ==================== -->
+<section class="view" id="v-teoria" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Necesidad y probabilidad</p>
+      <h2>Deducción e inducción</h2>
+      <p class="sub">La sesión 2 dejó pendiente una pregunta: ¿cómo sé, antes de evaluar, qué tipo de argumento tengo frente a mí? Hoy la respondemos — y con ella, el mapa conceptual del curso queda completo.</p>
+    </div>
+
+    <div class="theory">
+      <aside class="toc">
+        <p class="toc-title">Contenido</p>
+        <a href="#t1"><span>3.1</span>Dos formas de apoyar</a>
+        <a href="#t2"><span>3.2</span>Cómo distinguirlos</a>
+        <a href="#t3"><span>3.3</span>La fuerza de la inducción</a>
+        <a href="#t4"><span>3.4</span>Deducción, inducción y matemáticas</a>
+      </aside>
+
+      <div class="prose">
+
+        <!-- 3.1 -->
+        <article class="sec" id="t1">
+          <div class="sec-no">3.1</div>
+          <h3>Dos formas de apoyar una conclusión</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p>Un argumento <strong>deductivo</strong> pretende que su conclusión se siga de las premisas con <strong>necesidad</strong>: si las premisas fueran verdaderas, la conclusión no podría ser falsa.<br>Un argumento <strong>inductivo</strong> pretende que sus premisas hagan <strong>probable</strong> la conclusión, sin garantirla: aun con todas las premisas verdaderas, la conclusión podría resultar falsa.</p>
+          </div>
+          <p>El error más común al evaluar un argumento no es fallar en la lógica ni en la aritmética: es exigirle el tipo de apoyo que nunca prometió dar — o aceptarle uno que jamás podría dar. Compara:</p>
+          <div class="ex">
+            <span class="ex-tag">La misma conclusión, dos apoyos distintos</span>
+            <p><strong>Deductivo:</strong> «Cada bolsa de la marca X contiene 500 g de galletas. Esta bolsa es de la marca X. Por lo tanto, esta bolsa contiene 500 g.»</p>
+            <p style="margin-top:8px"><strong>Inductivo:</strong> «Las últimas nueve bolsas de la marca X que compré contenían 500 g. Por lo tanto, esta bolsa también contendrá 500 g.»</p>
+            <p style="margin-top:8px">Ambos concluyen lo mismo. El primero promete imposibilidad de fallo: si las premisas son verdaderas, la conclusión no puede ser falsa. El segundo ofrece una expectativa razonable: la décima bolsa podría ser defectuosa, y nada en las premisas lo impide.</p>
+          </div>
+        </article>
+
+        <!-- 3.2 -->
+        <article class="sec" id="t2">
+          <div class="sec-no">3.2</div>
+          <h3>Cómo distinguirlos</h3>
+          <p>No existe una palabra mágica que etiquete a cada argumento, pero hay tres preguntas que, en orden, resuelven casi todos los casos:</p>
+          <ol>
+            <li><strong>¿Qué pretende el autor?</strong> Es el criterio maestro: ¿quiere mostrar que la conclusión <em>tiene que</em> ser así, o solo que es <em>razonable</em> creerla?</li>
+            <li><strong>¿Qué indicadores aparecen?</strong> Las palabras orientan la lectura (ver tabla).</li>
+            <li><strong>¿La conclusión dice más de lo que dicen las premisas?</strong> Si extrapola a casos no observados, el argumento está apostando: es inducción. Si la conclusión ya estaba "guardada" en las premisas, es deducción.</li>
+          </ol>
+          <table class="tbl">
+            <thead><tr><th>Suelen acompañar deducciones</th><th>Suelen acompañar inducciones</th></tr></thead>
+            <tbody>
+              <tr><td>necesariamente, se sigue que, por lo tanto, sin excepción, en todos los casos, está garantizado que</td><td>probablemente, lo más probable es que, en general, la mayoría de las veces, es de esperarse que, todo apunta a que</td></tr>
+            </tbody>
+          </table>
+          <div class="def">
+            <span class="def-tag">La prueba del contraejemplo imaginable</span>
+            <p>Si puedes imaginar —sin caer en contradicción— un escenario donde las premisas sean verdaderas y la conclusión falsa, el argumento no es deductivo. «Las últimas nueve bolsas pesaron 500 g» y esta pesa 450: imaginable, sin absurdo. «Cada bolsa contiene 500 g» y esta no: el escenario contradice la premisa. Esa prueba rápida separa promesas de apuestas.</p>
+          </div>
+        </article>
+
+        <!-- 3.3 -->
+        <article class="sec" id="t3">
+          <div class="sec-no">3.3</div>
+          <h3>La fuerza de un argumento inductivo</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p><strong>Fuerza</strong> es el grado en que unas premisas, si son ciertas, vuelven probable la conclusión. Se gradúa: <strong>fuerte / débil</strong>. Recuerda la regla de vocabulario de la sesión 2: a los inductivos no se les dice válidos ni inválidos, y a los deductivos no se les dice fuertes ni débiles.</p>
+          </div>
+          <p>Judgegar la fuerza de una inducción exige tres preguntas concretas:</p>
+          <ol>
+            <li><strong>Tamaño:</strong> ¿cuántos casos sustentan la conclusión? Más evidencia, más fuerza — aunque con rendimientos decrecientes.</li>
+            <li><strong>Representatividad:</strong> ¿los casos observados se parecen a los no observados? Una muestra tomada al azar de toda la población vale más que un puñado grande tomado donde convenía.</li>
+            <li><strong>Alcance:</strong> ¿cuánto se extrapola? Concluir "esta bolsa" es menos osado que concluir "todas las bolsas de todas las marcas".</li>
+          </ol>
+          <table class="tbl">
+            <thead><tr><th>Versión</th><th>Argumento</th><th>Juicio</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag c">Débil</span></td><td>«Probé 2 galletas de la orilla superior y ambas tienen chispas. Todas las galletas de la bolsa tienen chispas.»</td><td>Muestra pequeña y sesgada</td></tr>
+              <tr><td><span class="tag p">Fuerte</span></td><td>«Probé 30 de las 50 galletas, elegidas al azar de toda la bolsa, y todas tienen chispas. Probablemente, todas tienen chispas.»</td><td>Grande y representativa; alcance razonable</td></tr>
+              <tr><td><span class="tag x">Ya no es inducción</span></td><td>«Probé las 50 galletas —toda la bolsa— y todas tienen chispas. Por lo tanto, todas tienen chispas.»</td><td>La conclusión ya no va más allá de la evidencia: es deducción</td></tr>
+            </tbody>
+          </table>
+          <div class="def">
+            <span class="def-tag">La firma de lo inductivo</span>
+            <p>En una deducción, añadir premisas jamás rompe la garantía de la forma. En una inducción, un solo caso nuevo —una galleta sin chispas— puede derrumbar la conclusión. Esa sensibilidad a la evidencia nueva es la marca de lo inductivo.</p>
+          </div>
+        </article>
+
+        <!-- 3.4 -->
+        <article class="sec" id="t4">
+          <div class="sec-no">3.4</div>
+          <h3>Deducción, inducción y matemáticas</h3>
+          <p>Las matemáticas son el reino de la deducción: un teorema no se "cree" por mayoría de casos observados, se <em>demuestra</em>. Que el ángulo interior de un triángulo sume 180° no es "casi siempre": es siempre, para todo triángulo, porque la conclusión se sigue con necesidad de las definiciones y los axiomas.</p>
+          <p>La estadística y las ciencias empíricas habitan la inducción: de la muestra a la población. Encuestas, control de calidad, pruebas de software: todas concluyen "probablemente", por buena que sea la evidencia. Aquí es donde las matemáticas miden la fuerza: tamaño de muestra, margen de error, nivel de confianza.</p>
+          <div class="def">
+            <span class="def-tag">Ojo con el nombre</span>
+            <p>La llamada <strong>inducción matemática</strong> es, pese a su nombre, una técnica <em>deductiva</em>: si P(1) es cierta y de P(k) se sigue P(k+1), entonces P(n) es cierta para todo n. No hay salto de la muestra a la población; hay una regla general que garantiza el paso de cada caso al siguiente. El nombre es histórico.</p>
+          </div>
+          <p>Con este mapa completo —premisa, conclusión, verdad, validez, fuerza y ahora el tipo de apoyo— el resto del curso tiene dónde colocarse: sesión a sesión afinaremos los estándares de cada tipo de argumento y los modos en que cada uno suele fallar.</p>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LABORATORIO ==================== -->
+<section class="view" id="v-laboratorio" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Taller · necesidad vs. probabilidad</p>
+      <h2>Laboratorio de deducción e inducción</h2>
+      <p class="sub">Tres ejercicios, de lo sensorial a lo analítico: primero sientes el salto de la muestra a la población con la máquina de generalizar, luego practicas los indicadores de cada tipo, y al final clasificas ocho argumentos.</p>
+    </div>
+
+    <!-- Parte 1: Máquina de generalizar -->
+    <div class="lab-block">
+      <h3>1 · La máquina de generalizar</h3>
+      <p class="lab-desc">Una bolsa dice «Contenido: 50 galletas». Quieres saber si todas tienen chispas de chocolate, pero no piensas comértelas todas. Ajusta cuántas pruebas y cómo las eliges; después evalúa la fuerza de tu generalización.</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="gmk-controls">
+            <div class="field">
+              <label for="gN">Galletas revisadas: <span id="gNVal" class="mono">10</span> de 50</label>
+              <input id="gN" type="range" min="1" max="50" value="10" step="1">
+            </div>
+            <label class="chk" style="margin:0">
+              <input type="checkbox" id="gRandom" checked>
+              <span>Las elegí al azar (revolví la bolsa antes de sacarlas)</span>
+            </label>
+            <p class="hint">Si desmarcas la casilla, supon que solo tomaste galletas de la orilla superior — las que se hornean en el borde de la charola.</p>
+          </div>
+          <p class="hint" style="margin:14px 0 4px">Tu argumento:</p>
+          <div class="ticket-preview" id="gPreview"></div>
+          <button class="btn" id="btnEvalGen"><i data-lucide="gauge"></i>Evaluar la fuerza</button>
+          <div class="gmk-result" id="gResult" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parte 2: Indicadores -->
+    <div class="lab-block">
+      <h3>2 · ¿Necesario o probable?</h3>
+      <p class="lab-desc">Práctica formativa — no se califica. Completa cada conclusión con el indicador que corresponde al tipo de apoyo del argumento.</p>
+      <div id="indList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnIndCheck"><i data-lucide="check-check"></i>Revisar mi práctica</button>
+        <button class="btn ghost" id="btnIndReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+        <div class="quiz-result" id="indResult"></div>
+      </div>
+    </div>
+
+    <!-- Parte 3: Clasificador -->
+    <div class="lab-block">
+      <h3>3 · Clasificador de argumentos</h3>
+      <p class="lab-desc">Ocho argumentos. Para cada uno, decide si es deductivo o inductivo — y, si es inductivo, de qué tipo: generalización, analogía o inferencia causal. Al terminar, presiona <strong>Comprobar clasificación</strong>.</p>
+      <div id="casoList"></div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnGradeCasos"><i data-lucide="check-check"></i>Comprobar clasificación</button>
+        <button class="btn ghost" id="btnResetCasos"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+        <div class="quiz-result" id="casosResult"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DIAGNÓSTICO ==================== -->
+<section class="view" id="v-diagnostico" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Autoevaluación formativa</p>
+      <h2>Diagnóstico exprés</h2>
+      <p class="sub">Seis preguntas sobre deducción, inducción y fuerza argumentativa. Retroalimentación inmediata en cada una.</p>
+    </div>
+    <div id="quizList"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnGrade"><i data-lucide="check-check"></i>Calificar</button>
+      <button class="btn ghost" id="btnQuizReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ACTIVIDADES ==================== -->
+<section class="view" id="v-actividades" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Zona de cierre</p>
+      <h2>Taller, rúbrica y cierre de sesión</h2>
+      <p class="sub">Instrumentos alineados a las fases de la sesión: encuadre, inicio, desarrollo y cierre.</p>
+    </div>
+
+    <!-- Guía del taller -->
+    <div class="act-block">
+      <h3>Guía del taller colaborativo</h3>
+      <p class="act-desc">En equipo, trabajen el <strong>Laboratorio</strong> completo y después preparen, por escrito:</p>
+      <ol style="margin-left:20px;font-size:14.5px;max-width:72ch">
+        <li style="margin-bottom:9px">Una generalización propia —del aula, del trabajo o de casa— y su calificación de fuerza, justificada con las tres preguntas: tamaño, representatividad y alcance.</li>
+        <li style="margin-bottom:9px">Para tres casos del Clasificador, expliquen con sus palabras qué los hace deductivos o inductivos, y de qué tipo de inducción se trata.</li>
+        <li>Un ejemplo real de argumento por analogía (un anuncio, una reseña, un consejo). ¿La semejanza que invoca es relevante para la conclusión, o solo llamativa?</li>
+      </ol>
+    </div>
+
+    <!-- Rúbrica -->
+    <div class="act-block">
+      <h3>Ponderación de la sesión</h3>
+      <span class="pill-flag"><i data-lucide="alert-triangle"></i>Propuesta preliminar — pendiente de validación en Academia (colegiada)</span>
+      <p class="act-desc">Esta ponderación cubre solo los instrumentos de esta sesión.</p>
+      <div class="rub-row"><span class="rub-name">Clasificador de argumentos (8 casos)</span><div class="rub-bar"><div style="width:35%"></div></div><span class="rub-pct">35%</span></div>
+      <div class="rub-row"><span class="rub-name">Máquina de generalizar + justificación escrita</span><div class="rub-bar"><div style="width:10%"></div></div><span class="rub-pct">10%</span></div>
+      <div class="rub-row"><span class="rub-name">Diagnóstico exprés</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">20%</span></div>
+      <div class="rub-row"><span class="rub-name">Reflexión de cierre</span><div class="rub-bar"><div style="width:10%"></div></div><span class="rub-pct">10%</span></div>
+      <div class="rub-row"><span class="rub-name">Disposición a cambiar de postura ante la evidencia (eje Ser)</span><div class="rub-bar"><div style="width:25%"></div></div><span class="rub-pct">25%</span></div>
+    </div>
+
+    <!-- Reflexión de cierre -->
+    <div class="act-block">
+      <h3>Reflexión de cierre — mapa de conceptos y dilema</h3>
+      <p class="act-desc">Define, con tus propias palabras, cada término (una frase basta), y toma postura en el dilema del cierre. Se guarda junto con tu registro.</p>
+      <div class="task-panel">
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="brain"></i>Mapa de conceptos</div>
+          <div class="panel-body">
+            <div id="reflexionEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu reflexión.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="reflexionForm" hidden>
+              <div class="concept-grid">
+                <div class="field"><label for="defDeductivo">Deductivo significa…</label><input id="defDeductivo" type="text" maxlength="120"></div>
+                <div class="field"><label for="defInductivo">Inductivo significa…</label><input id="defInductivo" type="text" maxlength="120"></div>
+                <div class="field"><label for="defMuestra">Muestra representativa significa…</label><input id="defMuestra" type="text" maxlength="120"></div>
+                <div class="field"><label for="defAnalogia">Analogía (como argumento) significa…</label><input id="defAnalogia" type="text" maxlength="120"></div>
+              </div>
+              <button class="btn" id="btnSaveReflexion" style="width:100%;justify-content:center"><i data-lucide="save"></i>Guardar mi reflexión</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="users"></i>Dilema de cierre</div>
+          <div class="panel-body">
+            <p class="hint" style="margin-bottom:10px">Una deducción válida pero con premisas que no estás seguro de que sean ciertas, frente a una inducción muy fuerte apoyada en buena evidencia. Si tuvieras que decidir mañana, ¿a cuál le harías más caso? Argumenta tu postura en unas líneas.</p>
+            <div class="field">
+              <textarea id="debatePostura" maxlength="600" placeholder="Le haría más caso a… porque…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compromisos -->
+    <div class="act-block">
+      <h3>Compromisos de aprendizaje</h3>
+      <p class="act-desc">Márcalos conforme los asumas. Se guardan junto con tu registro.</p>
+      <div id="compromisosList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Registro individual</p>
+      <h2>Registro y monitoreo de avance</h2>
+      <p class="sub">Este archivo lo trabajas tú, de forma individual, en tu equipo personal. Regístrate una sola vez con tus credenciales institucionales para llevar el control de tu avance y ver tu nota de la sesión.</p>
+    </div>
+
+    <div class="storage-note" id="storageNote">
+      <i data-lucide="info"></i>
+      <span>Verificando almacenamiento disponible…</span>
+    </div>
+
+    <div style="max-width:480px" id="perfilForm">
+      <div class="panel">
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
+        <div class="panel-body">
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
+            <div class="field">
+              <label for="pNombre">Nombre completo</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
+            </div>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilDash" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div><strong>Sesión 3 · Deducción e inducción: de lo necesario a lo probable.</strong><br>Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1.</div>
+    <div style="max-width:420px">Los casos y ejemplos del Laboratorio y del Diagnóstico exprés son elaborados con fines didácticos para esta sesión.</div>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+/* ============================================================
+   UTILIDADES
+============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, type='ok'){
+  const box=$('#toasts'), t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML = `<i data-lucide="${type==='ok'?'check-circle-2':'alert-circle'}"></i><span>${esc(msg)}</span>`;
+  box.appendChild(t); refreshIcons();
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 320); }, 3200);
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ============================================================
+   NAVEGACIÓN DE VISTAS
+============================================================ */
+function showView(v){
+  $$('.view').forEach(s => s.hidden = true);
+  $('#v-'+v).hidden = false;
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='perfil') renderPerfil();
+  if(v==='actividades') refreshReflexionPanel();
+}
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
+
+/* ============================================================
+   ALMACENAMIENTO (window.storage con respaldo en memoria)
+============================================================ */
+const memStore = new Map();
+function hasWS(){ return typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'; }
+async function stGet(key){
+  if(hasWS()){
+    try{ const r = await window.storage.get(key); return r ? r.value : null; }
+    catch(e){ return null; }
+  }
+  return memStore.has(key) ? memStore.get(key) : null;
+}
+async function stSet(key, value){
+  if(hasWS()){
+    try{ await window.storage.set(key, value); return true; }
+    catch(e){ return false; }
+  }
+  memStore.set(key, value); return true;
+}
+async function stDelete(key){
+  if(hasWS()){
+    try{ await window.storage.delete(key); return true; }
+    catch(e){ return false; }
+  }
+  memStore.delete(key); return true;
+}
+async function loadJSON(key, fallback){
+  const v = await stGet(key);
+  if(v==null) return fallback;
+  try{ return JSON.parse(v); }catch(e){ return fallback; }
+}
+async function saveJSON(key, obj){ return stSet(key, JSON.stringify(obj)); }
+
+/* Claves de esta sesión. NOTA: PERFIL_KEY debe coincidir con la de las
+   sesiones 1 y 2 para compartir el registro del alumno entre archivos. */
+const PERFIL_KEY = 'perfilAlumno';
+const K = {
+  gen:'s3_generalizadora',
+  ind:'s3_indicadores',
+  casos:'s3_casos',
+  quiz:'s3_quiz',
+  reflexion:'s3_reflexion',
+  compromisos:'s3_compromisos'
+};
+
+/* ============================================================
+   PARTE 1 · MÁQUINA DE GENERALIZAR
+============================================================ */
+function genUpdate(){
+  const n = +$('#gN').value, rnd = $('#gRandom').checked;
+  $('#gNVal').textContent = n;
+  const modo = n===50 ? 'las revisaste todas'
+             : rnd ? 'elegidas al azar de toda la bolsa'
+             : 'sacadas solo de la orilla superior';
+  $('#gPreview').innerHTML = `Revisé <em>${n} ${n===1?'galleta':'galletas'}</em> (${modo}) y todas tienen chispas de chocolate. Por lo tanto, <em>todas</em> las galletas de la bolsa tienen chispas.`;
+}
+ $('#gN').addEventListener('input', genUpdate);
+ $('#gRandom').addEventListener('change', genUpdate);
+
+ $('#btnEvalGen').addEventListener('click', async ()=>{
+  const n = +$('#gN').value, rnd = $('#gRandom').checked;
+  let verdict, cls, meter, why;
+  if(n===50){
+    verdict='Ya no es inducción: es deductiva'; cls='ded'; meter=100;
+    why='Revisaste las 50 galletas: toda la población. Tu conclusión ya no va más allá de tu evidencia — es solo una forma breve de enumerar lo observado. Si las premisas son verdaderas, la conclusión no puede fallar.';
+  } else if(!rnd){
+    verdict='Inductiva débil (muestra sesgada)'; cls='weak'; meter=22;
+    why=`El tamaño importa (${n} ${n===1?'caso':'casos'}), pero hay algo peor: las galletas de la orilla se hornean en el borde de la charola y comparten condiciones idénticas. No representan a las del centro. Una muestra grande pero sesgada sigue siendo mala muestra.`;
+  } else if(n<=4){
+    verdict='Inductiva muy débil'; cls='weak'; meter=Math.max(4,Math.round(n*3));
+    why=`${n} ${n===1?'caso casi no':'casos casi no'} sustentan un "todas". Con tan poca evidencia, una sola galleta sin chispas cambiaría todo. Prueba con más casos al azar.`;
+  } else if(n<=14){
+    verdict='Inductiva débil'; cls='weak'; meter=Math.round(18+n*1.1);
+    why=`${n} casos al azar ya son algo, pero la bolsa tiene 50 galletas: queda demasiada población sin observar. La fuerza crece con cada caso, aunque cada vez un poco menos.`;
+  } else if(n<=29){
+    verdict='Inductiva moderada'; cls='mid'; meter=Math.round(35+n*0.9);
+    why=`${n} casos al azar cubren ${Math.round(n*2)}% de la bolsa: una muestra respetable. La conclusión "todas" sigue siendo osada, pero la evidencia ya pesa.`;
+  } else {
+    verdict='Inductiva fuerte'; cls='strong'; meter=Math.round(62+n*0.7);
+    why=`${n} casos elegidos al azar de toda la bolsa: muestra grande y representativa. La conclusión sigue siendo probabilística — la galleta ${n+1} podría no tener chispas — pero apostarías con muy buena razón.`;
+  }
+  const ico = cls==='weak' ? 'alert-triangle' : cls==='ded' ? 'lock' : 'gauge';
+  const res=$('#gResult');
+  res.hidden=false;
+  res.innerHTML=`
+    <div class="gmk-verdict ${cls}"><i data-lucide="${ico}"></i>${verdict}</div>
+    <div class="meter"><div style="width:${meter}%"></div></div>
+    <p>${why}</p>
+    <p class="hint" style="margin-top:8px">Cada galleta que pruebas es una premisa nueva. La fuerza sube con la cantidad y con el azar; nunca llega a garantía… salvo que pruebes las 50.</p>`;
+  refreshIcons();
+  await saveJSON(K.gen,{n, rnd, verdict, completed:true, ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PARTE 2 · INDICADORES (práctica formativa)
+============================================================ */
+const IND=[
+  {pre:'Todos los múltiplos de 4 son pares. El número x es múltiplo de 4.', post:'x es par.', opts:['Necesariamente','Probablemente'], a:0,
+   why:'La conclusión está garantizada por la regla general y el caso: es una deducción.'},
+  {pre:'El 85% de los alumnos inscritos aprobó el módulo el ciclo pasado. Mónica está inscrita este ciclo.', post:'Mónica aprobará el módulo.', opts:['Necesariamente','Probablemente'], a:1,
+   why:'El dato es de otro ciclo y de otra población: la conclusión extrapola casos ajenos a Mónica. Inducción — y bastante débil.'},
+  {pre:'Cada vez que abrí la app sin conexión, se perdió mi borrador. Voy a abrir la app sin connection.', post:'se perderá mi borrador.', opts:['Necesariamente','Probablemente'], a:1,
+   why:'Es una inferencia causal a partir de casos repetidos: razonable, pero nunca garantizada.'},
+  {pre:'Si el código compila y pasó todas las pruebas, se puede desplegar. El código compila y pasó todas las pruebas.', post:'se puede desplegar.', opts:['Necesariamente','Probablemente'], a:0,
+   why:'Modus ponens: la regla condicional más el caso que la activa. La conclusión queda garantizada.'}
+];
+function renderInd(){
+  $('#indList').innerHTML = IND.map((it,i)=>`
+    <div class="ind-item" data-i="${i}">
+      <div class="ind-text">${it.pre} <select class="ind-select"><option value="">— elige —</option>${it.opts.map((o,j)=>`<option value="${j}">${o}</option>`).join('')}</select> ${it.post}</div>
+      <div class="ind-fb"></div>
+    </div>`).join('');
+}
+ $('#btnIndCheck').addEventListener('click', async ()=>{
+  let score=0;
+  $$('#indList .ind-item').forEach((el,i)=>{
+    const sel=el.querySelector('select'), fb=el.querySelector('.ind-fb');
+    const ok = sel.value!=='' && +sel.value===IND[i].a;
+    sel.classList.remove('is-correct','is-wrong');
+    if(ok){ sel.classList.add('is-correct'); score++; }
+    else if(sel.value!==''){ sel.classList.add('is-wrong'); }
+    fb.className='ind-fb show '+(ok?'ok':'bad');
+    fb.textContent = ok ? '✔ '+IND[i].why : (sel.value==='' ? 'Elige una opción para revisar este caso.' : '✕ '+IND[i].why);
+  });
+  const total=IND.length;
+  $('#indResult').innerHTML=`<strong>${score}/${total}</strong> ${score===total?'Perfecto.':score>=total-1?'Muy bien.':'Repasa los indicadores de cada tipo.'}`;
+  await saveJSON(K.ind,{score,total,done:true,ts:Date.now()});
+  updateAvance();
+});
+ $('#btnIndReset').addEventListener('click', ()=>{ renderInd(); $('#indResult').textContent=''; refreshIcons(); });
+
+/* ============================================================
+   PARTE 3 · CLASIFICADOR DE ARGUMENTOS
+============================================================ */
+const OPCIONES=[
+  {v:'ded', t:'Deductivo — la conclusión se pretende necesaria'},
+  {v:'gen', t:'Inductivo · generalización'},
+  {v:'ana', t:'Inductivo · analogía'},
+  {v:'cau', t:'Inductivo · inferencia causal'}
+];
+const CASOS=[
+  {t:'Todos los enteros que terminan en 0 son divisibles entre 5. El 370 termina en 0. Por lo tanto, 370 es divisible entre 5.',
+   a:'ded', aLabel:'Deductivo',
+   ex:'Si las premisas son verdaderas, la conclusión no puede fallar: el caso queda completo dentro de la regla general. Es el patrón «todo X es Y; esto es X; luego es Y».'},
+  {t:'Se encuestó a 350 estudiantes elegidos al azar en toda la universidad: 7 de cada 10 prefieren clases híbridas. Por lo tanto, probablemente cerca del 70% de todo el estudiantado las prefiere.',
+   a:'gen', aLabel:'Inductivo · generalización',
+   ex:'Extrapolación de una muestra a una población mayor. Elegida al azar y con buen tamaño, la muestra sustenta bien la conclusión — pero esta sigue siendo probable, no garantizada.'},
+  {t:'Mi hermano cursó este mismo módulo con práctica diaria y obtuvo 98. Tú estudias con el mismo método; es de esperarse que también obtengas una calificación alta.',
+   a:'ana', aLabel:'Inductivo · analogía',
+   ex:'Se transfiere un resultado de un caso a otro por semejanza. La fuerza depende de que la semejanza (el método de estudio) sea relevante para la conclusión (la calificación) — y de que no haya diferencias ocultas.'},
+  {t:'Las últimas tres veces que actualicé el sistema de mi laptop, la batería duró notablemente menos ese día. Conclusión: la actualización probablemente reduce la duración de la batería.',
+   a:'cau', aLabel:'Inductivo · inferencia causal',
+   ex:'Co-ocurrencia repetida que sugiere causa. Es razonable, pero frágil: sin descartar otras explicaciones (el brillo, las apps que arrancan con la actualización), la fuerza queda limitada.'},
+  {t:'Si el servidor recibe más de mil solicitudes por segundo, se satura. Ahora recibe mil doscientas. Por lo tanto, se satura.',
+   a:'ded', aLabel:'Deductivo',
+   ex:'Modus ponens: una regla condicional más el caso que la activa. La conclusión está garantizada por las premisas.'},
+  {t:'En el piloto del nuevo menú, 9 de cada 10 usuarios de la sucursal Norte encontraron lo que buscaba. Por lo tanto, el 90% de los usuarios de todas las sucursales del país lo encontrará.',
+   a:'gen', aLabel:'Inductivo · generalización',
+   ex:'La forma es de generalización, pero ojo: una sola sucursal, sin azar y con clientela propia, es una muestra pequeña y sesgada para concluir sobre todo un país. Tipo: generalización. Fuerza: débil.'},
+  {t:'Los pulpos resuelven laberintos, usan herramientas y evitan los tanques vacíos, igual que los primates. Por eso, es razonable esperar que sientan dolor de un modo semejante al de ellos.',
+   a:'ana', aLabel:'Inductivo · analogía',
+   ex:'Argumento por analogía: se extrapolan capacidades desde semejanzas observadas. La semejanza es relevante (conducta, sistema nervioso), lo que da fuerza — aunque la conclusión sigue siendo probable.'},
+  {t:'Un triángulo, por definición, es un polígono de tres lados. Esta figura es un polígono de tres lados. Por lo tanto, esta figura es un triángulo.',
+   a:'ded', aLabel:'Deductivo',
+   ex:'La conclusión no hace más que aplicar una definición: ya estaba contenida en las premisas. Deducción por definición, la forma más apretada de garantía.'}
+];
+function renderCasos(){
+  $('#casoList').innerHTML = CASOS.map((c,i)=>`
+    <div class="caso-card" data-c="${i}">
+      <div class="caso-text"><span class="qnum mono" style="margin-right:10px">C${i+1}</span>${c.t}</div>
+      <div class="caso-row">
+        <select data-i="${i}">
+          <option value="">Clasifica este argumento…</option>
+          ${OPCIONES.map(o=>`<option value="${o.v}">${o.t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="caso-explain" hidden></div>
+    </div>`).join('');
+}
+ $('#btnGradeCasos').addEventListener('click', async ()=>{
+  let score=0, missing=0;
+  $$('#casoList .caso-card').forEach((card,i)=>{
+    const sel=card.querySelector('select'), ex=card.querySelector('.caso-explain');
+    sel.classList.remove('is-correct','is-wrong');
+    if(sel.value===''){ missing++; }
+    if(sel.value===CASOS[i].a){ sel.classList.add('is-correct'); score++; }
+    else if(sel.value!==''){ sel.classList.add('is-wrong'); }
+    ex.hidden=false;
+    ex.innerHTML=`<strong>${CASOS[i].aLabel}.</strong> ${CASOS[i].ex}`;
+  });
+  if(missing) toast(`Faltan ${missing} caso${missing>1?'s':''} por clasificar.`,'err');
+  $('#casosResult').innerHTML=`<strong>${score}/${CASOS.length}</strong> ${score>=7?'Excelente ojo clasificador.':score>=5?'Bien: revisa los que faltaron.':'Vuelve a la teoría 3.2 y reintenta.'}`;
+  await saveJSON(K.casos,{score,total:CASOS.length,ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+ $('#btnResetCasos').addEventListener('click', ()=>{ renderCasos(); $('#casosResult').textContent=''; refreshIcons(); });
+
+/* ============================================================
+   DIAGNÓSTICO EXPRÉS
+============================================================ */
+/* ============================================================
+   DIAGNÓSTICO EXPRÉS
+============================================================ */
+/* Estado de selección: sel[i] = índice de la opción elegida, o null */
+let sel = QUIZ.map(()=>null);
+
+function renderQuiz(){
+  sel = QUIZ.map(()=>null);
+  $('#quizList').innerHTML = QUIZ.map((q,i)=>`
+    <div class="quiz-q" data-q="${i}">
+      <header><span class="qnum mono">P${i+1}</span><span class="q-text">${q.q}</span></header>
+      <div class="opts">${q.opts.map((o,j)=>`
+        <button type="button" class="opt" data-q="${i}" data-j="${j}">
+          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
+        </button>`).join('')}
+      </div>
+      <div class="explain" hidden>${q.ex}</div>
+    </div>`).join('');
+}
+
+/* Selección por delegación: feedback visual inmediato, sin radios ocultos */
+ $('#quizList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const card = b.closest('.quiz-q');
+  if(card.classList.contains('graded')) return;      // bloqueado tras calificar
+  sel[+b.dataset.q] = +b.dataset.j;
+  card.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+});
+
+ $('#btnGrade').addEventListener('click', async ()=>{
+  let score=0, unanswered=0;
+  QUIZ.forEach((q,i)=>{
+    const chosen = sel[i];
+    const card = document.querySelector(`.quiz-q[data-q="${i}"]`);
+    card.classList.add('graded');
+    card.querySelectorAll('.opt').forEach((opt,j)=>{
+      opt.classList.remove('selected');
+      opt.classList.add('locked');
+      opt.classList.remove('is-correct','is-wrong');
+      if(j===q.a) opt.classList.add('is-correct');
+      else if(chosen!==null && chosen===j) opt.classList.add('is-wrong');
+    });
+    card.querySelector('.explain').hidden=false;
+    if(chosen!==null && chosen===q.a) score++;
+    if(chosen===null) unanswered++;
+  });
+  if(unanswered) toast(`Faltan ${unanswered} pregunta${unanswered>1?'s':''} por responder.`,'err');
+  $('#quizResult').innerHTML=`<strong>${score}/${QUIZ.length}</strong> ${score>=5?'Dominas el tema de la sesión.':score>=4?'Vas bien: repasa lo señalado.':'Vuelve a la teoría antes del cierre.'}`;
+  await saveJSON(K.quiz,{score,total:QUIZ.length,ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+ $('#btnQuizReset').addEventListener('click', ()=>{ renderQuiz(); $('#quizResult').textContent=''; refreshIcons(); });
+/* ============================================================
+   COMPROMISOS
+============================================================ */
+const COMPROMISOS=[
+  'Antes de juzgar un argumento, me pregunto primero si es deductivo o inductivo.',
+  'Al leer datos o porcentajes, revisaré el tamaño y la representatividad de la muestra.',
+  'No usaré «necesariamente» cuando mi evidencia solo sostenga un «probablemente».',
+  'Esta semana cazaré una analogía real (publicidad, noticia, chat) y evaluaré si su semejanza es relevante.'
+];
+async function renderCompromisos(){
+  const done = await loadJSON(K.compromisos,[]);
+  $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
+    <label class="chk ${done.includes(i)?'done':''}">
+      <input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}>
+      <span>${c}</span>
+    </label>`).join('');
+}
+ $('#compromisosList').addEventListener('change', async e=>{
+  const cb = e.target.closest('input[type=checkbox]'); if(!cb) return;
+  const done = new Set(await loadJSON(K.compromisos,[]));
+  const i = +cb.dataset.i;
+  cb.checked ? done.add(i) : done.delete(i);
+  cb.closest('.chk').classList.toggle('done', cb.checked);
+  await saveJSON(K.compromisos, [...done].sort((a,b)=>a-b));
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   REFLEXIÓN DE CIERRE
+============================================================ */
+ $('#btnSaveReflexion').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero para guardar tu reflexión.','err'); showView('perfil'); return; }
+  const d = {
+    defDeductivo:$('#defDeductivo').value.trim(),
+    defInductivo:$('#defInductivo').value.trim(),
+    defMuestra:$('#defMuestra').value.trim(),
+    defAnalogia:$('#defAnalogia').value.trim(),
+    debate:$('#debatePostura').value.trim(),
+    saved:true, ts:Date.now()
+  };
+  if(!d.defDeductivo || !d.defInductivo || !d.defMuestra || !d.defAnalogia){
+    toast('Completa las cuatro definiciones.','err'); return;
+  }
+  await saveJSON(K.reflexion, d);
+  toast('Reflexión guardada.');
+  updateAvance();
+  renderPerfil();
+});
+async function refreshReflexionPanel(){
+  const saved = await loadJSON(K.reflexion,null);
+  const has = !!perfil;
+  $('#reflexionEmpty').hidden = has;
+  $('#reflexionForm').hidden = !has;
+  if(saved && has){
+    $('#defDeductivo').value = saved.defDeductivo||'';
+    $('#defInductivo').value = saved.defInductivo||'';
+    $('#defMuestra').value = saved.defMuestra||'';
+    $('#defAnalogia').value = saved.defAnalogia||'';
+    $('#debatePostura').value = saved.debate||'';
+  }
+  refreshIcons();
+}
+
+/* ============================================================
+   PERFIL / REGISTRO
+============================================================ */
+let perfil = null;
+function initials(n){ return n.trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function fmtDate(ts){ return new Date(ts).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}); }
+
+function buildRows(gen,ind,casos,quiz,refl){
+  return [
+    {name:'Máquina de generalizar', go:'laboratorio', max:10,
+     pct:(gen&&gen.completed)?1:0, status:(gen&&gen.completed)?'done':'pend',
+     pts:(gen&&gen.completed)?10:0,
+     detail:gen?`n=${gen.n} · ${gen.rnd?'muestra al azar':'muestra sesgada'}`:'Sin evaluar aún'},
+    {name:'Práctica de indicadores (formativa)', go:'laboratorio', max:0,
+     pct:(ind&&ind.done)?1:0, status:(ind&&ind.done)?'done':'pend',
+     pts:0,
+     detail:(ind&&ind.done)?`${ind.score}/${ind.total} — no pondera`:'Sin realizar'},
+    {name:'Clasificador de argumentos', go:'laboratorio', max:35,
+     pct:casos?casos.score/casos.total:0, status:casos?'done':'pend',
+     pts:casos?Math.round(casos.score/casos.total*35):0,
+     detail:casos?`${casos.score}/${casos.total} aciertos`:'Sin comprobar aún'},
+    {name:'Diagnóstico exprés', go:'diagnostico', max:20,
+     pct:quiz?quiz.score/quiz.total:0, status:quiz?'done':'pend',
+     pts:quiz?Math.round(quiz.score/quiz.total*20):0,
+     detail:quiz?`${quiz.score}/${quiz.total} aciertos`:'Sin calificar aún'},
+    {name:'Reflexión de cierre', go:'actividades', max:10,
+     pct:(refl&&refl.saved)?1:0, status:(refl&&refl.saved)?'done':'pend',
+     pts:(refl&&refl.saved)?10:0,
+     detail:(refl&&refl.saved)?'Guardada':'Pendiente'}
+  ];
+}
+async function loadAll(){
+  return Promise.all([
+    loadJSON(K.gen,null), loadJSON(K.ind,null), loadJSON(K.casos,null),
+    loadJSON(K.quiz,null), loadJSON(K.reflexion,null), loadJSON(K.compromisos,[])
+  ]);
+}
+async function initPerfil(){
+  perfil = await loadJSON(PERFIL_KEY,null);
+  const note=$('#storageNote');
+  if(hasWS()){
+    note.innerHTML=`<i data-lucide="shield-check"></i><span><strong>Almacenamiento institucional disponible.</strong> Tu registro y tu avance se guardarán de forma persistente en tu cuenta.</span>`;
+  } else {
+    note.innerHTML=`<i data-lucide="alert-triangle"></i><span><strong>Sin almacenamiento persistente en este entorno.</strong> El registro vivirá solo en la memoria de esta pestaña; descarga tu evidencia antes de cerrar para no perder tu avance.</span>`;
+  }
+  renderPerfil();
+}
+async function renderPerfil(){
+  const form=$('#perfilForm'), dash=$('#perfilDash');
+  if(!perfil){ form.hidden=false; dash.hidden=true; refreshIcons(); return; }
+  form.hidden=true; dash.hidden=false;
+  const [gen,ind,casos,quiz,refl,comp] = await loadAll();
+  const rows = buildRows(gen,ind,casos,quiz,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const pend = rows.filter(r=>r.status==='pend');
+  dash.innerHTML=`
+    <div class="result-id">
+      <div class="result-avatar">${esc(initials(perfil.nombre))}</div>
+      <div>
+        <div class="result-name">${esc(perfil.nombre)}</div>
+        <div class="result-mat">Matrícula ${esc(perfil.matricula)} · Registrado el ${fmtDate(perfil.ts)}</div>
+      </div>
+      <div class="panel-head-actions" style="margin-left:auto">
+        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i>Editar</button>
+        <button class="btn sm" data-action="download-evidence"><i data-lucide="download"></i>Descargar evidencia</button>
+      </div>
+    </div>
+    <div class="result-rows">
+      ${rows.map(r=>`
+        <div class="result-row">
+          <div><div class="result-name" style="font-size:14px">${r.name}</div><div class="result-mat">${r.detail}</div></div>
+          <div class="rub-bar"><div style="width:${Math.round(Math.min(1,r.pct)*100)}%"></div></div>
+          <span class="status-b ${r.status==='done'?'done':'pend'}" style="justify-self:end">${r.max ? r.pts+' / '+r.max+' pts' : (r.status==='done'?'realizada':'pendiente')}</span>
+        </div>`).join('')}
+    </div>
+    <div class="result-total"><span>Puntos autoevaluables</span><strong>${total} / 75</strong></div>
+    <p class="hint" style="margin-bottom:22px">Los 25 puntos restantes corresponden a «Disposición a cambiar de postura ante la evidencia (eje Ser)», que se evalúa en el aula.</p>
+    <div class="panel">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        ${pend.length || (comp&&comp.length<COMPROMISOS.length) ? `
+        <div class="pending-list">
+          ${pend.map(r=>`
+            <div class="pending-item"><span><i data-lucide="circle"></i>${r.name}</span><button class="btn ghost sm" data-view="${r.go}">Ir</button></div>`).join('')}
+          ${comp && comp.length<COMPROMISOS.length ? `
+            <div class="pending-item"><span><i data-lucide="circle"></i>Compromisos de aprendizaje (${comp.length}/${COMPROMISOS.length} asumidos)</span><button class="btn ghost sm" data-view="actividades">Ir</button></div>`:''}
+        </div>` : `<p class="hint">Todo completo en esta sesión. <strong>¡Bien trabajado!</strong></p>`}
+      </div>
+    </div>`;
+  refreshIcons();
+}
+ $('#formPerfil').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<4){ toast('Escribe tu matrícula institucional.','err'); return; }
+  perfil = {nombre, matricula, ts: perfil?perfil.ts:Date.now()};
+  await saveJSON(PERFIL_KEY, perfil);
+  toast('Registro guardado.');
+  renderPerfil();
+});
+function enterEditMode(){
+  if(!perfil) return;
+  $('#pNombre').value = perfil.nombre;
+  $('#pMatricula').value = perfil.matricula;
+  $('#perfilDash').hidden = true;
+  $('#perfilForm').hidden = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG)
+============================================================ */
+async function generateEvidenceImage(){
+  if(!perfil){ toast('Regístrate primero para generar tu evidencia.','err'); return; }
+  const [gen,ind,casos,quiz,refl,comp] = await loadAll();
+  const rows = buildRows(gen,ind,casos,quiz,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const W=1000, H=170 + rows.length*74 + 150;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  x.fillStyle='#f7f3eb'; x.fillRect(0,0,W,H);
+  x.fillStyle='#1c2b25'; x.fillRect(0,0,W,6); x.fillRect(0,H-6,W,6);
+  x.fillStyle='#c2542f'; x.font='700 13px "Instrument Sans", Arial';
+  x.fillText('RAZONAMIENTO LÓGICO-MATEMÁTICO · UNITI — LPID, MÓDULO 1',60,64);
+  x.fillStyle='#1c2b25'; x.font='600 30px Fraunces, Georgia, serif';
+  x.fillText('Sesión 3 · Deducción e inducción — evidencia de avance',60,104);
+  x.font='500 15px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.75)';
+  x.fillText(`${perfil.nombre} · Matrícula ${perfil.matricula} · ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,60,132);
+  let y=180;
+  rows.forEach(r=>{
+    x.fillStyle='#1c2b25'; x.font='600 15px "Instrument Sans", Arial'; x.fillText(r.name,60,y+18);
+    x.fillStyle='rgba(28,43,37,.55)'; x.font='400 12px "Instrument Sans", Arial'; x.fillText(r.detail,60,y+38);
+    const bx=430, bw=350;
+    x.strokeStyle='rgba(28,43,37,.4)'; x.lineWidth=1; x.strokeRect(bx,y+10,bw,12);
+    x.fillStyle=r.pct>0?'#1e4636':'rgba(28,43,37,.15)';
+    x.fillRect(bx+1,y+11,Math.max(0,(bw-2)*Math.min(1,r.pct)),10);
+    x.fillStyle='#1c2b25'; x.font='700 14px "Instrument Sans", Arial';
+    x.fillText(r.pts+' / '+r.max+' pts',810,y+21);
+    y+=74;
+  });
+  x.strokeStyle='#1c2b25'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(60,y); x.lineTo(W-60,y); x.stroke();
+  x.font='600 26px Fraunces, Georgia, serif'; x.fillStyle='#1e4636';
+  x.fillText(`Puntos autoevaluables: ${total} / 75`,60,y+46);
+  x.font='400 13px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.6)';
+  x.fillText('Los 25 puntos restantes corresponden a «Disposición a cambiar de postura ante la evidencia (eje Ser)», evaluada en el aula.',60,y+72);
+  x.fillText(`Compromisos asumidos: ${comp?comp.length:0} de ${COMPROMISOS.length}`,60,y+94);
+  const a=document.createElement('a');
+  a.download='evidencia-sesion3-'+perfil.matricula+'.png';
+  a.href=c.toDataURL('image/png');
+  a.click();
+  toast('Evidencia descargada.');
+}
+
+/* ============================================================
+   AVANCE (inicio)
+============================================================ */
+async function updateAvance(){
+  const [gen,ind,casos,quiz,refl,comp] = await loadAll();
+  const flags=[ !!(gen&&gen.completed), !!(ind&&ind.done), !!casos, !!quiz, !!(refl&&refl.saved), (comp||[]).length>0 ];
+  const pct=Math.round(flags.filter(Boolean).length/flags.length*100);
+  const el=$('#statAvance'); if(el) el.textContent=pct+'%';
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+============================================================ */
+(async function init(){
+  genUpdate();
+  renderInd();
+  renderCasos();
+  renderQuiz();
+  await renderCompromisos();
+  await initPerfil();
+  await updateAvance();
+  refreshIcons();
+})();
+</script>
+</body>
+</html>
