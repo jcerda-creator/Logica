@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 11 · Proyecto integrador y cierre del curso — Razonamiento Lógico-Matemático</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   VARIABLES Y BASE
+============================================================ */
+:root{
+  --paper:#f7f3eb;
+  --card:#fffdf8;
+  --ink:#1c2b25;
+  --pine:#1e4636;
+  --pine-soft:#2c5e49;
+  --terra:#c2542f;
+  --terra-soft:#f3e0d6;
+  --gold:#c9a227;
+  --gold-soft:#f2e8c9;
+  --gold-ink:#7a6210;
+  --line:rgba(28,43,37,.16);
+  --line-strong:rgba(28,43,37,.4);
+  --muted:rgba(28,43,37,.62);
+  --ok-bg:#e7efe6;
+  --err-bg:#f7e6dd;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:150px}
+[hidden]{display:none!important}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:radial-gradient(rgba(30,70,54,.075) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4,.display{font-family:'Fraunces',serif;font-weight:600;line-height:1.16;letter-spacing:-.01em}
+.overline{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra)}
+.mono{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--pine)}
+svg.lucide{width:16px;height:16px;stroke-width:2}
+code{background:rgba(28,43,37,.07);border-radius:5px;padding:1px 6px;font-size:.92em}
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(247,243,235,.93);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--ink);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem}
+.brand .brand-ico{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper)}
+.brand .brand-ico svg{width:17px;height:17px}
+.brand small{display:block;font-family:'Instrument Sans';font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.topbar-side{font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--muted);text-align:right}
+nav.tabs{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 0;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  border:1px solid transparent;background:transparent;color:var(--pine);
+  font-weight:600;font-size:13.5px;padding:8px 14px;border-radius:999px;
+  transition:all .18s ease;
+}
+.nav-btn svg{width:15px;height:15px}
+.nav-btn:hover{border-color:var(--line-strong)}
+.nav-btn.active{background:var(--ink);color:var(--paper)}
+
+/* ============================================================
+   VISTAS
+============================================================ */
+.view{padding:0 0 80px}
+.view-head{border-bottom:2px solid var(--ink);padding:52px 0 26px;margin-bottom:36px}
+.view-head h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 10px}
+.view-head p.sub{max-width:700px;color:var(--muted)}
+
+/* ============================================================
+   BOTONES / FORMULARIOS
+============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink);border-radius:10px;
+  padding:11px 18px;font-weight:600;font-size:14px;
+  transition:all .18s ease;
+}
+.btn:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:rgba(28,43,37,.06);transform:translateY(-1px)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:14px;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);
+  border-radius:8px;padding:10px 12px;width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical;min-height:70px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pine);box-shadow:0 0 0 3px rgba(30,70,54,.14)}
+.hint{font-size:12px;color:var(--muted)}
+
+/* ============================================================
+   INICIO / HERO
+============================================================ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:64px 0 56px}
+.hero h1{font-size:clamp(2.2rem,4.3vw,3.5rem);margin:14px 0 18px}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.hero .lead{font-size:1.05rem;color:var(--muted);max-width:540px}
+.hero-actions{display:flex;gap:12px;margin:26px 0 30px;flex-wrap:wrap}
+.meta-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line-strong);max-width:520px}
+.meta-grid>div{padding:12px 14px 12px 0;border-bottom:1px solid var(--line)}
+.meta-grid dt{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meta-grid dd{font-weight:600;font-size:14.5px}
+.hero-fig{border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--card);overflow:hidden;box-shadow:6px 6px 0 rgba(28,43,37,.12)}
+.hero-fig .diagram-box{padding:26px 20px 10px}
+.hero-fig figcaption{padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.home-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:44px;border-top:1.5px solid var(--ink);padding-top:38px}
+.route-item{display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;border-top:1px solid var(--line);padding:22px 4px;cursor:pointer;transition:background .15s}
+.route-item:first-child{border-top:none}
+.route-item:hover{background:rgba(28,43,37,.045)}
+.route-no{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:400;color:rgba(30,70,54,.28)}
+.route-item h3{font-size:1.2rem;margin-bottom:4px}
+.route-item p{font-size:13.5px;color:var(--muted)}
+.route-go{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:transparent;color:var(--ink);transition:all .18s}
+.route-item:hover .route-go{background:var(--ink);color:var(--paper)}
+.side-stats{display:flex;flex-direction:column;gap:12px}
+.stat{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:14px 18px}
+.stat .num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;line-height:1}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+/* ============================================================
+   DIAGRAMA DEL HÉROE: CUATRO HERRAMIENTAS → PROYECTO
+============================================================ */
+.arg-svg{width:100%;height:auto;display:block}
+.pi-box{fill:var(--card);stroke:var(--ink);stroke-width:1.3}
+.pi-box.g{stroke:var(--gold)}
+.pi-tag{font-family:'Fraunces',serif;font-weight:700;font-size:11.5px;fill:var(--pine)}
+.pi-sub{font-family:'Instrument Sans',sans-serif;font-size:9.5px;fill:var(--muted)}
+.exam-arrow{stroke:var(--pine);stroke-width:1.6;fill:none;stroke-dasharray:120;stroke-dashoffset:120;animation:drawArrow11 .8s ease forwards}
+@keyframes drawArrow11{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.exam-arrow{animation:none;stroke-dashoffset:0}}
+
+/* ============================================================
+   BASES
+============================================================ */
+.theory{display:grid;grid-template-columns:230px 1fr;gap:52px;align-items:start}
+.toc{position:sticky;top:150px;border-left:1.5px solid var(--ink);display:flex;flex-direction:column}
+.toc-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 0 10px 16px}
+.toc a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:9px 16px;font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin-left:-1.5px;transition:all .15s}
+.toc a span{font-family:'Fraunces',serif;color:var(--terra);font-weight:600;min-width:30px}
+.toc a:hover{border-left-color:var(--pine);background:rgba(28,43,37,.05)}
+.sec{border-top:1px solid var(--line);padding:44px 0}
+.sec:first-child{border-top:none;padding-top:0}
+.sec-no{font-family:'Fraunces',serif;font-size:3rem;font-weight:400;color:rgba(30,70,54,.22);line-height:1}
+.sec h3{font-size:1.5rem;margin:6px 0 16px}
+.prose p{margin:0 0 14px;max-width:72ch}
+.prose ul,.prose ol{margin:0 0 14px 22px;max-width:72ch}
+.prose li{margin-bottom:6px}
+.def{background:#ecf1ea;border:1px solid rgba(30,70,54,.28);border-radius:0 10px 10px 0;border-left:4px solid var(--pine);padding:18px 22px;margin:20px 0}
+.def .def-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--pine)}
+.def p{margin:6px 0 0}
+.ex{background:var(--card);border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 22px;margin:20px 0}
+.ex .ex-tag{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-ink)}
+.tbl{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.tbl th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tbody tr:hover{background:rgba(28,43,37,.04)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid}
+.tag.p{color:var(--pine);border-color:rgba(30,70,54,.45);background:#ecf1ea}
+.tag.c{color:var(--terra);border-color:rgba(194,84,47,.45);background:var(--terra-soft)}
+.tag.x{color:var(--gold-ink);border-color:rgba(201,162,39,.5);background:var(--gold-soft)}
+.demo-piece{border:1px solid var(--line-strong);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;background:var(--card);padding:14px 18px;margin:12px 0}
+.demo-piece .dp-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink)}
+.demo-piece p{margin:4px 0 0;font-size:14px}
+
+/* ============================================================
+   PANELES / DISEÑADOR
+============================================================ */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.panel-body{padding:20px 18px}
+.lab-block{margin-bottom:40px}
+.lab-block>h3{font-size:1.35rem;margin:6px 0 4px}
+.lab-block>.lab-desc{color:var(--muted);max-width:72ch;margin-bottom:16px;font-size:14px}
+.quiz-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:22px;border-top:1.5px solid var(--ink);padding-top:20px}
+.quiz-result{font-size:15px}
+.quiz-result strong{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--pine);margin-right:8px}
+.step-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--paper);background:var(--pine);border-radius:999px;padding:5px 14px;margin-bottom:12px}
+.pz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pz-card{border:1px solid var(--line-strong);border-radius:10px;background:var(--card);padding:16px 18px}
+.pz-card h4{font-size:1.02rem;margin-bottom:4px}
+.pz-card .pz-meta{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:10px}
+.pz-ok{border-left:4px solid var(--pine)}
+.pz-status{font-size:12px;margin-top:10px;display:none;font-weight:600}
+.pz-status.show{display:block}
+.pz-status.ok{color:var(--pine)}
+.pz-status.bad{color:var(--terra)}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);padding:10px 14px;margin-bottom:9px;cursor:pointer;transition:all .15s;font-size:14.5px}
+.chk:hover{border-color:var(--pine)}
+.chk input{width:16px;height:16px;accent-color:var(--pine)}
+.chk.done{background:var(--ok-bg);border-color:var(--pine)}
+
+/* --- Verificador --- */
+.quiz-q{border-top:1px solid var(--line);padding:24px 4px}
+.quiz-q header{display:flex;gap:14px;margin-bottom:14px}
+.qnum{flex:none;font-family:'Fraunces',serif;font-weight:700;color:var(--terra);border:1.5px solid var(--terra);border-radius:8px;padding:2px 9px;height:fit-content}
+.quiz-q .q-text{font-weight:600;font-size:15.5px;padding-top:4px}
+.opts{display:grid;gap:9px;margin-left:56px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14.5px;text-align:left;color:var(--ink);width:100%;font-family:inherit;line-height:1.45}
+.opt:hover{border-color:var(--pine)}
+.opt-key{flex:none;width:26px;height:26px;border:1.5px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;transition:all .15s}
+.opt.is-correct{border-color:var(--pine);background:var(--ok-bg)}
+.opt.is-correct .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.opt.is-wrong{border-color:var(--terra);background:var(--err-bg)}
+.opt.is-wrong .opt-key{background:var(--terra);border-color:var(--terra);color:var(--paper)}
+.opt.locked{cursor:default}
+.opt.selected{border-color:var(--pine);background:#eef3ec}
+.opt.selected .opt-key{background:var(--pine);border-color:var(--pine);color:var(--paper)}
+.explain{margin:12px 0 0 56px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--card)}
+
+/* ============================================================
+   ACTIVIDADES
+============================================================ */
+.act-block{margin-bottom:52px}
+.act-block>h3{font-size:1.45rem;margin:8px 0 6px}
+.act-block>.act-desc{color:var(--muted);max-width:72ch;margin-bottom:20px}
+.rub-row{display:grid;grid-template-columns:1fr 1fr 60px;gap:16px;align-items:center;border-top:1px solid var(--line);padding:14px 4px}
+.rub-row:last-child{border-bottom:1px solid var(--line)}
+.rub-row .rub-name{font-weight:600;font-size:14.5px}
+.rub-bar{height:10px;border:1px solid var(--line-strong);border-radius:999px;overflow:hidden}
+.rub-bar>div{height:100%;background:var(--pine)}
+.rub-pct{text-align:right;font-family:'Fraunces',serif;font-weight:600}
+.pill-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border:1px solid rgba(201,162,39,.5);border-radius:999px;padding:4px 11px;margin-bottom:16px}
+.task-panel{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 20px;color:var(--muted);text-align:center}
+.empty svg{width:30px;height:30px;stroke-width:1.5}
+.star-field{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.star-field .sf-ico{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--paper);background:var(--gold)}
+.star-field .sf-ico.tip{background:var(--terra)}
+
+/* ============================================================
+   MI PROGRESO
+============================================================ */
+.storage-note{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.status-b{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;display:inline-block}
+.status-b.done{color:var(--pine);background:#ecf1ea;border:1px solid rgba(30,70,54,.35)}
+.status-b.pend{color:var(--muted);background:var(--card);border:1px solid var(--line-strong)}
+.result-id{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.result-avatar{width:52px;height:52px;border-radius:50%;background:#ecf1ea;color:var(--pine);display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;border:1.5px solid rgba(30,70,54,.3)}
+.result-name{font-weight:700;font-size:16px}
+.result-mat{font-size:12.5px;color:var(--muted)}
+.result-rows{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.result-row{display:grid;grid-template-columns:180px 1fr 150px;gap:12px;align-items:center;font-size:13.5px}
+.result-row .rub-bar{height:8px}
+.result-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:16px;margin-top:4px}
+.result-total strong{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--pine)}
+.pending-list{display:flex;flex-direction:column;gap:9px}
+.pending-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line-strong);border-radius:9px;padding:10px 13px;font-size:13.5px}
+.pending-item span{display:inline-flex;align-items:center;gap:8px}
+.pending-item.ok{border-color:rgba(30,70,54,.35);background:#ecf1ea}
+.pending-item svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.pending-item.ok svg{color:var(--pine)}
+.panel-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ============================================================
+   TOASTS / FOOTER
+============================================================ */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:10px;padding:12px 16px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toastIn .28s ease}
+.toast svg{width:17px;height:17px;flex:none}
+.toast.ok svg{color:#8fd0a5}
+.toast.err svg{color:#f0a284}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+footer{border-top:2px solid var(--ink);padding:30px 0 40px;margin-top:20px}
+.foot-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.foot-row strong{color:var(--ink)}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:34px}
+  .home-grid{grid-template-columns:1fr}
+  .theory{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;overflow-x:auto;border-left:none;border-bottom:1.5px solid var(--ink);gap:2px}
+  .toc-title{display:none}
+  .toc a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .toc a:hover{border-bottom-color:var(--pine)}
+  .task-panel{grid-template-columns:1fr}
+  .pz-grid{grid-template-columns:1fr}
+  .result-row{grid-template-columns:1fr;gap:4px}
+  .rub-row{grid-template-columns:1fr;gap:8px}
+  .rub-pct{text-align:left}
+  .meta-grid{max-width:none}
+  .opts{margin-left:0}
+  .explain{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand">
+      <span class="brand-ico"><i data-lucide="scale"></i></span>
+      <span>Razonamiento Lógico Matemático<small>Aula interactiva — Sesión 11 · Proyecto integrador - Dr. Adrián Cerda</small></span>
+    </div>
+    <div class="topbar-side">UNITI<br>LPID · Módulo 1</div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="mainNav">
+      <button class="nav-btn active" data-view="inicio"><i data-lucide="home"></i>Inicio</button>
+      <button class="nav-btn" data-view="bases"><i data-lucide="book-open"></i>Bases</button>
+      <button class="nav-btn" data-view="diseno"><i data-lucide="flask-conical"></i>Diseñador</button>
+      <button class="nav-btn" data-view="verifica"><i data-lucide="clipboard-check"></i>Verificador</button>
+      <button class="nav-btn" data-view="actividades"><i data-lucide="clipboard-list"></i>Actividades</button>
+      <button class="nav-btn" data-view="perfil"><i data-lucide="award"></i>Registro y nota del equipo</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== INICIO ==================== -->
+<section class="view" id="v-inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="overline">Razonamiento Lógico-Matemático · UNITI — LPID, Módulo 1</p>
+      <h1>Proyecto integrador: todo lo aprendido, <em>aplicado</em></h1>
+      <p class="lead">Diez sesiones construyeron una caja de herramientas; hoy la abres sobre un problema real de tu comunidad o de tu formación profesional. En equipo, elegirán un problema que <em>requiera</em> argumentación lógica — y lo resolverán integrando argumento, conjuntos, cuantitativo y condición simbólica. No es acumular temas: es demostrar que funcionan juntos.</p>
+      <div class="hero-actions">
+        <button class="btn" data-view="bases"><i data-lucide="book-open"></i>Ver las bases</button>
+        <button class="btn ghost" data-view="diseno"><i data-lucide="flask-conical"></i>Ir al diseñador</button>
+      </div>
+      <dl class="meta-grid">
+        <div><dt>Sesión</dt><dd>11 / 12</dd></div>
+        <div><dt>Duración aprox.</dt><dd>110 min</dd></div>
+        <div><dt>Hilo conductor</dt><dd>¿Cómo aplicamos todo lo aprendido a un problema real de nuestra comunidad o formación profesional?</dd></div>
+        <div><dt>Aprendizaje esperado</dt><dd>Diseña y presenta un proyecto integrador con herramientas lógicas, de conjuntos y cuantitativas</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-fig">
+      <div class="diagram-box">
+        <svg class="arg-svg" viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="h11" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--pine)"></path></marker></defs>
+
+          <rect class="pi-box" x="14" y="16" width="150" height="52" rx="9"></rect>
+          <text class="pi-tag" x="28" y="38">Argumento</text>
+          <text class="pi-sub" x="28" y="56">S1–S3 · premisas → conclusión</text>
+
+          <rect class="pi-box" x="356" y="16" width="150" height="52" rx="9"></rect>
+          <text class="pi-tag" x="370" y="38">Conjuntos</text>
+          <text class="pi-sub" x="370" y="56">S7 · U, ∪, ∩, complemento</text>
+
+          <rect class="pi-box" x="14" y="86" width="150" height="52" rx="9"></rect>
+          <text class="pi-tag" x="28" y="108">Cuantitativo</text>
+          <text class="pi-sub" x="28" y="126">S4–S5 · %, razones, y = mx + b</text>
+
+          <rect class="pi-box" x="356" y="86" width="150" height="52" rx="9"></rect>
+          <text class="pi-tag" x="370" y="108">Lógica simbólica</text>
+          <text class="pi-sub" x="370" y="126">S9 · ∧, ∨, →, ↔ con umbrales</text>
+
+          <path class="exam-arrow" style="animation-delay:.1s" d="M100,142 C120,164 190,182 225,196" marker-end="url(#h11)"></path>
+          <path class="exam-arrow" style="animation-delay:.25s" d="M420,142 C400,164 330,182 295,196" marker-end="url(#h11)"></path>
+          <path class="exam-arrow" style="animation-delay:.4s" d="M100,120 C160,150 200,170 228,192" marker-end="url(#h11)"></path>
+          <path class="exam-arrow" style="animation-delay:.55s" d="M420,120 C360,150 320,170 292,192" marker-end="url(#h11)"></path>
+
+          <rect class="pi-box g" x="150" y="200" width="220" height="42" rx="9"></rect>
+          <text class="pi-tag" x="260" y="227" text-anchor="middle" style="fill:var(--gold-ink)">Proyecto integrador</text>
+        </svg>
+      </div>
+      <figcaption><strong>Cuatro herramientas, un problema.</strong> El proyecto no suma temas: los articula. El argumento decide; los conjuntos clasifican los casos; el cuantitativo mide; la condición simbólica operacionaliza. Si alguna pieza sobra o no conecta con las demás, el problema está mal delimitado — y el Verificador te lo dirá.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap home-grid">
+    <div>
+      <p class="overline" style="margin-bottom:14px">Ruta de la sesión</p>
+      <div class="route-item" data-view="bases">
+        <span class="route-no">01</span>
+        <div><h3>Bases del proyecto</h3><p>Qué es (y qué no), los cuatro ingredientes obligatorios, cómo delimitar el alcance y un mini-proyecto de muestra completo.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="diseno">
+        <span class="route-no">02</span>
+        <div><h3>Diseñador del proyecto</h3><p>Tres pasos: definir y justificar el problema, fijar el alcance, y construir las cuatro piezas con guardado.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="verifica">
+        <span class="route-no">03</span>
+        <div><h3>Verificador de integración</h3><p>Seis preguntas que auditan si tus piezas se conectan de verdad — con qué corregir en cada caso.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+      <div class="route-item" data-view="actividades">
+        <span class="route-no">04</span>
+        <div><h3>Presentación y cierre</h3><p>Rúbrica del proyecto, plan de presentación de 60 segundos, retroalimentación entre equipos y reflexión final.</p></div>
+        <span class="route-go"><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <aside>
+      <p class="overline" style="margin-bottom:14px">En un vistazo</p>
+      <div class="side-stats">
+        <div class="stat"><div class="num" id="statAvance">0%</div><div class="lbl">Tu avance en la sesión</div></div>
+        <div class="stat"><div class="num">4</div><div class="lbl">Piezas obligatorias</div></div>
+        <div class="stat"><div class="num">60"</div><div class="lbl">Presentación en plenaria</div></div>
+        <div class="stat"><div class="num">12</div><div class="lbl">Sesiones del curso</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== BASES ==================== -->
+<section class="view" id="v-bases" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Encuadre · las bases del proyecto</p>
+      <h2>Qué se construye y cómo se evalúa</h2>
+      <p class="sub">Diez minutos de encuadre, por escrito: las reglas del juego antes de jugar. Léelas en equipo — cada duda aquí es una pregunta para el docente antes de elegir problema.</p>
+    </div>
+
+    <div class="theory">
+      <aside class="toc">
+        <p class="toc-title">Contenido</p>
+        <a href="#b1"><span>11.1</span>Qué es (y qué no)</a>
+        <a href="#b2"><span>11.2</span>Los cuatro ingredientes</a>
+        <a href="#b3"><span>11.3</span>Delimitar el alcance</a>
+        <a href="#b4"><span>11.4</span>Mini-proyecto de muestra</a>
+      </aside>
+
+      <div class="prose">
+
+        <article class="sec" id="b1">
+          <div class="sec-no">11.1</div>
+          <h3>Qué es — y qué no es — el proyecto integrador</h3>
+          <div class="def">
+            <span class="def-tag">Definición</span>
+            <p>Un <strong>proyecto integrador</strong> es un trabajo en equipo que toma <strong>un problema concreto y real</strong> — de la comunidad, de la programación, de la ingeniería o del análisis de datos — y lo analiza o resuelve articulando <strong>las cuatro herramientas del curso</strong>: argumentación lógica, teoría de conjuntos, razonamiento cuantitativo y lógica proposicional.</p>
+          </div>
+          <p>No es un proyecto de larga duración tipo ABP: se plantea y desarrolla en esta sesión, y se presenta en la plenaria del cierre. Su exigencia central no es el tamaño sino la <strong>justificación</strong>: el equipo debe explicar por qué su problema <em>requiere</em> argumentación lógica — qué hay que decidir, defender o clasificar que no se resuelva solo con datos o solo con opinión. Un problema sin decisión en juego no es un buen problema para este proyecto.</p>
+          <table class="tbl">
+            <thead><tr><th>Sí es…</th><th>No es…</th></tr></thead>
+            <tbody>
+              <tr><td>Un problema concreto y delimitado («¿ampliar el horario del comedor?»)</td><td>Un tema general («el alimentación en México»)</td></tr>
+              <tr><td>Cuatro herramientas <strong>articuladas</strong> alrededor de una decisión</td><td>Cuatro ejercicios sueltos pegados con cinta</td></tr>
+              <tr><td>Una justificación de por qué la lógica es necesaria</td><td>Un uso decorativo de símbolos para «verse formal»</td></tr>
+              <tr><td>Una presentación breve de 60 segundos por equipo</td><td>Un documento interminable</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="sec" id="b2">
+          <div class="sec-no">11.2</div>
+          <h3>Los cuatro ingredientes obligatorios</h3>
+          <table class="tbl">
+            <thead><tr><th>Ingrediente</th><th>Herramienta</th><th>Sesión</th><th>Pregunta que responde</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag p">1 · Argumento central</span></td><td>Premisas → conclusión, con indicadores</td><td>S1–S3</td><td>¿Qué se defiende y por qué?</td></tr>
+              <tr><td><span class="tag c">2 · Modelo de conjuntos</span></td><td>Universo, dos conjuntos y una operación (Venn)</td><td>S7</td><td>¿Qué casos entran y cuáles se excluyen?</td></tr>
+              <tr><td><span class="tag x">3 · Pieza cuantitativa</span></td><td>Porcentaje con base explícita o función lineal</td><td>S4–S5</td><td>¿Cuánto, con qué base, y qué tan fuerte?</td></tr>
+              <tr><td><span class="tag p">4 · Condición simbólica</span></td><td>Proposiciones y conectivos (p, q, ∧, ∨, →)</td><td>S9</td><td>¿Bajo qué condición exacta se actúa?</td></tr>
+            </tbody>
+          </table>
+          <div class="def">
+            <span class="def-tag">La prueba de integración</span>
+            <p>Las cuatro piezas deben compartir <strong>el mismo objeto</strong>: la decisión del argumento es la que evalúa el dato cuantitativo; los conjuntos clasifican los casos que la condición simbólica operacionaliza. Si al leer las cuatro piezas no puedes decir cuál es la decisión común, el proyecto está desintegrado — aunque cada pieza esté bien hecha por separado.</p>
+          </div>
+        </article>
+
+        <article class="sec" id="b3">
+          <div class="sec-no">11.3</div>
+          <h3>Delimitar el alcance: el filtro de tres preguntas</h3>
+          <p>Antes de construir, el problema pasa el filtro:</p>
+          <ol>
+            <li><strong>¿Es decidible?</strong> Hay al menos dos cursos de acción o dos afirmaciones en disputa. («¿Ampliamos el horario o no?» sí; «la alimentación es importante» no.)</li>
+            <li><strong>¿Es acotado?</strong> Una población, un periodo, un lugar definibles. («Los 40 estudiantes del grupo, este cuatrimestre» sí; «todos los jóvenes» no.)</li>
+            <li><strong>¿Hay datos alcanzables?</strong> Al menos uno cuantitativo que el equipo pueda estimar, medir u obtener de fuente citable — aunque sea con una encuesta de 15 compañeros bien hecha (sesión 4: base explícita, selección justificada).</li>
+          </ol>
+          <p>Con el filtro pasado, el alcance se escribe en una frase: <em>«Decidir si [acción], para [población], durante [periodo], con base en [dato disponible]»</em>. Esa frase va en el paso 2 del Diseñador y es el contrato del equipo consigo mismo.</p>
+        </article>
+
+        <article class="sec" id="b4">
+          <div class="sec-no">11.4</div>
+          <h3>Mini-proyecto de muestra (para imitar la forma, no el contenido)</h3>
+          <p><strong>Problema:</strong> «¿Debe el comedor universitario ampliar su horario hasta las 20:00?» <strong>Alcance:</strong> decidir la ampliación para los estudiantes del turno vespertino este ciclo, con una encuesta piloto.</p>
+          <div class="demo-piece"><span class="dp-tag">Pieza 1 · Argumento (S1–S3)</span><p>«Si la mayoría de los estudiantes vespertinos cena después de las 20:00 y el comedor cierra a las 18:00, entonces el servicio no cubre la demanda real. La encuesta piloto muestra que el 68% de 50 encuestados cena después de las 20:00. Por lo tanto, <strong>el comedor debería ampliar su horario</strong>.» — argumento inductivo fuerte si la muestra es aleatoria y representativa (S3–S4).</p></div>
+          <div class="demo-piece"><span class="dp-tag">Pieza 2 · Conjuntos (S7)</span><p>U = estudiantes vespertinos del ciclo. E = {cena después de las 20:00} · C = {come en el comedor actualmente}. La decisión importa si E ∩ C es grande (quienes cenarían tarde y ya usan el comedor) — la operación que hay que calcular y pintar en Venn.</p></div>
+          <div class="demo-piece"><span class="dp-tag">Pieza 3 · Cuantitativo (S4–S5)</span><p>68% de 50 = 34 estudiantes. Pregunta de auditoría: ¿de cuántos, cómo elegidos? Si la función de costo del comedor es C(h) = 800 + 120h (sueldo fijo + costo por hora extra), ampliar 2 horas cuesta C(2) = 1,040 por noche — el dato que la decisión debe pesar.</p></div>
+          <div class="demo-piece"><span class="dp-tag">Pieza 4 · Condición simbólica (S9)</span><p>Con m = «mayoría cena después de las 20:00», d = «el costo extra es menor al ingreso esperado»: <strong>(m ∧ d) → ampliar</strong>. La regla de decisión queda operacionalizada — y es un if ejecutable.</p></div>
+          <div class="def">
+            <span class="def-tag">Fíjate en las costuras</span>
+            <p>El 68% alimenta la premisa mayor; el conjunto E ∩ C define a quién afecta; la función C(h) pone precio a la decisión; y la condición (m ∧ d) → ampliar la convierte en regla ejecutable. Cuatro sesiones distintas, <strong>una sola decisión</strong>. Esa costura es lo que el Verificador auditara y la rúbrica premiará.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DISEÑADOR ==================== -->
+<section class="view" id="v-diseno" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Desarrollo · diseñador del proyecto</p>
+      <h2>Construye tu proyecto, pieza por pieza</h2>
+      <p class="sub">Tres pasos en orden: el problema con su justificación, el alcance firmado por el equipo, y las cuatro piezas. Todo se guarda; el Verificador y la rúbrica lean lo que aquí quede.</p>
+    </div>
+
+    <!-- Paso 1 -->
+    <div class="lab-block">
+      <h3>Paso 1 · El problema y su justificación</h3>
+      <p class="lab-desc">Elige el tipo, redacta el problema como una <strong>decisión o disputa concreta</strong> (filtro 11.3) y justifica por qué este problema <em>requiere</em> argumentación lógica — la exigencia central de la sesión.</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="pz-grid">
+            <div class="field">
+              <label for="pbTipo">Tipo de problema</label>
+              <select id="pbTipo">
+                <option value="">— elige —</option>
+                <option>Comunitario</option>
+                <option>Programación</option>
+                <option>Ingeniería</option>
+                <option>Análisis de datos</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pbNom">Nombre corto del proyecto</label>
+              <input id="pbNom" type="text" maxlength="80" placeholder="Ej. Horario del comedor">
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="pbTxt">El problema, como decisión o disputa concreta</label>
+            <textarea id="pbTxt" maxlength="300" placeholder="¿Debe…? / ¿Conviene…? / ¿Es cierto que…? — para [población], en [lugar/periodo]"></textarea>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="pbJust">¿Por qué este problema requiere argumentación lógica? (qué hay que decidir o defender, y por qué los datos o la opinión solos no bastan)</label>
+            <textarea id="pbJust" maxlength="500" placeholder="Porque hay dos posturas en disputa… porque la decisión depende de…"></textarea>
+          </div>
+          <div class="quiz-foot" style="border-top:none;padding-top:16px">
+            <button class="btn" id="btnPbSave"><i data-lucide="save"></i>Guardar paso 1</button>
+            <div class="quiz-result" id="pbStatus"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="lab-block">
+      <h3>Paso 2 · Alcance: el contrato del equipo</h3>
+      <p class="lab-desc">Completa la frase-contrato y marca el checklist de integración. Los checkboxes no son trámite: cada uno se volverá a exigir en el Verificador.</p>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="field">
+            <label for="scFrase">Frase de alcance: «Decidir si [acción], para [población], durante [periodo], con base en [dato]»</label>
+            <input id="scFrase" type="text" maxlength="240" placeholder="Decidir si ampliar el horario, para los vespertinos, este ciclo, con la encuesta piloto…">
+          </div>
+          <p class="hint" style="margin:16px 0 10px">Checklist de integración — marca lo que tu diseño ya cumple:</p>
+          <div id="scChk"></div>
+          <div class="quiz-foot" style="border-top:none;padding-top:16px">
+            <button class="btn" id="btnScSave"><i data-lucide="save"></i>Guardar paso 2</button>
+            <div class="quiz-result" id="scStatus"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="lab-block">
+      <h3>Paso 3 · Las cuatro piezas</h3>
+      <p class="lab-desc">Construye cada pieza alrededor de la <strong>misma decisión</strong>. Guarda cuando las cuatro estén completas — el botón valida y bloquea hasta que todo exista.</p>
+      <div class="pz-grid">
+        <div class="pz-card" id="pzA">
+          <div class="pz-meta">Pieza 1 · Sesiones 1–3</div>
+          <h4>Argumento central</h4>
+          <div class="field" style="margin-bottom:10px"><label>Premisa 1</label><input id="aP1" type="text" maxlength="200"></div>
+          <div class="field" style="margin-bottom:10px"><label>Premisa 2</label><input id="aP2" type="text" maxlength="200"></div>
+          <div class="field"><label>Conclusión (la decisión que se defiende)</label><input id="aC" type="text" maxlength="200"></div>
+          <div class="pz-status" id="stA"></div>
+        </div>
+        <div class="pz-card" id="pzB">
+          <div class="pz-meta">Pieza 2 · Sesión 7</div>
+          <h4>Modelo de conjuntos</h4>
+          <div class="field" style="margin-bottom:10px"><label>Universo U (qué casos considera el problema)</label><input id="bU" type="text" maxlength="160"></div>
+          <div class="pz-grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <div class="field"><label>Conjunto A</label><input id="bA" type="text" maxlength="120"></div>
+            <div class="field"><label>Conjunto B</label><input id="bB" type="text" maxlength="120"></div>
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Operación que importa para la decisión</label>
+            <select id="bOp">
+              <option value="">— elige —</option>
+              <option>A ∪ B (en alguno de los dos)</option>
+              <option>A ∩ B (en ambos)</option>
+              <option>A − B (en A pero no en B)</option>
+              <option>Complemento de A (fuera de A)</option>
+            </select>
+          </div>
+          <div class="pz-status" id="stB"></div>
+        </div>
+        <div class="pz-card" id="pzC">
+          <div class="pz-meta">Pieza 3 · Sesiones 4–5</div>
+          <h4>Pieza cuantitativa</h4>
+          <div class="field" style="margin-bottom:10px">
+            <label>Tipo</label>
+            <select id="cTipo">
+              <option value="">— elige —</option>
+              <option>Porcentaje / razón con base explícita</option>
+              <option>Función lineal y = mx + b</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:10px"><label>El dato o el modelo (con su base o sus parámetros)</label><input id="cDato" type="text" maxlength="220" placeholder="Ej. 68% de 50 encuestados = 34 · o · C(h) = 800 + 120h"></div>
+          <div class="field"><label>Qué responde este dato a la decisión</label><input id="cResp" type="text" maxlength="220"></div>
+          <div class="pz-status" id="stC"></div>
+        </div>
+        <div class="pz-card" id="pzD">
+          <div class="pz-meta">Pieza 4 · Sesión 9</div>
+          <h4>Condición simbólica</h4>
+          <div class="field" style="margin-bottom:10px"><label>p = «…»</label><input id="dP" type="text" maxlength="160"></div>
+          <div class="field" style="margin-bottom:10px"><label>q = «…»</label><input id="dQ" type="text" maxlength="160"></div>
+          <div class="field"><label>Fórmula que opera la decisión</label><input id="dF" type="text" maxlength="120" placeholder="Ej. (p ∧ q) → ampliar"></div>
+          <div class="pz-status" id="stD"></div>
+        </div>
+      </div>
+      <div class="quiz-foot">
+        <button class="btn" id="btnPzSave"><i data-lucide="save"></i>Guardar las cuatro piezas</button>
+        <div class="quiz-result" id="pzStatus"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== VERIFICADOR ==================== -->
+<section class="view" id="v-verifica" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Autoevaluación del equipo</p>
+      <h2>Verificador de integración</h2>
+      <p class="sub">Seis preguntas que auditan si tus piezas <em>se conectan</em> — no que simplemente existan. Responde con honestidad: «parcial» es una respuesta útil, «no» señala exactamente qué arreglar antes de presentar.</p>
+    </div>
+    <div id="quizList"></div>
+    <div class="quiz-foot">
+      <button class="btn" id="btnGrade"><i data-lucide="check-check"></i>Verificar proyecto</button>
+      <button class="btn ghost" id="btnQuizReset"><i data-lucide="rotate-ccw"></i>Reintentar</button>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+    <p class="note" id="verifyNote" hidden></p>
+  </div>
+</section>
+
+<!-- ==================== ACTIVIDADES ==================== -->
+<section class="view" id="v-actividades" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Cierre · plenaria y presentación</p>
+      <h2>Rúbrica, presentación y reflexión final</h2>
+      <p class="sub">El proyecto se comparte en plenaria (60 segundos por equipo) y el grupo identifica las conexiones entre lógica, conjuntos y matemáticas en cada caso.</p>
+    </div>
+
+    <!-- Rúbrica -->
+    <div class="act-block">
+      <h3>Rúbrica del proyecto</h3>
+      <span class="pill-flag"><i data-lucide="alert-triangle"></i>Propuesta preliminar — pendiente de validación en Academia (colegiada)</span>
+      <p class="act-desc">Ponderación de los instrumentos autoevaluables de esta sesión. La presentación en plenaria alimenta el eje Ser.</p>
+      <div class="rub-row"><span class="rub-name">Problema definido y justificado (paso 1)</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">15 pts</span></div>
+      <div class="rub-row"><span class="rub-name">Cuatro piezas integradoras (paso 3)</span><div class="rub-bar"><div style="width:40%"></div></div><span class="rub-pct">30 pts</span></div>
+      <div class="rub-row"><span class="rub-name">Verificador de integración</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">15 pts</span></div>
+      <div class="rub-row"><span class="rub-name">Plan de presentación + retroalimentación dada</span><div class="rub-bar"><div style="width:20%"></div></div><span class="rub-pct">15 pts</span></div>
+      <div class="rub-row"><span class="rub-name">Autonomía, pensamiento crítico y respeto por perspectivas diversas (eje Ser)</span><div class="rub-bar"><div style="width:33%"></div></div><span class="rub-pct">25 pts</span></div>
+    </div>
+
+    <!-- Presentación + retro -->
+    <div class="act-block">
+      <h3>Plan de presentación y ronda de retroalimentación</h3>
+      <p class="act-desc">La plenaria en dos tiempos: primero tu guion de 60 segundos (problema, hallazgo más fuerte, conexión interdisciplinaria), después la retro que tu equipo dio a otro — dos fortalezas y una sugerencia concreta. Ambos se guardan y valen 15 puntos.</p>
+      <div class="task-panel">
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="ticket"></i>Guion de 60 segundos</div>
+          <div class="panel-body">
+            <div id="preEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu plan.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="preForm" hidden>
+              <div class="field" style="margin-bottom:12px">
+                <label for="prProb">1 · El problema y la decisión en juego (1–2 frases)</label>
+                <textarea id="prProb" maxlength="300" placeholder="Teníamos que decidir si…"></textarea>
+              </div>
+              <div class="field" style="margin-bottom:12px">
+                <label for="prHall">2 · El hallazgo más fuerte (el dato o la pieza que más pesó)</label>
+                <textarea id="prHall" maxlength="300" placeholder="Lo que más pesó fue… porque…"></textarea>
+              </div>
+              <div class="field" style="margin-bottom:14px">
+                <label for="prConn">3 · La conexión interdisciplinaria central (lógica ↔ conjuntos ↔ matemáticas)</label>
+                <textarea id="prConn" maxlength="300" placeholder="La conexión más clara fue…"></textarea>
+              </div>
+              <div class="field">
+                <label for="rtEq">Retro dada — equipo evaluado (nombre o número)</label>
+                <input id="rtEq" type="text" maxlength="80" placeholder="Ej. Equipo 3">
+              </div>
+              <div class="star-field" style="margin-top:10px"><span class="sf-ico">★</span><input id="rtF1" type="text" maxlength="160" placeholder="Fortaleza 1 de su proyecto"></div>
+              <div class="star-field"><span class="sf-ico">★</span><input id="rtF2" type="text" maxlength="160" placeholder="Fortaleza 2 de su proyecto"></div>
+              <div class="star-field"><span class="sf-ico tip">→</span><input id="rtSug" type="text" maxlength="160" placeholder="Una sugerencia concreta y aplicable"></div>
+              <button class="btn" id="btnPreSave" style="width:100%;justify-content:center;margin-top:14px"><i data-lucide="save"></i>Guardar plan y retroalimentación</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><i data-lucide="brain"></i>Hoja de reflexión final</div>
+          <div class="panel-body">
+            <div id="reflexionEmpty" class="empty">
+              <i data-lucide="user-plus"></i>
+              <p>Aún no te has registrado.<br>Regístrate para guardar tu reflexión.</p>
+              <button class="btn sm" data-view="perfil"><i data-lucide="award"></i>Ir a registrarme</button>
+            </div>
+            <div id="reflexionForm" hidden>
+              <p class="hint" style="margin-bottom:12px">Última hoja de reflexión del curso. No pondera en la nota autoevaluable: es el insumo del eje Ser y tu cierre personal del módulo.</p>
+              <div class="field" style="margin-bottom:12px">
+                <label for="rfAprendi">¿Qué te llevas del curso que ya usaste — o sabes que usarás — fuera del aula?</label>
+                <textarea id="rfAprendi" maxlength="500" placeholder="Antes de este curso yo… ahora…"></textarea>
+              </div>
+              <div class="field">
+                <label for="rfEquipo">¿Qué aportó tu equipo y qué harían distinto en un próximo proyecto?</label>
+                <textarea id="rfEquipo" maxlength="500" placeholder="Como equipo aprendimos… para la próxima…"></textarea>
+              </div>
+              <button class="btn" id="btnSaveReflexion" style="width:100%;justify-content:center;margin-top:12px"><i data-lucide="save"></i>Guardar mi reflexión final</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compromisos -->
+    <div class="act-block">
+      <h3>Compromisos de aprendizaje</h3>
+      <p class="act-desc">Los últimos del curso. Márcalos conforme los asumas.</p>
+      <div id="compromisosList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MI PROGRESO ==================== -->
+<section class="view" id="v-perfil" hidden>
+  <div class="wrap">
+    <div class="view-head">
+      <p class="overline">Registro del equipo</p>
+      <h2>Registro y monitoreo de avance</h2>
+      <p class="sub">Este archivo lo trabaja el equipo en un dispositivo. Regístrense con las credenciales de quien custodia el proyecto: la nota refleja el estado del diseño guardado.</p>
+    </div>
+
+    <div class="storage-note" id="storageNote">
+      <i data-lucide="info"></i>
+      <span>Verificando almacenamiento disponible…</span>
+    </div>
+
+    <div style="max-width:480px" id="perfilForm">
+      <div class="panel">
+        <div class="panel-head"><i data-lucide="user-plus"></i>Registro con credenciales institucionales</div>
+        <div class="panel-body">
+          <form id="formPerfil" style="display:grid;gap:14px" novalidate>
+            <div class="field">
+              <label for="pNombre">Nombre completo (custodio del proyecto)</label>
+              <input id="pNombre" type="text" placeholder="Ej. Ana Sofía Delgado Ruiz" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="pMatricula">Matrícula</label>
+              <input id="pMatricula" type="text" placeholder="Ej. 20260315" autocomplete="off">
+            </div>
+            <button class="btn" type="submit" style="justify-content:center"><i data-lucide="user-plus"></i>Registrarme</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="perfilDash" hidden></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div><strong>Sesión 11 · Proyecto integrador y cierre del curso.</strong><br>Razonamiento Lógico-Matemático · UNITI, LPID, Módulo 1.</div>
+    <div style="max-width:420px">El proyecto se plantea, desarrolla y presenta en esta sesión; el mini-proyecto de las Bases es un modelo de forma — los equipos construyen el suyo propio.</div>
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<!-- ============================================================
+     >>> AQUÍ PEGARÁS LA PARTE 2 <<<
+     (el bloque <script> completo con toda la lógica,
+     sin CDN de lucide — los iconos van incrustados)
+============================================================ -->
+<script>
+/* ============================================================
+   ICONOS SIN INTERNET — sustituye al CDN de lucide.
+============================================================ */
+(function(){
+  if(window.lucide && window.lucide.createIcons) return;
+  var P = {
+    'scale':'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+    'home':'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    'book-open':'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'flask-conical':'<path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/>',
+    'clipboard-check':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'clipboard-list':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'award':'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+    'arrow-right':'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'check-check':'<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+    'rotate-ccw':'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    'check':'<path d="M20 6 9 17l-5-5"/>',
+    'circle':'<circle cx="12" cy="12" r="10"/>',
+    'user-plus':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'save':'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+    'list-checks':'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+    'brain':'<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>',
+    'pencil':'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+    'download':'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'info':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'alert-triangle':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'check-circle-2':'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    'alert-circle':'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'shield-check':'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'ticket':'<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>'
+  };
+  function createIcons(){
+    var nodes = document.querySelectorAll('i[data-lucide]');
+    for(var k=0;k<nodes.length;k++){
+      var el = nodes[k];
+      var name = el.getAttribute('data-lucide');
+      var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 24 24');
+      svg.setAttribute('fill','none');
+      svg.setAttribute('stroke','currentColor');
+      svg.setAttribute('stroke-width','2');
+      svg.setAttribute('stroke-linecap','round');
+      svg.setAttribute('stroke-linejoin','round');
+      svg.setAttribute('class','lucide');
+      svg.innerHTML = P[name] || '<circle cx="12" cy="12" r="9"/>';
+      el.replaceWith(svg);
+    }
+  }
+  window.lucide = { createIcons: createIcons };
+})();
+</script>
+<script>
+/* ============================================================
+   UTILIDADES
+============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, type='ok'){
+  const box=$('#toasts'), t=document.createElement('div');
+  t.className='toast '+type;
+  t.innerHTML = `<i data-lucide="${type==='ok'?'check-circle-2':'alert-circle'}"></i><span>${esc(msg)}</span>`;
+  box.appendChild(t); refreshIcons();
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 320); }, 3200);
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ============================================================
+   NAVEGACIÓN DE VISTAS
+============================================================ */
+function showView(v){
+  $$('.view').forEach(s => s.hidden = true);
+  $('#v-'+v).hidden = false;
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='perfil') renderPerfil();
+  if(v==='actividades') refreshCierrePanel();
+  if(v==='diseno') repopulateDiseno();
+}
+document.addEventListener('click', e=>{
+  const editBtn = e.target.closest('[data-action="edit-perfil"]');
+  if(editBtn){ enterEditMode(); return; }
+  const dlBtn = e.target.closest('[data-action="download-evidence"]');
+  if(dlBtn){ generateEvidenceImage(); return; }
+  const vw = e.target.closest('[data-view]');
+  if(vw){
+    if(vw.tagName==='A') e.preventDefault();
+    showView(vw.dataset.view);
+  }
+});
+
+/* ============================================================
+   ALMACENAMIENTO
+============================================================ */
+const memStore = new Map();
+function hasWS(){ return typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'; }
+async function stGet(key){
+  if(hasWS()){
+    try{ const r = await window.storage.get(key); return r ? r.value : null; }
+    catch(e){ return null; }
+  }
+  return memStore.has(key) ? memStore.get(key) : null;
+}
+async function stSet(key, value){
+  if(hasWS()){
+    try{ await window.storage.set(key, value); return true; }
+    catch(e){ return false; }
+  }
+  memStore.set(key, value); return true;
+}
+async function stDelete(key){
+  if(hasWS()){
+    try{ await window.storage.delete(key); return true; }
+    catch(e){ return false; }
+  }
+  memStore.delete(key); return true;
+}
+async function loadJSON(key, fallback){
+  const v = await stGet(key);
+  if(v==null) return fallback;
+  try{ return JSON.parse(v); }catch(e){ return fallback; }
+}
+async function saveJSON(key, obj){ return stSet(key, JSON.stringify(obj)); }
+
+const PERFIL_KEY = 'perfilAlumno';
+const K = {
+  paso1:'s11_problema',
+  paso2:'s11_alcance',
+  piezas:'s11_piezas',
+  verif:'s11_verificador',
+  present:'s11_presentacion',
+  reflexion:'s11_reflexion',
+  compromisos:'s11_compromisos'
+};
+
+/* ============================================================
+   PASO 1 · PROBLEMA Y JUSTIFICACIÓN
+============================================================ */
+ $('#btnPbSave').addEventListener('click', async ()=>{
+  const tipo=$('#pbTipo').value, nom=$('#pbNom').value.trim(),
+        txt=$('#pbTxt').value.trim(), just=$('#pbJust').value.trim();
+  const st=$('#pbStatus');
+  const fails=[];
+  if(!tipo) fails.push('el tipo de problema');
+  if(nom.length<3) fails.push('un nombre corto');
+  if(txt.length<20) fails.push('el problema como decisión concreta (más detalle)');
+  if(just.length<40) fails.push('la justificación de por qué requiere argumentación lógica (mín. 40 caracteres — es la exigencia central de la sesión)');
+  if(fails.length){
+    st.innerHTML=`<span style="color:var(--terra)">Falta: ${fails.map(esc).join('; ')}.</span>`;
+    toast('Completa el paso 1 antes de guardar.','err');
+    return;
+  }
+  await saveJSON(K.paso1,{tipo,nom,txt,just,saved:true,ts:Date.now()});
+  st.innerHTML=`<span style="color:var(--pine)">✔ Paso 1 guardado: «${esc(nom)}».</span>`;
+  toast('Problema y justificación guardados.');
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PASO 2 · ALCANCE Y CHECKLIST
+============================================================ */
+const SC_ITEMS=[
+  'Las cuatro piezas hablan de la MISMA decisión (no de temas vecinos).',
+  'El dato cuantitativo alimenta una premisa del argumento (no es decoración).',
+  'Los conjuntos clasifican los casos que la condición simbólica operacionaliza.',
+  'La fórmula simbólica usa las variables p y q tal como están definidas.',
+  'La población de la frase de alcance es la misma del universo U de los conjuntos.',
+  'La conclusión del argumento es una acción decidible (sí / no), no una reflexión.'
+];
+async function renderScChk(){
+  const saved = await loadJSON(K.paso2,{chk:[]});
+  $('#scChk').innerHTML = SC_ITEMS.map((c,i)=>`
+    <label class="chk ${(saved.chk||[]).includes(i)?'done':''}">
+      <input type="checkbox" data-i="${i}" ${(saved.chk||[]).includes(i)?'checked':''}>
+      <span>${c}</span>
+    </label>`).join('');
+}
+ $('#scChk').addEventListener('change', e=>{
+  const cb=e.target.closest('input[type=checkbox]'); if(!cb) return;
+  cb.closest('.chk').classList.toggle('done', cb.checked);
+});
+ $('#btnScSave').addEventListener('click', async ()=>{
+  const frase=$('#scFrase').value.trim();
+  const chk=$$('#scChk input:checked').map(cb=>+cb.dataset.i);
+  const st=$('#scStatus');
+  if(frase.length<20){
+    st.innerHTML=`<span style="color:var(--terra)">Escribe la frase-contrato completa (acción, población, periodo, dato).</span>`;
+    toast('El alcance necesita la frase completa.','err');
+    return;
+  }
+  await saveJSON(K.paso2,{frase, chk, saved:true, ts:Date.now()});
+  st.innerHTML=`<span style="color:var(--pine)">✔ Alcance guardado · checklist: ${chk.length}/6 marcados.</span>`;
+  toast('Alcance guardado.');
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PASO 3 · LAS CUATRO PIEZAS
+============================================================ */
+function validatePieceA(){
+  const p1=$('#aP1').value.trim(), p2=$('#aP2').value.trim(), c=$('#aC').value.trim();
+  const missing=[];
+  if(p1.length<5) missing.push('premisa 1');
+  if(p2.length<5) missing.push('premisa 2');
+  if(c.length<5) missing.push('conclusión');
+  return {ok:missing.length===0, missing};
+}
+function validatePieceB(){
+  const u=$('#bU').value.trim(), a=$('#bA').value.trim(), b=$('#bB').value.trim(), op=$('#bOp').value;
+  const missing=[];
+  if(u.length<5) missing.push('universo U');
+  if(a.length<3) missing.push('conjunto A');
+  if(b.length<3) missing.push('conjunto B');
+  if(!op) missing.push('la operación');
+  return {ok:missing.length===0, missing};
+}
+function validatePieceC(){
+  const t=$('#cTipo').value, d=$('#cDato').value.trim(), r=$('#cResp').value.trim();
+  const missing=[];
+  if(!t) missing.push('el tipo');
+  if(d.length<8) missing.push('el dato o modelo (con base o parámetros)');
+  if(r.length<8) missing.push('qué responde a la decisión');
+  return {ok:missing.length===0, missing};
+}
+function validatePieceD(){
+  const p=$('#dP').value.trim(), q=$('#dQ').value.trim(), f=$('#dF').value.trim();
+  const missing=[];
+  if(p.length<5) missing.push('p');
+  if(q.length<5) missing.push('q');
+  if(f.length<3) missing.push('la fórmula');
+  const hasConn = /[∧∨→↔¬]/.test(f) || /\b(y|o|si|no)\b/i.test(f);
+  if(!hasConn) missing.push('un conectivo en la fórmula (∧, ∨, →, ↔, ¬ o «y/o/si»)');
+  return {ok:missing.length===0, missing};
+}
+function paintPiece(cardId, stId, res, label){
+  const card=$('#'+cardId), st=$('#'+stId);
+  card.classList.toggle('pz-ok', res.ok);
+  st.className='pz-status show '+(res.ok?'ok':'bad');
+  st.textContent = res.ok ? `✔ ${label} completa` : `✕ ${label}: falta ${res.missing.join(', ')}.`;
+}
+ $('#btnPzSave').addEventListener('click', async ()=>{
+  const A=validatePieceA(), B=validatePieceB(), C=validatePieceC(), D=validatePieceD();
+  paintPiece('pzA','stA',A,'Argumento');
+  paintPiece('pzB','stB',B,'Conjuntos');
+  paintPiece('pzC','stC',C,'Cuantitativo');
+  paintPiece('pzD','stD',D,'Condición simbólica');
+  if(!(A.ok&&B.ok&&C.ok&&D.ok)){
+    $('#pzStatus').innerHTML=`<span style="color:var(--terra)">El guardado está bloqueado: completa las piezas marcadas.</span>`;
+    toast('Hay piezas incompletas — revisa las tarjetas.','err');
+    return;
+  }
+  await saveJSON(K.piezas,{
+    A:{p1:$('#aP1').value.trim(),p2:$('#aP2').value.trim(),c:$('#aC').value.trim()},
+    B:{u:$('#bU').value.trim(),a:$('#bA').value.trim(),b:$('#bB').value.trim(),op:$('#bOp').value},
+    C:{tipo:$('#cTipo').value,dato:$('#cDato').value.trim(),resp:$('#cResp').value.trim()},
+    D:{p:$('#dP').value.trim(),q:$('#dQ').value.trim(),f:$('#dF').value.trim()},
+    saved:true, ts:Date.now()
+  });
+  $('#pzStatus').innerHTML=`<span style="color:var(--pine)">✔ Las cuatro piezas están guardadas. Siguiente parada: el Verificador.</span>`;
+  toast('Proyecto completo: cuatro piezas integradas.');
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+async function repopulateDiseno(){
+  const p1=await loadJSON(K.paso1,null);
+  if(p1){
+    if(p1.tipo) $('#pbTipo').value=p1.tipo;
+    $('#pbNom').value=p1.nom||'';
+    $('#pbTxt').value=p1.txt||'';
+    $('#pbJust').value=p1.just||'';
+    $('#pbStatus').innerHTML=p1.saved?`<span style="color:var(--pine)">✔ Paso 1 guardado: «${esc(p1.nom)}».</span>`:'';
+  }
+  const p2=await loadJSON(K.paso2,null);
+  await renderScChk();
+  if(p2){
+    $('#scFrase').value=p2.frase||'';
+    if(p2.saved) $('#scStatus').innerHTML=`<span style="color:var(--pine)">✔ Alcance guardado · checklist: ${(p2.chk||[]).length}/6.</span>`;
+  }
+  const pz=await loadJSON(K.piezas,null);
+  if(pz){
+    if(pz.A){ $('#aP1').value=pz.A.p1||''; $('#aP2').value=pz.A.p2||''; $('#aC').value=pz.A.c||''; }
+    if(pz.B){ $('#bU').value=pz.B.u||''; $('#bA').value=pz.B.a||''; $('#bB').value=pz.B.b||''; if(pz.B.op) $('#bOp').value=pz.B.op; }
+    if(pz.C){ if(pz.C.tipo) $('#cTipo').value=pz.C.tipo; $('#cDato').value=pz.C.dato||''; $('#cResp').value=pz.C.resp||''; }
+    if(pz.D){ $('#dP').value=pz.D.p||''; $('#dQ').value=pz.D.q||''; $('#dF').value=pz.D.f||''; }
+    if(pz.saved){
+      paintPiece('pzA','stA',validatePieceA(),'Argumento');
+      paintPiece('pzB','stB',validatePieceB(),'Conjuntos');
+      paintPiece('pzC','stC',validatePieceC(),'Cuantitativo');
+      paintPiece('pzD','stD',validatePieceD(),'Condición simbólica');
+      $('#pzStatus').innerHTML=`<span style="color:var(--pine)">✔ Proyecto guardado previamente. Puedes seguir editando.</span>`;
+    }
+  }
+  refreshIcons();
+}
+
+/* ============================================================
+   VERIFICADOR DE INTEGRACIÓN (Sí / Parcial / No)
+============================================================ */
+const VQ=[
+ {q:'¿La conclusión del argumento es la MISMA decisión que evalúa tu pieza cuantitativa?',
+  fb:['Perfecto: el dato pesa exactamente sobre lo que se decide.',
+      'El dato apoya el tema pero no decide: reescribe «qué responde este dato» para que conteste directamente a la conclusión.',
+      'Hay dos conversaciones en paralelo. Elige un dato que pese en la decisión — o redefine la conclusión alrededor del dato que tienes.']},
+ {q:'¿Los conjuntos A y B viven en el mismo universo U que la población de tu frase de alcance?',
+  fb:['Alineados: U describe a la misma gente/casos que el alcance.',
+      'U es más amplio o más angosto que el alcance: reescribe U con la población exacta de la frase-contrato.',
+      'Universo y alcance hablan de poblaciones distintas: elige una y unifica ambas piezas.']},
+ {q:'¿La operación elegida (∩, ∪, −) identifica exactamente a quienes afecta la decisión?',
+  fb:['La operación selecciona a los casos relevantes para decidir.',
+      'La operación es correcta en general, pero no es la que separa los casos que importan: prueba la intersección o la diferencia según quién debe cambiar de conducta.',
+      'Revisa qué pregunta le harías a tus casos: «¿está en la situación que dispara la decisión?» — esa es la operación.']},
+ {q:'¿La fórmula simbólica usa p y q tal como los definiste — sin variables fantasma?',
+  fb:['Sin variables fantasma: la fórmula es ejecutable tal cual.',
+      'Hay letras en la fórmula que no definiste arriba: elimínalas o agrega su definición.',
+      'La fórmula no conecta con las definiciones: reescríbela usando únicamente p, q y conectivos.']},
+ {q:'¿Tu pieza cuantitativa tiene base explícita (x% de N) o parámetros completos (m y b)?',
+  fb:['Base o parámetros completos: la cifra es auditable (sesión 4).',
+      'La cifra existe pero la base es ambigua: agrega el «de cuántos» o los valores de m y b.',
+      'Un porcentaje sin base no es un dato: es decoración. Completa la base antes de presentar.']},
+ {q:'¿Alguien ajeno al equipo entendería las cuatro piezas sin que se las expliques de viva voz?',
+  fb:['Autónomas: el proyecto se sostiene en el papel.',
+      'Casi: nombra las piezas con las palabras de tu problema (no «conjunto A», sino lo que A significa en tu caso).',
+      'Revisa nombres y frases: cada pieza debe leerse con el vocabulario del problema, no con el del curso.']}
+];
+function renderVQ(){
+  $('#quizList').innerHTML = VQ.map((q,i)=>`
+    <div class="quiz-q" data-q="${i}">
+      <header><span class="qnum mono">V${i+1}</span><span class="q-text">${q.q}</span></header>
+      <div class="opts">${['Sí, totalmente','Parcialmente','No, todavía no'].map((o,j)=>`
+        <button type="button" class="opt" data-q="${i}" data-j="${j}">
+          <span class="opt-key">${String.fromCharCode(65+j)}</span><span>${o}</span>
+        </button>`).join('')}
+      </div>
+      <div class="explain" hidden></div>
+    </div>`).join('');
+  $('#quizResult').innerHTML='';
+  $('#verifyNote').hidden=true;
+  $('#verifyNote').innerHTML='';
+}
+let vqSel = VQ.map(()=>null);
+ $('#quizList').addEventListener('click', e=>{
+  const b = e.target.closest('button.opt'); if(!b) return;
+  const card = b.closest('.quiz-q');
+  vqSel[+b.dataset.q] = +b.dataset.j;
+  card.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+});
+ $('#btnGrade').addEventListener('click', async ()=>{
+  let pts=0, missing=0; const fix=[];
+  VQ.forEach((q,i)=>{
+    const chosen=vqSel[i];
+    const card=document.querySelector(`.quiz-q[data-q="${i}"]`);
+    card.querySelectorAll('.opt').forEach((opt,j)=>{
+      opt.classList.remove('selected');
+      if(chosen===j) opt.classList.add('selected');
+    });
+    const ex=card.querySelector('.explain');
+    if(chosen===null){ missing++; ex.hidden=true; return; }
+    const p = chosen===0?2.5 : chosen===1?1 : 0;
+    pts+=p;
+    ex.hidden=false;
+    ex.innerHTML=`<strong>${['Sí','Parcial','No'][chosen]}${chosen===0?' (2.5 pts)':chosen===1?' (1 pt)':''}.</strong> ${esc(q.fb[chosen])}`;
+    if(chosen!==0) fix.push(`V${i+1}`);
+  });
+  if(missing) toast(`Faltan ${missing} pregunta${missing>1?'s':''} por responder.`,'err');
+  const totalPts=Math.round(pts*10)/10;
+  $('#quizResult').innerHTML=`<strong>${totalPts}/15</strong> ${fix.length===0?'Proyecto integrado de verdad — listo para la plenaria.':`${fix.length} punto${fix.length>1?'s':''} de mejora: ${fix.join(', ')}.`}`;
+  const note=$('#verifyNote');
+  note.hidden=false;
+  note.innerHTML = fix.length
+    ? `<strong>Antes de presentar, atiende:</strong> ${fix.map(f=>`<a href="#" style="text-decoration:none">${f}</a>`).join(' · ')} — sube a «Parcial» o «Sí» cada una. «No» en el Verificador no castiga la honestidad: castiga presentarlo sin arreglarlo.`
+    : `<strong>Sin observaciones.</strong> Las seis costuras están cosidas: a ensayar el guion de 60 segundos.`;
+  await saveJSON(K.verif,{answers:vqSel, pts:totalPts, done:vqSel.every(v=>v!==null), ts:Date.now()});
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+ $('#btnQuizReset').addEventListener('click', ()=>{ vqSel=VQ.map(()=>null); renderVQ(); refreshIcons(); });
+
+/* ============================================================
+   PRESENTACIÓN + RETRO, REFLEXIÓN, COMPROMISOS
+============================================================ */
+ $('#btnPreSave').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero para guardar tu plan.','err'); showView('perfil'); return; }
+  const d={
+    prob:$('#prProb').value.trim(), hall:$('#prHall').value.trim(), conn:$('#prConn').value.trim(),
+    eq:$('#rtEq').value.trim(), f1:$('#rtF1').value.trim(), f2:$('#rtF2').value.trim(), sug:$('#rtSug').value.trim()
+  };
+  const fails=[];
+  if(d.prob.length<15) fails.push('el problema y la decisión');
+  if(d.hall.length<15) fails.push('el hallazgo más fuerte');
+  if(d.conn.length<15) fails.push('la conexión interdisciplinaria');
+  if(!d.eq) fails.push('el equipo evaluado');
+  if(d.f1.length<5||d.f2.length<5) fails.push('las dos fortalezas de la retro');
+  if(d.sug.length<10) fails.push('la sugerencia concreta');
+  if(fails.length){ toast('Falta: '+fails.join('; ')+'.','err'); return; }
+  await saveJSON(K.present,{...d, saved:true, ts:Date.now()});
+  toast('Guion y retroalimentación guardados.');
+  updateAvance();
+  renderPerfil();
+});
+ $('#btnSaveReflexion').addEventListener('click', async ()=>{
+  if(!perfil){ toast('Regístrate primero para guardar tu reflexión.','err'); showView('perfil'); return; }
+  const a=$('#rfAprendi').value.trim(), eq=$('#rfEquipo').value.trim();
+  if(a.length<20 || eq.length<20){ toast('Desarrolla ambas preguntas de la reflexión final (mín. 2 líneas cada una).','err'); return; }
+  await saveJSON(K.reflexion,{aprendi:a, equipo:eq, saved:true, ts:Date.now()});
+  toast('Reflexión final guardada. Última del curso: bien ahí.');
+  updateAvance();
+  renderPerfil();
+});
+async function refreshCierrePanel(){
+  const savedP = await loadJSON(K.present,null);
+  const savedR = await loadJSON(K.reflexion,null);
+  const has = !!perfil;
+  $('#preEmpty').hidden = has;
+  $('#preForm').hidden = !has;
+  $('#reflexionEmpty').hidden = has;
+  $('#reflexionForm').hidden = !has;
+  if(has){
+    if(savedP){
+      $('#prProb').value=savedP.prob||''; $('#prHall').value=savedP.hall||''; $('#prConn').value=savedP.conn||'';
+      $('#rtEq').value=savedP.eq||''; $('#rtF1').value=savedP.f1||''; $('#rtF2').value=savedP.f2||''; $('#rtSug').value=savedP.sug||'';
+    }
+    if(savedR){ $('#rfAprendi').value=savedR.aprendi||''; $('#rfEquipo').value=savedR.equipo||''; }
+  }
+  refreshIcons();
+}
+
+const COMPROMISOS=[
+  'Defenderé mis decisiones de diseño con argumentos, no con «nos gustó así».',
+  'Antes de presentar, pasaré mi proyecto por el Verificador y atenderé los «No».',
+  'Daré retroalimentación concreta: fortalezas con evidencia y una sugerencia aplicable.',
+  'Llegaré al segundo parcial con las cuatro herramientas de mi proyecto bien entendidas.'
+];
+async function renderCompromisos(){
+  const done = await loadJSON(K.compromisos,[]);
+  $('#compromisosList').innerHTML = COMPROMISOS.map((c,i)=>`
+    <label class="chk ${done.includes(i)?'done':''}">
+      <input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}>
+      <span>${c}</span>
+    </label>`).join('');
+}
+ $('#compromisosList').addEventListener('change', async e=>{
+  const cb = e.target.closest('input[type=checkbox]'); if(!cb) return;
+  const done = new Set(await loadJSON(K.compromisos,[]));
+  const i = +cb.dataset.i;
+  cb.checked ? done.add(i) : done.delete(i);
+  cb.closest('.chk').classList.toggle('done', cb.checked);
+  await saveJSON(K.compromisos, [...done].sort((a,b)=>a-b));
+  updateAvance();
+  if(!$('#v-perfil').hidden) renderPerfil();
+});
+
+/* ============================================================
+   PERFIL / REGISTRO
+============================================================ */
+let perfil = null;
+function initials(n){ return n.trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function fmtDate(ts){ return new Date(ts).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}); }
+
+function buildRows(p1,p2,pz,verif,present,refl){
+  return [
+    {name:'Problema y justificación', go:'diseno', max:15,
+     pct:(p1&&p1.saved)?1:0, status:(p1&&p1.saved)?'done':'pend',
+     pts:(p1&&p1.saved)?15:0,
+     detail:p1?`«${p1.nom}» · ${p1.tipo}`:'Sin definir aún'},
+    {name:'Alcance y checklist (formativo)', go:'diseno', max:0,
+     pct:(p2&&p2.saved)?1:0, status:(p2&&p2.saved)?'done':'pend',
+     pts:0,
+     detail:p2?`${(p2.chk||[]).length}/6 ítems de integración — no pondera`:'Sin guardar'},
+    {name:'Cuatro piezas integradoras', go:'diseno', max:30,
+     pct:(pz&&pz.saved)?1:0, status:(pz&&pz.saved)?'done':'pend',
+     pts:(pz&&pz.saved)?30:0,
+     detail:pz?'Argumento · conjuntos · cuantitativo · condición':'Guardado bloqueado hasta completarlas'},
+    {name:'Verificador de integración', go:'verifica', max:15,
+     pct:verif?verif.pts/15:0, status:(verif&&verif.done)?'done':'pend',
+     pts:verif?verif.pts:0,
+     detail:verif?`${verif.pts}/15 pts · ${verif.answers.filter(v=>v===0).length}/6 en «Sí»`:'Sin verificar aún'},
+    {name:'Guion de 60s + retro dada', go:'actividades', max:15,
+     pct:(present&&present.saved)?1:0, status:(present&&present.saved)?'done':'pend',
+     pts:(present&&present.saved)?15:0,
+     detail:(present&&present.saved)?`Evaluaste a: ${present.eq}`:'Sin guardar'},
+    {name:'Reflexión final (insumo eje Ser)', go:'actividades', max:0,
+     pct:(refl&&refl.saved)?1:0, status:(refl&&refl.saved)?'done':'pend',
+     pts:0,
+     detail:(refl&&refl.saved)?'Registrada — no pondera aquí':'Pendiente'}
+  ];
+}
+async function loadAll(){
+  return Promise.all([
+    loadJSON(K.paso1,null), loadJSON(K.paso2,null), loadJSON(K.piezas,null),
+    loadJSON(K.verif,null), loadJSON(K.present,null), loadJSON(K.reflexion,null),
+    loadJSON(K.compromisos,[])
+  ]);
+}
+async function initPerfil(){
+  perfil = await loadJSON(PERFIL_KEY,null);
+  const note=$('#storageNote');
+  if(hasWS()){
+    note.innerHTML=`<i data-lucide="shield-check"></i><span><strong>Almacenamiento institucional disponible.</strong> El proyecto del equipo se guardará de forma persistente en esta cuenta.</span>`;
+  } else {
+    note.innerHTML=`<i data-lucide="alert-triangle"></i><span><strong>Sin almacenamiento persistente en este entorno.</strong> El proyecto vive solo en esta pestaña: descarga la evidencia antes de cerrar para no perder el diseño.</span>`;
+  }
+  renderPerfil();
+}
+async function renderPerfil(){
+  const form=$('#perfilForm'), dash=$('#perfilDash');
+  if(!perfil){ form.hidden=false; dash.hidden=true; refreshIcons(); return; }
+  form.hidden=true; dash.hidden=false;
+  const [p1,p2,pz,verif,present,refl,comp] = await loadAll();
+  const rows = buildRows(p1,p2,pz,verif,present,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const pend = rows.filter(r=>r.status==='pend' && r.max>0);
+  dash.innerHTML=`
+    <div class="result-id">
+      <div class="result-avatar">${esc(initials(perfil.nombre))}</div>
+      <div>
+        <div class="result-name">${esc(perfil.nombre)} <span class="status-b done">custodio</span></div>
+        <div class="result-mat">Matrícula ${esc(perfil.matricula)} · Registrado el ${fmtDate(perfil.ts)}</div>
+      </div>
+      <div class="panel-head-actions" style="margin-left:auto">
+        <button class="btn ghost sm" data-action="edit-perfil"><i data-lucide="pencil"></i>Editar</button>
+        <button class="btn sm" data-action="download-evidence"><i data-lucide="download"></i>Descargar evidencia</button>
+      </div>
+    </div>
+    ${p1&&p1.saved?`<p class="hint" style="margin-bottom:16px">Proyecto en custodia: <strong>«${esc(p1.nom)}»</strong> (${esc(p1.tipo)}) — «${esc(p1.txt)}»</p>`:''}
+    <div class="result-rows">
+      ${rows.map(r=>`
+        <div class="result-row">
+          <div><div class="result-name" style="font-size:14px">${r.name}</div><div class="result-mat">${r.detail}</div></div>
+          <div class="rub-bar"><div style="width:${Math.round(Math.min(1,r.pct)*100)}%"></div></div>
+          <span class="status-b ${r.status==='done'?'done':'pend'}" style="justify-self:end">${r.max ? r.pts+' / '+r.max+' pts' : (r.status==='done'?'realizada':'pendiente')}</span>
+        </div>`).join('')}
+    </div>
+    <div class="result-total"><span>Puntos autoevaluables</span><strong>${total} / 75</strong></div>
+    <p class="hint" style="margin-bottom:22px">Los 25 puntos restantes corresponden a «Autonomía, pensamiento crítico y respeto por perspectivas diversas (eje Ser)», evaluados en la plenaria por tu docente. La reflexión final y el checklist son su insumo.</p>
+    <div class="panel">
+      <div class="panel-head"><i data-lucide="list-checks"></i>Pendientes</div>
+      <div class="panel-body">
+        ${pend.length || (comp&&comp.length<COMPROMISOS.length) ? `
+        <div class="pending-list">
+          ${pend.map(r=>`
+            <div class="pending-item"><span><i data-lucide="circle"></i>${r.name}</span><button class="btn ghost sm" data-view="${r.go}">Ir</button></div>`).join('')}
+          ${comp && comp.length<COMPROMISOS.length ? `
+            <div class="pending-item"><span><i data-lucide="circle"></i>Compromisos de aprendizaje (${comp.length}/${COMPROMISOS.length} asumidos)</span><button class="btn ghost sm" data-view="actividades">Ir</button></div>`:''}
+        </div>` : `<p class="hint">Proyecto completo y presentado. <strong>Última sesión y a cerrar el curso con todo.</strong></p>`}
+      </div>
+    </div>`;
+  refreshIcons();
+}
+ $('#formPerfil').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const nombre=$('#pNombre').value.trim(), matricula=$('#pMatricula').value.trim();
+  if(nombre.length<3){ toast('Escribe tu nombre completo.','err'); return; }
+  if(matricula.length<4){ toast('Escribe tu matrícula institucional.','err'); return; }
+  perfil = {nombre, matricula, ts: perfil?perfil.ts:Date.now()};
+  await saveJSON(PERFIL_KEY, perfil);
+  toast('Registro guardado: este equipo queda a tu custodia.');
+  renderPerfil();
+});
+function enterEditMode(){
+  if(!perfil) return;
+  $('#pNombre').value = perfil.nombre;
+  $('#pMatricula').value = perfil.matricula;
+  $('#perfilDash').hidden = true;
+  $('#perfilForm').hidden = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================================================
+   EVIDENCIA DESCARGABLE (PNG)
+============================================================ */
+async function generateEvidenceImage(){
+  if(!perfil){ toast('Regístrate primero para generar tu evidencia.','err'); return; }
+  const [p1,p2,pz,verif,present,refl,comp] = await loadAll();
+  const rows = buildRows(p1,p2,pz,verif,present,refl);
+  const total = rows.reduce((s,r)=>s+r.pts,0);
+  const W=1000, H=170 + rows.length*74 + 300;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  x.fillStyle='#f7f3eb'; x.fillRect(0,0,W,H);
+  x.fillStyle='#1c2b25'; x.fillRect(0,0,W,6); x.fillRect(0,H-6,W,6);
+  x.fillStyle='#c2542f'; x.font='700 13px "Instrument Sans", Arial';
+  x.fillText('RAZONAMIENTO LÓGICO-MATEMÁTICO · UNITI — LPID, MÓDULO 1',60,64);
+  x.fillStyle='#1c2b25'; x.font='600 30px Fraunces, Georgia, serif';
+  x.fillText('Sesión 11 · Proyecto integrador',60,104);
+  x.font='500 15px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.75)';
+  x.fillText(`${perfil.nombre} (custodio) · Matrícula ${perfil.matricula} · ${new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})}`,60,132);
+  let y=180;
+  rows.forEach(r=>{
+    x.fillStyle='#1c2b25'; x.font='600 15px "Instrument Sans", Arial'; x.fillText(r.name,60,y+18);
+    x.fillStyle='rgba(28,43,37,.55)'; x.font='400 12px "Instrument Sans", Arial'; x.fillText(r.detail,60,y+38);
+    const bx=430, bw=350;
+    x.strokeStyle='rgba(28,43,37,.4)'; x.lineWidth=1; x.strokeRect(bx,y+10,bw,12);
+    x.fillStyle=r.pct>0?'#1e4636':'rgba(28,43,37,.15)';
+    x.fillRect(bx+1,y+11,Math.max(0,(bw-2)*Math.min(1,r.pct)),10);
+    x.fillStyle='#1c2b25'; x.font='700 14px "Instrument Sans", Arial';
+    x.fillText(r.max ? r.pts+' / '+r.max+' pts' : '—',810,y+21);
+    y+=74;
+  });
+  x.strokeStyle='#1c2b25'; x.lineWidth=2;
+  x.beginPath(); x.moveTo(60,y); x.lineTo(W-60,y); x.stroke();
+  x.font='600 26px Fraunces, Georgia, serif'; x.fillStyle='#1e4636';
+  x.fillText(`Puntos autoevaluables: ${total} / 75`,60,y+46);
+  x.font='400 13px "Instrument Sans", Arial'; x.fillStyle='rgba(28,43,37,.6)';
+  x.fillText('Los 25 puntos restantes corresponden al eje Ser, evaluado en la plenaria.',60,y+72);
+  x.fillText(`Compromisos asumidos: ${comp?comp.length:0} de ${COMPROMISOS.length}`,60,y+94);
+  if(pz && pz.saved){
+    x.fillStyle='#1c2b25'; x.font='700 14px "Instrument Sans", Arial';
+    x.fillText('Las cuatro piezas del proyecto «'+(p1?p1.nom:'')+'»:',60,y+126);
+    x.font='italic 400 12.5px Fraunces, Georgia, serif';
+    x.fillText('1·Argumento: '+pz.A.c,60,y+148);
+    x.fillText('2·Conjuntos: U='+pz.B.u+' · '+pz.B.op,60,y+168);
+    x.fillText('3·Cuantitativo: '+pz.C.dato,60,y+188);
+    x.fillText('4·Condición: '+pz.D.f,60,y+208);
+  }
+  const a=document.createElement('a');
+  a.download='evidencia-sesion11-'+perfil.matricula+'.png';
+  a.href=c.toDataURL('image/png');
+  a.click();
+  toast('Evidencia descargada.');
+}
+
+/* ============================================================
+   AVANCE (inicio)
+============================================================ */
+async function updateAvance(){
+  const [p1,p2,pz,verif,present,refl,comp] = await loadAll();
+  const flags=[ !!(p1&&p1.saved), !!(p2&&p2.saved), !!(pz&&pz.saved), !!(verif&&verif.done), !!(present&&present.saved), !!(refl&&refl.saved), (comp||[]).length>0 ];
+  const pct=Math.round(flags.filter(Boolean).length/flags.length*100);
+  const el=$('#statAvance'); if(el) el.textContent=pct+'%';
+}
+
+/* ============================================================
+   INICIALIZACIÓN
+============================================================ */
+(async function init(){
+  renderVQ();
+  await renderCompromisos();
+  await initPerfil();
+  await updateAvance();
+  refreshIcons();
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
