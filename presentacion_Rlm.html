@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Razonamiento lógico-matemático — UNITI</title>
+<style>
+:root{
+  --violet:#581891; --violet-dark:#42126D; --violet-soft:#F4EEFA;
+  --blue:#1428AA; --magenta:#C4008F; --amber:#FF7D00; --green:#0B8A0B;
+  --ink:#373737; --soft:#F5F5F8; --paper:#FDFCFF;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+  color:var(--ink); overflow:hidden;
+  background:
+    radial-gradient(1100px 560px at 108% -8%, rgba(88,24,145,.12), transparent 62%),
+    radial-gradient(900px 520px at -8% 108%, rgba(20,40,170,.10), transparent 60%),
+    radial-gradient(700px 420px at 50% 118%, rgba(196,0,143,.05), transparent 60%),
+    var(--paper);
+}
+
+/* ===== fondo dinámico con símbolos matemáticos ===== */
+#bgfix{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#bgfix span{
+  position:absolute; font-family:Georgia,'Times New Roman',serif;
+  color:var(--violet); opacity:.05; font-weight:700; user-select:none;
+  animation:drift 26s ease-in-out infinite alternate;
+}
+#bgfix span:nth-child(2n){animation-duration:34s;animation-delay:-8s;color:var(--blue)}
+#bgfix span:nth-child(3n){animation-duration:42s;animation-delay:-16s;color:var(--magenta)}
+@keyframes drift{
+  from{transform:translateY(-22px) rotate(-5deg)}
+  to{transform:translateY(26px) rotate(6deg)}
+}
+
+/* ===== escenario ===== */
+#deck{position:fixed;inset:0;z-index:1;perspective:1500px}
+.slide{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  padding:clamp(28px,5.2vh,54px) clamp(30px,6.2vw,86px) clamp(46px,7.5vh,70px);
+  opacity:0; visibility:hidden; pointer-events:none; z-index:1;
+  transform-style:preserve-3d; backface-visibility:hidden;
+}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;z-index:3}
+.slide.leaving{visibility:visible;pointer-events:none;z-index:2}
+
+/* aparición escalonada de elementos directos (no fragmentos) */
+.slide.active>*:not(.frag){animation:rise .6s cubic-bezier(.2,.7,.25,1) both}
+.slide.active>*:nth-child(1){animation-delay:.05s}
+.slide.active>*:nth-child(2){animation-delay:.14s}
+.slide.active>*:nth-child(3){animation-delay:.22s}
+.slide.active>*:nth-child(4){animation-delay:.30s}
+.slide.active>*:nth-child(5){animation-delay:.38s}
+.slide.active>*:nth-child(6){animation-delay:.46s}
+.slide.active>*:nth-child(7){animation-delay:.54s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ===== transiciones entre diapositivas ===== */
+@keyframes inFade{from{opacity:0}to{opacity:1}}
+@keyframes outFade{from{opacity:1}to{opacity:0}}
+@keyframes inSlide{from{opacity:0;transform:translateX(9%) }to{opacity:1;transform:none}}
+@keyframes outSlide{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-9%)}}
+@keyframes inZoom{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes outZoom{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.08)}}
+@keyframes inFlip{from{opacity:0;transform:rotateY(-32deg) scale(.96)}to{opacity:1;transform:none}}
+@keyframes outFlip{from{opacity:1;transform:none}to{opacity:0;transform:rotateY(28deg) scale(.96)}}
+@keyframes inCube{from{opacity:.2;transform:translateX(55%) rotateY(58deg) scale(.86)}to{opacity:1;transform:none}}
+@keyframes outCube{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-55%) rotateY(-58deg) scale(.86)}}
+.slide.enter-fade{animation:inFade .55s ease both}
+.slide.leave-fade{animation:outFade .55s ease both}
+.slide.enter-slide{animation:inSlide .58s cubic-bezier(.25,.8,.25,1) both}
+.slide.leave-slide{animation:outSlide .58s cubic-bezier(.25,.8,.25,1) both}
+.slide.enter-zoom{animation:inZoom .6s cubic-bezier(.2,.8,.25,1) both}
+.slide.leave-zoom{animation:outZoom .6s cubic-bezier(.2,.8,.25,1) both}
+.slide.enter-flip{animation:inFlip .66s cubic-bezier(.25,.8,.25,1) both}
+.slide.leave-flip{animation:outFlip .66s cubic-bezier(.25,.8,.25,1) both}
+.slide.enter-cube{animation:inCube .72s cubic-bezier(.25,.8,.25,1) both}
+.slide.leave-cube{animation:outCube .72s cubic-bezier(.25,.8,.25,1) both}
+
+/* ===== fragmentos (ítems que aparecen uno por uno) ===== */
+.frag{opacity:0;transform:translateY(20px);
+  transition:opacity .55s cubic-bezier(.2,.7,.25,1),transform .55s cubic-bezier(.2,.7,.25,1)}
+.frag.on{opacity:1;transform:none}
+g.frag{transform:translateY(10px)}
+g.frag.on{transform:none}
+
+/* ===== tipografía y títulos ===== */
+.ftitle{
+  font-size:clamp(21px,3.1vw,31px); font-weight:700; color:var(--violet);
+  padding-left:.55em; margin-bottom:clamp(14px,2.6vh,26px); position:relative;
+  line-height:1.25;
+}
+.ftitle::after{
+  content:''; position:absolute; left:.58em; bottom:-7px; width:72px; height:3.5px;
+  border-radius:3px; background:linear-gradient(90deg,var(--violet),var(--blue));
+  transform:scaleX(0); transform-origin:left; transition:transform .9s .35s cubic-bezier(.2,.8,.2,1);
+}
+.slide.active .ftitle::after{transform:scaleX(1)}
+.body{flex:1; display:flex; flex-direction:column; justify-content:center; gap:clamp(10px,1.9vh,18px); min-height:0}
+ul.pts{list-style:none; display:flex; flex-direction:column; gap:clamp(9px,1.8vh,17px)}
+ul.pts li{position:relative; padding-left:1.45em; font-size:clamp(15px,1.72vw,20.5px); line-height:1.5}
+ul.pts li::before{
+  content:'\25B8'; position:absolute; left:.12em; top:-.06em;
+  color:var(--violet); font-size:.82em;
+}
+b,strong{color:inherit}
+.hl-v{color:var(--violet);font-weight:700}
+.hl-m{color:var(--magenta);font-weight:700}
+.hl-a{color:var(--amber);font-weight:700}
+.hl-g{color:var(--green);font-weight:700}
+.hl-b{color:var(--blue);font-weight:700}
+
+/* ===== cajas estilo beamer ===== */
+.panel{background:#fff; border:1px solid rgba(88,24,145,.22); border-left:5px solid var(--violet);
+  border-radius:9px; padding:clamp(10px,1.9vh,17px) clamp(14px,1.9vw,21px);
+  box-shadow:0 8px 22px rgba(88,24,145,.09); font-size:clamp(15px,1.72vw,20.5px); line-height:1.5}
+.defbox{background:#fff; border:1.6px solid var(--green); border-radius:9px; overflow:hidden;
+  box-shadow:0 8px 22px rgba(11,138,11,.08)}
+.defbox .btitle{background:rgba(11,138,11,.08); color:#066406; font-weight:700;
+  padding:7px 16px; font-size:clamp(14px,1.5vw,17.5px); border-bottom:1px solid rgba(11,138,11,.35)}
+.defbox .bbody{padding:12px 16px; font-size:clamp(15px,1.7vw,20px)}
+.exbox{background:#fff; border:1.6px solid var(--violet-dark); border-radius:9px; overflow:hidden;
+  box-shadow:0 8px 22px rgba(88,24,145,.10)}
+.exbox .btitle{background:var(--violet-soft); color:var(--violet-dark); font-weight:700;
+  padding:7px 16px; font-size:clamp(14px,1.5vw,17.5px); border-bottom:1px solid rgba(66,18,109,.25)}
+.exbox .bbody{padding:11px 16px; font-size:clamp(14.5px,1.62vw,19px); line-height:1.52}
+.alertbox{background:var(--violet-soft); border-left:5px solid #B3125B; border-radius:9px;
+  padding:11px 17px; box-shadow:0 6px 18px rgba(179,18,91,.08)}
+.alertbox .btitle{color:#8E1150; font-weight:700; font-size:clamp(14px,1.5vw,17.5px); margin-bottom:3px}
+.alertbox .bbody{font-size:clamp(14.5px,1.62vw,19px); line-height:1.5}
+.argbox{background:var(--violet-soft); border:1.4px solid rgba(88,24,145,.45); border-radius:9px;
+  padding:12px 16px}
+
+/* ===== matemáticas ===== */
+.math{font-family:Georgia,'Times New Roman',serif; font-style:italic}
+.frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle;
+  margin:0 4px; line-height:1.15; font-style:italic}
+.frac>span:first-child{border-bottom:1.4px solid currentColor; padding:0 7px 1px}
+.frac>span:last-child{padding:1px 7px 0}
+.eq{font-size:clamp(16px,1.95vw,23px); text-align:center}
+sup,sub{line-height:0}
+
+/* ===== divisores ===== */
+.slide.divider{align-items:center; justify-content:center; text-align:center}
+.divider .big{
+  font-size:clamp(30px,4.6vw,52px); font-weight:700; color:var(--violet); line-height:1.3;
+  max-width:20ch;
+}
+.divider .rule{width:110px; height:4px; border-radius:3px; margin-top:26px;
+  background:linear-gradient(90deg,var(--magenta),var(--violet),var(--blue));
+  animation:growRule 1s .3s both}
+@keyframes growRule{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ===== portada y cierre ===== */
+.slide.cover{align-items:center; justify-content:center; text-align:center; gap:clamp(10px,2.2vh,22px)}
+.monogram{
+  width:clamp(78px,12vh,118px); height:clamp(78px,12vh,118px); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.85), rgba(255,255,255,.35) 58%);
+  border:2.5px solid rgba(88,24,145,.5); color:var(--violet);
+  font-weight:800; font-size:clamp(20px,3.4vh,30px); letter-spacing:.06em;
+  box-shadow:0 10px 30px rgba(88,24,145,.18);
+}
+.cover h1{font-size:clamp(30px,5vw,54px); color:var(--violet); font-weight:800; line-height:1.18}
+.cover h1 .inR{color:var(--magenta)}
+.cover .sub{font-size:clamp(15px,2.1vw,23px); color:var(--violet); font-weight:600}
+.cover .sub .bigR{font-size:1.35em; vertical-align:-.03em}
+.cover .authors{font-size:clamp(15px,1.9vw,21px); color:var(--ink); line-height:1.55}
+.cover .inst{font-size:clamp(14px,1.7vw,19px); color:var(--ink)}
+.cover .inst b{color:var(--violet)}
+
+/* ===== cita ===== */
+.slide.quote{align-items:center; justify-content:center; text-align:center}
+.quote .mark{font-family:Georgia,serif; font-size:clamp(60px,11vh,110px); color:rgba(88,24,145,.22); line-height:.4}
+.quote .qtext{font-size:clamp(26px,4.2vw,46px); font-weight:700; color:var(--violet);
+  max-width:24ch; line-height:1.35; font-family:Georgia,'Times New Roman',serif; font-style:italic}
+
+/* ===== diagrama de flujo (Premisa 1) ===== */
+.flow{position:relative; height:clamp(210px,38vh,320px); margin-top:6px}
+.flow svg{position:absolute; inset:0; width:100%; height:100%}
+.fbox{
+  position:absolute; border:1.7px solid var(--blue); background:#EFF3FF; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-size:clamp(12.5px,1.35vw,16.5px); line-height:1.32; padding:6px 8px;
+  box-shadow:0 6px 16px rgba(20,40,170,.10);
+}
+
+/* ===== tabla (Premisa 2) ===== */
+table.errors{width:100%; border-collapse:collapse; font-size:clamp(13.5px,1.5vw,17.5px)}
+table.errors th{color:var(--violet-dark); text-align:left; font-weight:700; padding:7px 12px;
+  border-bottom:2px solid rgba(88,24,145,.5)}
+table.errors td{padding:7px 12px; border-bottom:1px solid rgba(88,24,145,.16); line-height:1.42}
+table.errors tr:last-child td{border-bottom:none}
+
+/* ===== preguntas numeradas (Premisa 4) ===== */
+ol.steps{list-style:none; display:flex; flex-direction:column; gap:clamp(8px,1.7vh,15px)}
+ol.steps li{font-size:clamp(15px,1.75vw,20.5px); display:flex; gap:.7em; align-items:baseline}
+ol.steps .n{
+  flex:0 0 auto; width:1.72em; height:1.72em; border-radius:50%; display:inline-flex;
+  align-items:center; justify-content:center; background:var(--violet); color:#fff;
+  font-weight:700; font-size:.86em; transform:translateY(.18em);
+}
+
+/* ===== referencia / texto pequeño ===== */
+.smalltext li{font-size:clamp(13px,1.45vw,16.5px) !important; line-height:1.5}
+
+/* ===== capturas (marcadores de posición) ===== */
+.slide.shot{align-items:center; justify-content:center}
+.shot .placeholder{
+  width:min(88%,1080px); aspect-ratio:16/9; border:2.5px dashed rgba(88,24,145,.4);
+  border-radius:14px; background:linear-gradient(160deg,#F7F5FB,#EFECF6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  text-align:center; padding:24px;
+}
+.shot .placeholder .lbl{font-size:clamp(16px,2vw,22px); font-weight:700; color:var(--violet)}
+.shot .placeholder .fname{font-family:'Cascadia Code',Consolas,monospace; font-size:clamp(11.5px,1.3vw,15px);
+  color:var(--ink); background:rgba(88,24,145,.08); padding:6px 12px; border-radius:7px}
+.shot .placeholder .note{font-size:clamp(11.5px,1.3vw,14.5px); color:#6b6b76; max-width:52ch; line-height:1.45}
+
+/* ===== HUD ===== */
+#progress{position:fixed; top:0; left:0; right:0; height:4px; background:rgba(88,24,145,.10); z-index:60}
+#bar{height:100%; width:0; background:linear-gradient(90deg,var(--magenta),var(--violet),var(--blue));
+  transition:width .5s cubic-bezier(.25,.8,.25,1); border-radius:0 3px 3px 0}
+#brand{position:fixed; top:10px; left:16px; z-index:60; font-size:12px; font-weight:700;
+  color:rgba(88,24,145,.55); letter-spacing:.04em}
+#counter{position:fixed; bottom:12px; right:16px; z-index:60; font-size:13.5px; font-weight:700;
+  color:var(--violet); font-variant-numeric:tabular-nums}
+#dots{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:60;
+  display:flex; gap:6px}
+#dots i{width:8px; height:8px; border-radius:50%; background:rgba(88,24,145,.22); cursor:pointer;
+  transition:all .3s}
+#dots i.on{background:var(--violet); transform:scale(1.25)}
+#dots i.done{background:rgba(88,24,145,.55)}
+#hud{position:fixed; top:8px; right:12px; z-index:60; display:flex; gap:6px}
+#hud button{
+  border:1px solid rgba(88,24,145,.3); background:rgba(255,255,255,.82); color:var(--violet);
+  border-radius:8px; padding:6px 11px; font-size:12.5px; font-weight:700; cursor:pointer;
+  backdrop-filter:none; transition:all .25s;
+}
+#hud button:hover{background:var(--violet); color:#fff}
+#hint{
+  position:fixed; bottom:12px; left:16px; z-index:60; font-size:12px; color:rgba(55,55,55,.75);
+  background:rgba(255,255,255,.85); border:1px solid rgba(88,24,145,.18); border-radius:8px;
+  padding:6px 12px; transition:opacity 1s; max-width:min(58vw,560px);
+}
+#hint.gone{opacity:0; pointer-events:none}
+#hint b{color:var(--violet)}
+
+/* ===== vista índice ===== */
+#overview{
+  position:fixed; inset:0; z-index:80; background:rgba(30,12,48,.94); display:none;
+  overflow:auto; padding:clamp(18px,4vh,44px) clamp(18px,4vw,52px);
+}
+#overview.open{display:block}
+#overview h2{color:#fff; font-size:clamp(17px,2.2vw,24px); margin-bottom:16px; font-weight:700}
+#overview .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:10px}
+#overview .card{
+  background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16); border-radius:10px;
+  padding:11px 13px; cursor:pointer; transition:all .22s; display:flex; gap:10px; align-items:center;
+}
+#overview .card:hover{background:rgba(255,255,255,.2); transform:translateY(-2px)}
+#overview .card.cur{border-color:var(--magenta); background:rgba(196,0,143,.18)}
+#overview .num{font-weight:800; color:#E8B7FF; font-size:13px; min-width:2ch}
+#overview .t{color:#fff; font-size:13px; line-height:1.35}
+#overview .card .ty{margin-left:auto; font-size:9.5px; letter-spacing:.06em; font-weight:800;
+  color:rgba(255,255,255,.55)}
+
+/* ===== ayuda ===== */
+#help{
+  position:fixed; inset:0; z-index:90; background:rgba(30,12,48,.92); display:none;
+  align-items:center; justify-content:center;
+}
+#help.open{display:flex}
+#help .box{background:#fff; border-radius:14px; padding:26px 32px; max-width:520px; width:92%}
+#help h3{color:var(--violet); margin-bottom:12px}
+#help table{width:100%; border-collapse:collapse; font-size:14px}
+#help td{padding:5px 4px; border-bottom:1px solid #eee}
+#help td:first-child{font-weight:700; color:var(--violet); width:42%}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important; transition:none!important}
+}
+@media print{
+  body{overflow:visible; background:#fff}
+  #deck{position:static; perspective:none}
+  .slide{position:relative; opacity:1!important; visibility:visible!important;
+    page-break-after:always; height:100vh}
+  .frag{opacity:1!important; transform:none!important}
+  #hud,#dots,#counter,#progress,#hint,#brand,#overview,#help,#bgfix{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="bgfix" aria-hidden="true">
+  <span style="left:4%;top:8%;font-size:120px">&#8704;</span>
+  <span style="left:88%;top:16%;font-size:100px">&#8715;</span>
+  <span style="left:12%;top:72%;font-size:130px">&#949;</span>
+  <span style="left:80%;top:78%;font-size:110px">&#948;</span>
+  <span style="left:45%;top:4%;font-size:90px">&#10233;</span>
+  <span style="left:60%;top:86%;font-size:95px">&#402;</span>
+  <span style="left:26%;top:38%;font-size:80px">&#8745;</span>
+  <span style="left:70%;top:44%;font-size:85px">&#8746;</span>
+</div>
+<div id="progress"><div id="bar"></div></div>
+<div id="brand">UNITI &middot; Razonamiento l&oacute;gico-matem&aacute;tico</div>
+<div id="deck">
+<!-- ============ 1 · PORTADA ============ -->
+<section class="slide cover" data-trans="cube" data-title="Portada">
+  <div class="monogram">UNITI</div>
+  <h1><span class="inR">R</span>azonamiento l&oacute;gico-matem&aacute;tico</h1>
+  <div class="sub">Programa C<span class="inR bigR">R</span>EAR &middot; Tronco com&uacute;n de formaci&oacute;n inicial &middot; U<span class="hl-a">N</span><span class="inR">I</span><span class="hl-g">T</span>I</div>
+  <div class="authors">Dr. J. Adri&aacute;n Cerda<br>Ing. M. del Carmen Casta&ntilde;eda</div>
+  <div class="inst"><b>UNITI &mdash; Universidad Intercultural para la Igualdad</b><br>Mi&eacute;rcoles 23 de septiembre de 2026</div>
+</section>
+
+<!-- ============ 2 · AGENDA ============ -->
+<section class="slide" data-trans="slide" data-title="Agenda">
+  <div class="ftitle">Agenda</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag"><b>1.</b>&nbsp; <b>Pertinencia</b> de la UA inicial de <span class="hl-m">R</span>azonamiento l&oacute;gico-matem&aacute;tico.</li>
+      <li class="frag"><b>2.</b>&nbsp; Desarrollo del lema: <i><span class="hl-a">Aprender a pensar es el primer paso hacia la libertad</span></i>.</li>
+      <li class="frag"><b>3.</b>&nbsp; Avances y evoluci&oacute;n del <b class="hl-v">Programa de Nivelaci&oacute;n-regularizaci&oacute;n</b> (bloques <span class="hl-m math">α</span>, <span class="hl-g math">β</span>, <span class="hl-a math">γ</span> y <span class="hl-v math">δ</span>).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 3 · DIVISOR PERTINENCIA ============ -->
+<section class="slide divider" data-trans="zoom" data-title="Pertinencia de la Unidad de Aprendizaje">
+  <div class="big">Pertinencia de la Unidad de Aprendizaje.</div>
+  <div class="rule"></div>
+</section>
+
+<!-- ============ 4 · POR QUÉ UNA UA INICIAL ============ -->
+<section class="slide" data-trans="slide" data-title="¿Por qué una UA inicial de razonamiento lógico-matemático?">
+  <div class="ftitle">&iquest;Por qu&eacute; una UA inicial de razonamiento l&oacute;gico-matem&aacute;tico?</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag">Las carreras <b>LPID</b> y <b>LESS</b> no solo requieren procedimientos: requieren <b>argumentaci&oacute;n</b> y <b>resoluci&oacute;n</b> de problemas que no se encuentran en ning&uacute;n manual.</li>
+      <li class="frag">La l&oacute;gica proposicional es <b>transversal</b> a ambas carreras, en el desarrollo de sus proyectos de investigaci&oacute;n iniciales.</li>
+      <li class="frag">El <b>primer cuatrimestre</b> es el momento cr&iacute;tico para detectar y subsanar brechas antes de que se acumulen.</li>
+      <li class="frag">Sin razonamiento l&oacute;gico-matem&aacute;tico, toda nivelaci&oacute;n se vuelve <b>memor&iacute;stica</b>; con &eacute;l, se vuelve <b>comprensiva</b>, se fomenta el <b>pensamiento cr&iacute;tico</b> y se favorece el aprender a aprender para trayectorias diversas.</li>
+    </ul>
+    <div class="alertbox frag">
+      <div class="btitle">Criterio</div>
+      <div class="bbody">Todo razonar es pensar, pero no todo pensar es razonar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · PERTINENCIA LPID ============ -->
+<section class="slide" data-trans="slide" data-title="Pertinencia para la carrera de LPID">
+  <div class="ftitle">Pertinencia para la carrera de LPID</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag">Programar consiste en <b>formalizar razonamientos</b>: definir y aplicar condicionales, conjunciones, disyunciones y negaciones.</li>
+      <li class="frag">Un error l&oacute;gico en el c&oacute;digo es un error en el <b>algoritmo</b>: impide que el programa haga lo que debe hacer.</li>
+      <li class="frag">La <b>depuraci&oacute;n</b> exige verificar hip&oacute;tesis, confirmar entradas y validar conclusiones.</li>
+      <li class="frag">En <b>C&aacute;lculo</b> los procedimientos no son una receta que memorizar, siguen un patr&oacute;n y estructura l&oacute;gica que sostiene sus resultados.</li>
+    </ul>
+    <div class="exbox frag">
+      <div class="btitle">Ejemplo.</div>
+      <div class="bbody">Un estudiante requiere hoy en d&iacute;a ejercer el pensamiento cr&iacute;tico para evaluar la validez de una respuesta generada por un modelo de lenguaje.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 · PERTINENCIA LESS ============ -->
+<section class="slide" data-trans="slide" data-title="Pertinencia para la carrera de LESS">
+  <div class="ftitle">Pertinencia para la carrera de LESS</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag">Analizar argumentos econ&oacute;micos y sociales exige distinguir <b>premisas</b> de <b>conclusiones</b>.</li>
+      <li class="frag">Detectar <b>falacias</b> en discursos sobre cooperativismo, solidaridad y desarrollo.</li>
+      <li class="frag">Interpretar <b>datos y gr&aacute;ficas</b> sin generalizar indebidamente.</li>
+      <li class="frag">La econom&iacute;a social requiere razonamiento <b>&eacute;tico, riguroso</b> y traducir afirmaciones a forma condicional.</li>
+    </ul>
+    <div class="exbox frag">
+      <div class="btitle">Ejemplo. Falacia frecuente</div>
+      <div class="bbody">&laquo;Si el PIB de nuestro pa&iacute;s aumentara, entonces todas las familias estar&iacute;an mejor.&raquo;<br><br>
+      <b>Contraejemplo:</b> el crecimiento agregado puede coexistir con aumento de la desigualdad. Luego, esto es una <b>falacia de composici&oacute;n</b>: es decir, un error l&oacute;gico de asumir que lo que es verdadero del todo debe serlo de cada una de sus partes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 · DIVISOR 8 BRECHAS ============ -->
+<section class="slide divider" data-trans="zoom" data-title="8 brechas que mencionar">
+  <div class="big">8 brechas que mencionar.</div>
+  <div class="rule"></div>
+</section>
+
+<!-- ============ 8 · PROCEDIMENTALES ============ -->
+<section class="slide" data-trans="slide" data-title="Brechas procedimentales">
+  <div class="ftitle">Procedimentales</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag">Vac&iacute;o de procedimientos elementales de Aritm&eacute;tica y &Aacute;lgebra.</li>
+      <li class="frag">Ausencia de conectores l&oacute;gicos para interpretar condiciones.</li>
+      <li class="frag">Interpretaci&oacute;n deficiente de s&iacute;mbolos y notaci&oacute;n.</li>
+      <li class="frag">Memorizaci&oacute;n de reglas sin comprender sus hip&oacute;tesis o condiciones.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 9 · CONCEPTUALES Y METACOGNITIVAS ============ -->
+<section class="slide" data-trans="slide" data-title="Brechas conceptuales y metacognitivas">
+  <div class="ftitle">Conceptuales y metacognitivas</div>
+  <div class="body">
+    <ul class="pts">
+      <li class="frag">Confusi&oacute;n entre inducci&oacute;n y deducci&oacute;n.</li>
+      <li class="frag">Dificultad para distinguir lo general de lo particular.</li>
+      <li class="frag">Dificultad para leer problemas y seleccionar una estrategia.</li>
+      <li class="frag">Incapacidad para detectar y corregir un error propio.</li>
+    </ul>
+    <div class="alertbox frag">
+      <div class="btitle">Concepci&oacute;n err&oacute;nea frecuente</div>
+      <div class="bbody">Creer que aprender matem&aacute;ticas consiste en recordar procedimientos.<br>
+      Por ejemplo, estar convencido que en <span class="math">&#8477;</span>, <span class="math">(a+b)<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup></span> sin realizar la operaci&oacute;n.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 · DIVISOR 5 PREMISAS ============ -->
+<section class="slide divider" data-trans="zoom" data-title="5 Premisas que justifican la UA">
+  <div class="big">5 Premisas que justifican la UA.</div>
+  <div class="rule"></div>
+</section>
+
+<!-- ============ 11 · PREMISA 1 (diagrama progresivo) ============ -->
+<section class="slide" data-trans="slide" data-title="Premisa 1 — intervención temprana">
+  <div class="ftitle">Premisa 1</div>
+  <div class="body">
+    <div class="panel">Las dificultades detectadas en el diagn&oacute;stico deben ser atendidas, por lo que la intervenci&oacute;n debe ser temprana.</div>
+    <div class="flow">
+      <div class="fbox frag" style="left:1.5%;top:32%;width:22%;height:30%">Diagn&oacute;stico<br>inicial</div>
+      <div class="arw frag" data-f="2"><div class="arr h" style="left:24.4%;top:46.6%;width:8%"></div></div>
+      <div class="fbox frag" data-f="2" style="left:33.2%;top:28%;width:27.4%;height:38%">Razonamiento<br>l&oacute;gico-matem&aacute;tico</div>
+      <div class="arw frag" data-f="3"><div class="arr h" style="left:61.4%;top:46.6%;width:6%"></div></div>
+      <div class="fbox frag" data-f="3" style="left:68.2%;top:28%;width:30.2%;height:38%">C&aacute;lculo Diferencial,<br>Programaci&oacute;n, etc.</div>
+      <div class="arw frag" data-f="4">
+        <div class="arr h" style="left:61.4%;top:85%;width:20.2%"></div>
+        <div class="arr v" style="left:81.4%;top:65.8%;height:19.6%"></div>
+      </div>
+      <div class="fbox frag" data-f="4" style="left:33.2%;top:73.5%;width:27.4%;height:25%">Nivelaci&oacute;n y<br>regularizaci&oacute;n b&aacute;sica</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · PREMISA 2 (tabla) ============ -->
+<section class="slide" data-trans="slide" data-title="Premisa 2 — fallas en la estructura del razonamiento">
+  <div class="ftitle">Premisa 2</div>
+  <div class="body">
+    <div class="panel">Gran cantidad de errores frecuentes se describen como fallas en la estructura del razonamiento.</div>
+    <div class="argbox frag">
+      <table class="errors">
+        <tr><th>Error</th><th>Falla l&oacute;gica relacionada</th></tr>
+        <tr><td>Confundir hip&oacute;tesis con conclusi&oacute;n</td><td>No identificar la estructura condicional.</td></tr>
+        <tr><td>Invertir el condicional de la definici&oacute;n</td><td>Afirmar el consecuente.</td></tr>
+        <tr><td>Negar incorrectamente</td><td>No aplicar De Morgan ni la negaci&oacute;n del condicional.</td></tr>
+        <tr><td>Cambiar el orden de <span class="math">&#8704;</span> y <span class="math">&#8707;</span></td><td>Ignorar que el orden altera el significado.</td></tr>
+        <tr><td>Falacia de generalizaci&oacute;n apresurada</td><td>Afirmar que se cumple algo mediante un solo ejemplo.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13 · PREMISA 3 (condiciones) ============ -->
+<section class="slide" data-trans="slide" data-title="Premisa 3 — condiciones en definiciones y procedimientos">
+  <div class="ftitle">Premisa 3</div>
+  <div class="body">
+    <div class="panel">Las definiciones y procedimientos matem&aacute;ticos contienen condiciones que deben identificarse y cumplirse.</div>
+    <div class="frag">
+      <p style="font-weight:700;color:var(--violet);margin-bottom:6px">Ejemplos:</p>
+      <div class="eq math"><span class="frac"><span>a</span><span>b</span></span> solo est&aacute; definida si b &ne; 0.</div>
+    </div>
+    <div class="eq math frag"><span class="frac"><span>a</span><span>c</span></span> + <span class="frac"><span>b</span><span>c</span></span> = <span class="frac"><span>a+b</span><span>c</span></span> &nbsp; solo si los denominadores son iguales.</div>
+    <div class="eq math frag">(a+b)<sup>2</sup> = (a+b)(a+b) &nbsp; que es distinto a a<sup>2</sup>+b<sup>2</sup>.</div>
+    <div class="eq frag"><span style="font-style:normal">Cada hip&oacute;tesis es un condicional </span><span class="math">p &#10233; q</span></div>
+    <div class="alertbox frag">
+      <div class="btitle">Implicaci&oacute;n</div>
+      <div class="bbody">Sin identificar hip&oacute;tesis, un estudiante aplica reglas ciegamente.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 · PREMISA 4 (cadena de inferencias) ============ -->
+<section class="slide" data-trans="slide" data-title="Premisa 4 — cadena de inferencias">
+  <div class="ftitle">Premisa 4</div>
+  <div class="body">
+    <div class="panel">Una soluci&oacute;n matem&aacute;tica no es &uacute;nicamente una sucesi&oacute;n de operaciones en secuencia; es una cadena de inferencias.</div>
+    <p style="font-size:clamp(15px,1.72vw,20px)">Cada l&iacute;nea deber&iacute;a responder a una pregunta:</p>
+    <ol class="steps">
+      <li class="frag"><span class="n">1</span>&iquest;Qu&eacute; propiedad justifica este paso?</li>
+      <li class="frag"><span class="n">2</span>&iquest;Qu&eacute; hip&oacute;tesis se requieren?</li>
+      <li class="frag"><span class="n">3</span>&iquest;La nueva expresi&oacute;n es equivalente?</li>
+      <li class="frag"><span class="n">4</span>&iquest;La conclusi&oacute;n se sigue necesariamente?</li>
+      <li class="frag"><span class="n">5</span>&iquest;Hay restricciones o casos particulares?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 15 · PREMISA 5 (actividades + conclusión) ============ -->
+<section class="slide" data-trans="slide" data-title="Premisa 5 — enseñanza explícita del razonamiento">
+  <div class="ftitle">Premisa 5</div>
+  <div class="body">
+    <div class="panel">El razonamiento l&oacute;gico y la argumentaci&oacute;n matem&aacute;tica pueden ense&ntilde;arse mediante actividades expl&iacute;citas, ejemplos, contraejemplos y pr&aacute;cticas guiadas.</div>
+    <ul class="pts">
+      <li class="frag">Identificar premisas y conclusiones.</li>
+      <li class="frag">Analizar condicionales.</li>
+      <li class="frag">Construir tablas de verdad.</li>
+      <li class="frag">Distinguir inducci&oacute;n de deducci&oacute;n.</li>
+      <li class="frag">Reconocer falacias (afirmar el consecuente, negar el antecedente).</li>
+      <li class="frag">Formular contraejemplos.</li>
+    </ul>
+    <div class="alertbox frag">
+      <div class="btitle">Conclusi&oacute;n</div>
+      <div class="bbody">La UA de RLM es una <b>necesidad pedag&oacute;gica</b>: corrige las fallas estructurales, dota al estudiante de herramientas para inferir v&aacute;lidamente y construye las bases que sostienen materias como C&aacute;lculo y Programaci&oacute;n.</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 16 · DIVISOR MOMENTO CRÍTICO ============ -->
+<section class="slide divider" data-trans="zoom" data-title="El momento crítico">
+  <div class="big">El momento cr&iacute;tico.</div>
+  <div class="rule"></div>
+</section>
+
+<!-- ============ 17 · DEFINICIÓN FORMAL DEL LÍMITE ============ -->
+<section class="slide" data-trans="slide" data-title="La definición formal de límite en Cálculo">
+  <div class="ftitle">La definici&oacute;n formal de l&iacute;mite en C&aacute;lculo</div>
+  <div class="body">
+    <div class="defbox">
+      <div class="btitle">Definici&oacute;n <span class="math">&epsilon;&nbsp;&ndash;&nbsp;&delta;</span> de l&iacute;mite</div>
+      <div class="bbody">
+        <div class="eq math">lim<sub>x&#8594;a</sub>&thinsp;f(x) = L &#10234;&nbsp; &#8704;&epsilon; &gt; 0,&nbsp; &#8707;&delta; &gt; 0 :&nbsp; 0 &lt; |x &minus; a| &lt; &delta; &#10233; |f(x) &minus; L| &lt; &epsilon;</div>
+      </div>
+    </div>
+    <ul class="pts">
+      <li class="frag">&iquest;Qu&eacute; significa esta expresi&oacute;n?</li>
+      <li class="frag">&iquest;Cu&aacute;l es la idea de movimiento que sus cuantificadores universales capturan?</li>
+      <li class="frag">&iquest;C&oacute;mo se interpreta esta expresi&oacute;n como <b>f&oacute;rmula l&oacute;gica</b>?</li>
+      <li class="frag">&iquest;Por qu&eacute; es esencial dominar esta estructura en c&aacute;lculo?</li>
+    </ul>
+    <div class="alertbox frag">
+      <div class="btitle">Advertencia</div>
+      <div class="bbody">Sin dominio de l&oacute;gica proposicional b&aacute;sica, un estudiante puede memorizar la f&oacute;rmula sin llegar a comprenderla ni utilizarla con autonom&iacute;a.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 18 · LEMA ============ -->
+<section class="slide quote" data-trans="flip" data-title="Lema">
+  <div class="mark">&ldquo;</div>
+  <div class="qtext">Aprender a pensar es el primer paso hacia la libertad</div>
+  <div class="rule" style="margin-top:26px;width:110px;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--magenta),var(--violet),var(--blue))"></div>
+</section>
+
+<!-- ============ 19 · DESARROLLO DEL LEMA ============ -->
+<section class="slide" data-trans="slide" data-title="Desarrollo del Lema">
+  <div class="ftitle">Desarrollo del Lema</div>
+  <div class="body">
+    <p class="frag" style="font-size:clamp(16px,2vw,23px);line-height:1.6;text-align:center;max-width:60ch;margin:0 auto">Todos pensamos, pero no todos razonamos con la misma rigurosidad. <b>Aprender a pensar</b> es, precisamente, dominar el arte de razonar.</p>
+    <p class="frag" style="font-size:clamp(15px,1.85vw,21px);line-height:1.6;text-align:center;max-width:66ch;margin:0 auto">Por lo tanto, se trata de una habilidad que se entrena y cuyo beneficio m&aacute;s inmediato es la <b>libertad intelectual</b> que consiste en no depender de la autoridad externa para decidir, sino de construir argumentos <b>s&oacute;lidos</b> propios y tener la capacidad de evaluar los de los dem&aacute;s.</p>
+    <p class="frag" style="font-size:clamp(15px,1.85vw,21px);line-height:1.6;text-align:center;max-width:66ch;margin:0 auto">En particular, la utilidad de esta herramienta en las disciplinas de la universidad brinda al estudiantado la seguridad de preguntar, participar y aprender correctamente.</p>
+  </div>
+</section>
+
+<!-- ============ 20 · REFERENCIAS ============ -->
+<section class="slide" data-trans="slide" data-title="Referencias">
+  <div class="ftitle">Referencias</div>
+  <div class="body">
+    <ul class="pts smalltext">
+      <li class="frag">Copi, I. M., Cohen, C. y McMahon, K. <i>Introduction to Logic</i>. Pearson.</li>
+      <li class="frag">Hurley, P. A. <i>A Concise Introduction to Logic</i>. Cengage.</li>
+      <li class="frag">Duval, R. Un an&aacute;lisis cognitivo de problemas de comprensi&oacute;n en el aprendizaje de las matem&aacute;ticas.</li>
+      <li class="frag">Spivak, M. C&aacute;lculo infinitesimal, 2da Ed. Editorial Revert&eacute;</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 21-26 · EVIDENCIAS ============ -->
+<section class="slide shot" data-trans="fade" data-title="Evidencia 1">
+  <img class="shotimg" src="Screenshot 2026-09-22 at 2.15.35 a.m..png" alt="Evidencia 1"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 1</div>
+    <div class="fname">Screenshot 2026-09-22 at 2.15.35 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+<section class="slide shot" data-trans="fade" data-title="Evidencia 2">
+  <img class="shotimg" src="Screenshot 2026-09-21 at 8.12.14 a.m..png" alt="Evidencia 2"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 2</div>
+    <div class="fname">Screenshot 2026-09-21 at 8.12.14 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+<section class="slide shot" data-trans="fade" data-title="Evidencia 3">
+  <img class="shotimg" src="Screenshot 2026-09-21 at 8.14.57 a.m..png" alt="Evidencia 3"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 3</div>
+    <div class="fname">Screenshot 2026-09-21 at 8.14.57 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+<section class="slide shot" data-trans="fade" data-title="Evidencia 4">
+  <img class="shotimg" src="Screenshot 2026-09-21 at 8.17.44 a.m..png" alt="Evidencia 4"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 4</div>
+    <div class="fname">Screenshot 2026-09-21 at 8.17.44 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+<section class="slide shot" data-trans="fade" data-title="Evidencia 5">
+  <img class="shotimg" src="Screenshot 2026-09-21 at 8.19.08 a.m..png" alt="Evidencia 5"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 5</div>
+    <div class="fname">Screenshot 2026-09-21 at 8.19.08 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+<section class="slide shot" data-trans="fade" data-title="Evidencia 6">
+  <img class="shotimg" src="Screenshot 2026-09-21 at 8.19.54 a.m..png" alt="Evidencia 6"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="placeholder" style="display:none">
+    <div class="lbl">Evidencia 6</div>
+    <div class="fname">Screenshot 2026-09-21 at 8.19.54 a.m..png</div>
+    <div class="note">Marcador de posici&oacute;n. Coloque la captura original junto a este archivo HTML (con el mismo nombre) y se mostrar&aacute; autom&aacute;ticamente al recargar.</div>
+  </div>
+</section>
+
+<!-- ============ 27 · CIERRE ============ -->
+<section class="slide cover" data-trans="zoom" data-title="Cierre">
+  <div class="monogram">UNITI</div>
+</section>
+</div>
+
+<style>
+.arw{position:absolute;inset:0;pointer-events:none}
+.arr{position:absolute;background:var(--violet)}
+.arr.h{height:2.6px}
+.arr.h::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);
+  border-left:9px solid var(--violet);border-top:5.5px solid transparent;border-bottom:5.5px solid transparent}
+.arr.v{width:2.6px}
+.arr.v::after{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  border-bottom:9px solid var(--violet);border-left:5.5px solid transparent;border-right:5.5px solid transparent}
+.shotimg{max-width:92%;max-height:80vh;object-fit:contain;border-radius:12px;
+  box-shadow:0 16px 44px rgba(30,12,48,.22);background:#fff}
+</style>
+
+<div id="counter">1 / 27</div>
+<div id="dots"></div>
+<div id="hud">
+  <button id="bPrev" title="Anterior">&#8249;</button>
+  <button id="bNext" title="Siguiente">&#8250;</button>
+  <button id="bGrid" title="&Iacute;ndice (G)">&Iacute;ndice</button>
+  <button id="bMode" title="Estilo de transici&oacute;n (teclas 1-6)">Efecto: Auto</button>
+  <button id="bFull" title="Pantalla completa (F)">Pantalla</button>
+  <button id="bHelp" title="Ayuda (?)">?</button>
+</div>
+<div id="hint"><b>&rarr;</b> / clic / <b>Espacio</b>: avanzar (los &iacute;tems aparecen uno por uno) &middot; <b>&larr;</b>: atr&aacute;s &middot; <b>G</b>: &iacute;ndice &middot; <b>F</b>: pantalla completa &middot; <b>1-6</b>: efecto &middot; <b>?</b>: ayuda</div>
+<div id="overview"><h2>&Iacute;ndice de la presentaci&oacute;n</h2><div class="grid"></div></div>
+<div id="help">
+  <div class="box">
+    <h3>Controles</h3>
+    <table>
+      <tr><td>&rarr; / Espacio / clic</td><td>Avanzar: primero revela cada &iacute;tem, luego cambia de diapositiva</td></tr>
+      <tr><td>&larr;</td><td>Retroceder (oculta el &uacute;ltimo &iacute;tem revelado)</td></tr>
+      <tr><td>G &middot; Esc</td><td>Abrir / cerrar el &iacute;ndice</td></tr>
+      <tr><td>F</td><td>Pantalla completa</td></tr>
+      <tr><td>1 - 6</td><td>Estilo de transici&oacute;n: Auto, Fundido, Deslizamiento, Zoom, Giro 3D, Cubo</td></tr>
+      <tr><td>Home / End</td><td>Primera / &uacute;ltima diapositiva</td></tr>
+      <tr><td>Puntos inferiores</td><td>Saltar directamente a cualquier &iacute;tem de la diapositiva</td></tr>
+      <tr><td>Deslizar (t&aacute;ctil)</td><td>Anterior / siguiente</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var N=slides.length;
+  var MODES=['auto','fade','slide','zoom','flip','cube'];
+  var NAMES={auto:'Auto',fade:'Fundido',slide:'Deslizamiento',zoom:'Zoom',flip:'Giro 3D',cube:'Cubo'};
+  var mode='auto', cur=0, busy=false, timer=null;
+
+  /* pasos de fragmentos: los que comparten data-f se revelan juntos */
+  slides.forEach(function(s){
+    var a=1;
+    [].forEach.call(s.querySelectorAll('.frag'),function(f){
+      if(!f.getAttribute('data-f')){f.setAttribute('data-f',String(a++));}
+    });
+  });
+  function frags(s){return [].slice.call(s.querySelectorAll('.frag'));}
+  function stepsOf(s){
+    var o=[]; frags(s).forEach(function(f){var v=f.getAttribute('data-f'); if(o.indexOf(v)<0)o.push(v);});
+    return o;
+  }
+
+  var bar=document.getElementById('bar'), counter=document.getElementById('counter'),
+      dotsBox=document.getElementById('dots'), ov=document.getElementById('overview'),
+      help=document.getElementById('help'), bMode=document.getElementById('bMode');
+
+  function go(n,dir){
+    if(busy)return;
+    n=Math.max(0,Math.min(N-1,n));
+    if(n===cur){render();return;}
+    var outS=slides[cur], inS=slides[n];
+    var eff=(mode==='auto')?(inS.getAttribute('data-trans')||'slide'):mode;
+    busy=true; clearTimeout(timer);
+    outS.classList.remove('active','enter-fade','enter-slide','enter-zoom','enter-flip','enter-cube');
+    inS.classList.remove('leaving','leave-fade','leave-slide','leave-zoom','leave-flip','leave-cube');
+    frags(inS).forEach(function(x){x.classList.toggle('on',dir<0);});
+    outS.classList.add('leaving','leave-'+eff);
+    inS.classList.add('active','enter-'+eff);
+    cur=n; render();
+    timer=setTimeout(function(){
+      outS.classList.remove('leaving','leave-'+eff);
+      inS.classList.remove('enter-'+eff);
+      busy=false;
+    },640);
+  }
+  function next(){
+    var off=frags(slides[cur]).filter(function(f){return !f.classList.contains('on');});
+    if(off.length){
+      var st=off[0].getAttribute('data-f');
+      off.forEach(function(x){if(x.getAttribute('data-f')===st)x.classList.add('on');});
+      updateDots(); return;
+    }
+    if(busy)return;
+    go(cur+1,1);
+  }
+  function prev(){
+    var on=frags(slides[cur]).filter(function(f){return f.classList.contains('on');});
+    if(on.length){
+      var st=on[on.length-1].getAttribute('data-f');
+      on.forEach(function(x){if(x.getAttribute('data-f')===st)x.classList.remove('on');});
+      updateDots(); return;
+    }
+    if(busy)return;
+    go(cur-1,-1);
+  }
+  function render(){
+    bar.style.width=((cur+1)/N*100)+'%';
+    counter.textContent=(cur+1)+' / '+N;
+    document.title=(cur+1)+'. '+(slides[cur].getAttribute('data-title')||'')+' \u2014 UNITI';
+    updateDots(); markOverview(); syncHash();
+  }
+  function updateDots(){
+    var s=slides[cur], order=stepsOf(s);
+    if(!order.length){dotsBox.style.display='none';return;}
+    dotsBox.style.display='flex';
+    var onSteps={};
+    frags(s).forEach(function(f){if(f.classList.contains('on'))onSteps[f.getAttribute('data-f')]=1;});
+    dotsBox.innerHTML=order.map(function(v,i){
+      var cls=onSteps[v]?'done':'';
+      var nextUnrevealed=order.findIndex(function(x){return !onSteps[x];});
+      if(i===nextUnrevealed||nextUnrevealed<0&&i===order.length-1){cls+=' on';}
+      return '<i data-s="'+v+'" class="'+cls+'"></i>';
+    }).join('');
+  }
+  dotsBox.addEventListener('click',function(e){
+    var t=e.target; if(t.tagName!=='I')return;
+    e.stopPropagation();
+    var s=slides[cur], order=stepsOf(s), idx=order.indexOf(t.getAttribute('data-s'));
+    frags(s).forEach(function(f){
+      var oi=order.indexOf(f.getAttribute('data-f'));
+      f.classList.toggle('on',oi<=idx);
+    });
+    updateDots();
+  });
+
+  /* índice */
+  var grid=ov.querySelector('.grid');
+  grid.innerHTML=slides.map(function(s,i){
+    return '<div class="card" data-i="'+i+'"><span class="num">'+(i+1)+'</span><span class="t">'+
+      (s.getAttribute('data-title')||'')+'</span><span class="ty">'+(s.getAttribute('data-trans')||'').toUpperCase()+'</span></div>';
+  }).join('');
+  function markOverview(){
+    [].forEach.call(ov.querySelectorAll('.card'),function(c){
+      c.classList.toggle('cur',+c.getAttribute('data-i')===cur);
+    });
+  }
+  grid.addEventListener('click',function(e){
+    var c=e.target.closest('.card'); if(!c)return;
+    var i=+c.getAttribute('data-i');
+    ov.classList.remove('open');
+    go(i,i>cur?1:-1);
+  });
+  function toggleOv(){ov.classList.toggle('open');}
+
+  /* efectos */
+  function setMode(m){mode=m;bMode.textContent='Efecto: '+NAMES[m];}
+  bMode.addEventListener('click',function(){setMode(MODES[(MODES.indexOf(mode)+1)%MODES.length]);});
+
+  /* pantalla completa */
+  function toggleFull(){
+    if(document.fullscreenElement){document.exitFullscreen();}
+    else{document.documentElement.requestFullscreen();}
+  }
+  document.getElementById('bFull').addEventListener('click',toggleFull);
+  document.getElementById('bPrev').addEventListener('click',function(e){e.stopPropagation();prev();});
+  document.getElementById('bNext').addEventListener('click',function(e){e.stopPropagation();next();});
+  document.getElementById('bGrid').addEventListener('click',function(e){e.stopPropagation();toggleOv();});
+  document.getElementById('bHelp').addEventListener('click',function(e){e.stopPropagation();help.classList.toggle('open');});
+  help.addEventListener('click',function(e){if(e.target===help)help.classList.remove('open');});
+
+  /* teclado */
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '||e.key==='Enter'){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='Backspace'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0,-1);}
+    else if(e.key==='End'){go(N-1,1);}
+    else if(e.key==='f'||e.key==='F'){toggleFull();}
+    else if(e.key==='g'||e.key==='G'){toggleOv();}
+    else if(e.key==='?'){help.classList.toggle('open');}
+    else if(e.key==='Escape'){ov.classList.remove('open');help.classList.remove('open');}
+    else if(/^[1-6]$/.test(e.key)){setMode(MODES[+e.key-1]);}
+  });
+
+  /* clic para avanzar/retroceder */
+  document.addEventListener('click',function(e){
+    if(e.target.closest('button,#overview,#help,#dots,a,img.shotimg'))return;
+    (e.clientX/window.innerWidth>0.25)?next():prev();
+  });
+
+  /* táctil */
+  var tx=null;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(tx===null)return;
+    var dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>48){dx<0?next():prev();}
+    tx=null;
+  },{passive:true});
+
+  /* hash */
+  function syncHash(){history.replaceState(null,'','#'+(cur+1));}
+
+  /* inicio */
+  setMode('auto');
+  var h=parseInt(location.hash.slice(1),10);
+  if(h>=1&&h<=N){cur=h-1;}
+  slides[cur].classList.add('active','enter-fade');
+  setTimeout(function(){slides[cur].classList.remove('enter-fade');},700);
+  render();
+  setTimeout(function(){document.getElementById('hint').classList.add('gone');},8000);
+})();
+</script>
+</body>
+</html>
