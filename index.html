@@ -1,26 +1,902 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Sesiones</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portal de Sesiones · Razonamiento Lógico Matemático</title>
+    <style>
+        /* ---------- variables ---------- */
+        :root {
+            --ink: #203025;
+            --paper: #f5fbf3;
+            --panel: #fff;
+            --purple: #8C368D;
+            --orange: #F59C00;
+            --green: #3BAA34;
+            --magenta: #CE027F;
+            --line: #cfe4cf;
+            --muted: #526457;
+            --ok: #247a25;
+            --bad: #b4235a;
+            --lock: #8a6d3b;
+            --lock-bg: #f5f0e6;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font: 16px/1.55 Georgia, serif;
+        }
+        header {
+            padding: 1.8rem max(1rem, calc((100% - 1180px)/2));
+            background: linear-gradient(120deg, #e5f5e2, #f2faed);
+            border-bottom: 4px solid var(--green);
+        }
+        h1,
+        h2,
+        h3,
+        button,
+        select,
+        nav {
+            font-family: Trebuchet MS, Arial, sans-serif;
+        }
+        h1 {
+            font-size: clamp(2rem, 4.2vw, 3.2rem);
+            line-height: 1.05;
+            max-width: 900px;
+            margin: .2rem 0 1rem;
+            color: var(--purple);
+        }
+        header p {
+            max-width: 720px;
+            font-size: 1.1rem;
+        }
+        .signature {
+            font: 700 .9rem Trebuchet MS, Arial, sans-serif;
+            color: var(--green);
+            margin-top: 1.2rem;
+        }
+        /* ---------- branding institucional: logo a la DERECHA y SIN fondo ---------- */
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+        .header-brand > div {
+            flex: 1 1 320px;
+        }
+        .logo {
+            order: 2;
+            margin-left: auto;
+            height: 145px;
+            width: auto;
+            max-width: 290px;
+            object-fit: contain;
+            mix-blend-mode: multiply;
+        }
+        @media (max-width: 760px) {
+            .logo {
+                order: 0;
+                margin-left: 0;
+                align-self: flex-start;
+                height: 95px;
+            }
+        }
+        @media print {
+            .logo {
+                order: 2;
+                margin-left: auto;
+                height: 100px;
+            }
+        }
+        /* ---------- fin branding ---------- */
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem 2rem;
+            margin-top: 1.2rem;
+            padding: .8rem 1rem;
+            background: rgba(255, 255, 255, .7);
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+        .top-bar label {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 600;
+            font-family: Trebuchet MS, Arial, sans-serif;
+            font-size: .95rem;
+        }
+        .top-bar input {
+            font: inherit;
+            padding: .4rem .7rem;
+            border: 1px solid #9bc89a;
+            border-radius: 4px;
+            min-width: 180px;
+        }
+        .top-bar .btn-report {
+            background: var(--purple);
+            color: #fff;
+            border: 0;
+            border-radius: 4px;
+            padding: .5rem 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Trebuchet MS, Arial, sans-serif;
+            font-size: .9rem;
+            margin-left: auto;
+        }
+        .top-bar .btn-report:hover {
+            background: #6e2b6e;
+        }
+        .layout {
+            max-width: 1180px;
+            margin: 1.5rem auto;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 1.5rem;
+            padding: 0 1rem;
+        }
+        aside {
+            position: sticky;
+            top: 1rem;
+            align-self: start;
+            background: var(--green);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        aside h2 {
+            font-size: 1rem;
+            margin: .2rem 0 1rem;
+        }
+        nav button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: #f4fff2;
+            border: 0;
+            border-bottom: 1px solid #8dc98a;
+            padding: .65rem .4rem;
+            cursor: pointer;
+            font-size: .9rem;
+            transition: .15s;
+        }
+        nav button.active,
+        nav button:hover {
+            color: white;
+            background: var(--purple);
+        }
+        nav button.locked {
+            opacity: .85;
+            cursor: pointer;
+        }
+        nav button.locked::after {
+            content: ' 🔒';
+            font-size: .8rem;
+        }
+        nav button.unlocked::after {
+            content: ' 🔓';
+            font-size: .8rem;
+        }
+        main {
+            min-width: 0;
+        }
+        .eyebrow {
+            font: 700 .78rem Trebuchet MS, Arial, sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--magenta);
+        }
+        .lesson-head {
+            border-bottom: 2px solid var(--green);
+            padding-bottom: 1rem;
+        }
+        .lesson-head h2 {
+            font-size: 2rem;
+            margin: .2rem 0;
+            color: var(--green);
+        }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--green);
+            font-size: 1.15rem;
+        }
+        .card.activity {
+            border-left: 5px solid var(--orange);
+        }
+        .card.notebook {
+            background: #f4fbf1;
+            border-left: 5px solid var(--green);
+        }
+        .card.instructions {
+            border-left: 5px solid var(--purple);
+        }
+        .instructions ol {
+            margin: .6rem 0 0;
+            padding-left: 1.2rem;
+        }
+        .instructions ol li {
+            margin: .45rem 0;
+            line-height: 1.5;
+        }
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .session-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+        }
+        .session-card .badge {
+            font: 700 .72rem Trebuchet MS, Arial, sans-serif;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--magenta);
+        }
+        .session-card h3 {
+            margin: 0;
+            color: var(--green);
+            font-size: 1.05rem;
+        }
+        .session-card .meta {
+            font-size: .85rem;
+            color: var(--muted);
+        }
+        .session-card .actions {
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .session-card .lock-state {
+            font-size: .8rem;
+            color: var(--lock);
+            background: var(--lock-bg);
+            border-radius: 4px;
+            padding: .2rem .5rem;
+            font-weight: 600;
+            font-family: Trebuchet MS, Arial, sans-serif;
+        }
+        .session-card .lock-state.unlocked {
+            color: var(--ok);
+            background: #e5f5e2;
+        }
+        button.action {
+            background: var(--orange);
+            color: #382300;
+            border: 0;
+            border-radius: 4px;
+            padding: .55rem .9rem;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Trebuchet MS, Arial, sans-serif;
+            font-size: .9rem;
+        }
+        button.action:hover {
+            background: #d88700;
+        }
+        button.action.secondary {
+            background: var(--green);
+            color: white;
+        }
+        button.action.secondary:hover {
+            background: #2d8a2d;
+        }
+        button.action:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+        .feedback {
+            font-weight: bold;
+            margin-top: .7rem;
+        }
+        .ok {
+            color: var(--ok);
+        }
+        .bad {
+            color: var(--bad);
+        }
+        footer {
+            max-width: 1180px;
+            margin: 2rem auto;
+            padding: 1rem;
+            color: var(--muted);
+            border-top: 1px solid var(--line);
+        }
+        /* ---- modal de contraseña ---- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+        }
+        .modal-box h3 {
+            margin-top: 0;
+            color: var(--purple);
+        }
+        .modal-box input {
+            width: 100%;
+            padding: .7rem;
+            margin: .8rem 0;
+            border: 1px solid #9bc89a;
+            border-radius: 4px;
+            font: inherit;
+        }
+        .modal-box .btn-group {
+            display: flex;
+            gap: .5rem;
+            justify-content: flex-end;
+        }
+        .modal-box .btn-group button {
+            padding: .5rem 1.2rem;
+            border: 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Trebuchet MS, Arial, sans-serif;
+        }
+        .modal-box .btn-group .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .modal-box .btn-group .btn-unlock {
+            background: var(--green);
+            color: white;
+        }
+        .modal-box .btn-group .btn-unlock:hover {
+            background: #2d8a2d;
+        }
+        .modal-box .error-msg {
+            color: var(--bad);
+            font-weight: bold;
+            margin-top: .5rem;
+        }
+        /* ---- reporte ---- */
+        .report-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 2px solid var(--green);
+            margin: 1rem 0;
+        }
+        .report-container h2 {
+            color: var(--purple);
+            border-bottom: 2px solid var(--green);
+            padding-bottom: .5rem;
+        }
+        .report-container .student-info {
+            font-weight: bold;
+            margin: .5rem 0 1.5rem;
+        }
+        .report-container .report-item {
+            border-bottom: 1px solid var(--line);
+            padding: .6rem 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+        }
+        .report-container .report-item .q {
+            font-weight: 600;
+            flex: 1;
+        }
+        .report-container .report-item .status {
+            font-weight: bold;
+            font-family: Trebuchet MS, Arial, sans-serif;
+            font-size: .85rem;
+            padding: .2rem .6rem;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .report-container .status-ok {
+            color: var(--ok);
+            background: #e5f5e2;
+        }
+        .report-container .status-locked {
+            color: var(--lock);
+            background: var(--lock-bg);
+        }
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .report-actions button {
+            padding: .6rem 1.5rem;
+            border: 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: Trebuchet MS, Arial, sans-serif;
+        }
+        .report-actions .btn-print {
+            background: var(--green);
+            color: white;
+        }
+        .report-actions .btn-print:hover {
+            background: #2d8a2d;
+        }
+        .report-actions .btn-close {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .report-actions .btn-close:hover {
+            background: #ccc;
+        }
+        .session-detail {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-left: 5px solid var(--green);
+            border-radius: 8px;
+            padding: 1.2rem 1.4rem;
+            margin-top: 1rem;
+        }
+        .session-detail h3 {
+            margin-top: 0;
+            color: var(--green);
+        }
+        .session-detail .open-btn {
+            margin-top: .6rem;
+        }
+        @media(max-width:760px) {
+            .layout {
+                display: block;
+            }
+            aside {
+                position: static;
+                margin-bottom: 1rem;
+            }
+            .session-grid {
+                grid-template-columns: 1fr;
+            }
+            .lesson-head h2 {
+                font-size: 1.5rem;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .top-bar .btn-report {
+                margin-left: 0;
+            }
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            aside {
+                display: none !important;
+            }
+            .layout {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .top-bar {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            header {
+                padding: 1rem !important;
+            }
+            .card {
+                border: 1px solid #ccc !important;
+                break-inside: avoid;
+            }
+            .report-container {
+                border: 1px solid #ccc !important;
+                padding: 1rem !important;
+            }
+            .modal-overlay {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Portal de Sesiones</h1>
-    <ul>
-        <li><a href="Sesion_1_Razonamiento_logico_matemático.html">Sesión 1: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_2_Razonamiento_logico_matemático.html">Sesión 2: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_3_Razonamiento_logico_matemático.html">Sesión 3: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_4_Razonamiento_logico_matemático.html">Sesión 4: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_5_Razonamiento_logico_matemático.html">Sesión 5: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_6_Razonamiento_logico_matemático.html">Sesión 6: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_7_Razonamiento_logico_matemático.html">Sesión 7: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_8_Razonamiento_logico_matemático.html">Sesión 8: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_9_Razonamiento_logico_matemático.html">Sesión 9: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_10_Razonamiento_logico_matemático.html">Sesión 10: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_11_Razonamiento_logico_matemático.html">Sesión 11: Razonamiento lógico matemático</a></li>
-        <li><a href="Sesion_12_Razonamiento_logico_matemático.html">Sesión 12: Razonamiento lógico matemático</a></li>
-        <li><a href="presentacion_Rlm.html">Presentación RLM</a></li>
-    </ul>
+    <!-- ========== HEADER ========== -->
+    <header>
+        <div class="header-brand">
+            <img src="logo.png" alt="Logotipo institucional" class="logo"
+                 onerror="this.style.display='none'">
+            <div>
+                <div class="eyebrow">UNITI · LPID · Razonamiento Lógico Matemático</div>
+                <h1>Portal de Sesiones RLM</h1>
+                <p>Recurso local para la clase. Las sesiones se presentan con clave de acceso que el profesor
+                    proporciona en clase; al desbloquearlas puedes abrir cada sesión y la presentación del módulo.
+                    Al final puedes generar e imprimir tu evidencia de avance.</p>
+                <p class="signature">Diseñado para la clase por Dr. J. Adrián Cerda</p>
+            </div>
+        </div>
+
+        <!-- barra superior: nombre + reporte -->
+        <div class="top-bar no-print">
+            <label>
+                👤 Tu nombre:
+                <input type="text" id="studentName" placeholder="Escribe tu nombre completo" style="min-width:200px;">
+            </label>
+            <button class="btn-report" id="btnOpenReport">📄 Generar evidencia</button>
+        </div>
+    </header>
+
+    <!-- ========== LAYOUT ========== -->
+    <div class="layout">
+        <aside class="no-print">
+            <h2>Ruta de aprendizaje</h2>
+            <nav id="nav"></nav>
+            <p class="progress" id="progress"></p>
+        </aside>
+        <main id="app">
+            <!-- Contenido inicial: instrucciones + cuadrícula de sesiones -->
+            <div class="lesson-head">
+                <div class="eyebrow">Inicio · Razonamiento Lógico Matemático</div>
+                <h2>Bienvenido al portal de sesiones</h2>
+                <p style="margin:.4rem 0 0;color:var(--muted);font-size:.95rem;">
+                    Selecciona una sesión en el panel izquierdo o en las tarjetas inferiores. Cada sesión está
+                    protegida con una clave que el profesor entrega en clase.
+                </p>
+            </div>
+
+            <div class="card instructions">
+                <h3>📋 Instrucciones de uso</h3>
+                <ol>
+                    <li>Escribe tu nombre completo en la barra superior derecha. Se usará en el reporte de evidencia.</li>
+                    <li>Da clic sobre la sesión bloqueada que quieras abrir (verás el ícono 🔒).</li>
+                    <li>Escribe la clave que el profesor indicó para esa sesión y presiona <strong>Desbloquear</strong>.</li>
+                    <li>Al desbloquearse, aparecerá el botón <strong>Abrir sesión</strong>; al dar clic se abre el archivo HTML correspondiente en una nueva pestaña.</li>
+                    <li>Cuando termines las sesiones que correspondan, presiona <strong>📄 Generar evidencia</strong> para imprimir o exportar a PDF tu avance.</li>
+                    <li>Recuerda: en cada sesión, escribe en tu cuaderno la actividad propuesta y su solución.</li>
+                </ol>
+            </div>
+
+            <div class="card notebook">
+                <h3>📓 Modo de presentación</h3>
+                <p>Este portal está pensado para proyectarse en clase o compartirse como carpeta local.
+                   Las actividades no envían datos a internet: todo el estado se guarda únicamente en este navegador
+                   (no se comparte entre equipos). El profesor puede liberar sesiones en el orden que convenga a la clase
+                   entregando la clave correspondiente, de modo que la presentación avance de manera guiada.</p>
+            </div>
+
+            <div class="lesson-head" style="margin-top:1.5rem;">
+                <div class="eyebrow">Catálogo</div>
+                <h2>Sesiones del módulo</h2>
+            </div>
+            <div class="session-grid" id="sessionGrid"></div>
+        </main>
+    </div>
+
+    <footer>
+        Recurso local para la clase.<br>
+        Las actividades no envían datos a internet.<br>
+        El docente puede proyectar la pantalla o compartir esta carpeta.<br>
+        <strong>En cada sesión, escribe en tu cuaderno la actividad o actividades propuestas con su solución.</strong>
+        <br><br>
+        <span class="no-print" style="font-size:.9rem;color:var(--purple);">
+            🔒 Sesiones bloqueadas requieren la clave que el profesor proporciona en clase.
+        </span>
+    </footer>
+
+    <!-- ========== MODAL PARA CONTRASEÑA ========== -->
+    <div id="passwordModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h3>🔒 Sesión bloqueada</h3>
+            <p id="passwordModalText">Ingresa la clave proporcionada por el profesor para desbloquear esta sesión.</p>
+            <input type="password" id="passwordInput" placeholder="Clave de la sesión" autocomplete="off">
+            <div id="passwordError" class="error-msg" style="display:none;">Clave incorrecta. Intenta de nuevo.</div>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="closePasswordModal()">Cancelar</button>
+                <button class="btn-unlock" onclick="tryUnlock()">Desbloquear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL PARA REPORTE ========== -->
+    <div id="reportModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:760px;max-height:90vh;overflow-y:auto;">
+            <div id="reportContent"></div>
+            <div class="report-actions" style="margin-top:1rem;">
+                <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
+                <button class="btn-close" onclick="closeReport()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================================================
+        //  CONFIGURACIÓN DEL PROFESOR — CLAVES POR SESIÓN
+        //  Edita libremente las claves de cada sesión. Sincrónizalas con las
+        //  que entregues verbalmente en clase.
+        // ========================================================================
+        const SESSION_PASSWORDS = {
+            '1':  'rlm1',
+            '2':  'rlm2qwer',
+            '3':  'rlm3ñlkj',
+            '4':  'rlm4zxcv',
+            '5':  'rlm5poiu',
+            '6':  'rlm6asdf',
+            '7':  'rlm7mnbv',
+            '8':  'rlm8qaz',
+            '9':  'rlm9pñl',
+            '10': 'rlm10okm',
+            '11': 'rlm11wsx',
+            '12': 'rlm12ijn',
+            '13': 'rlm-pres'   // Presentación RLM
+        };
+
+        // ========================================================================
+        //  CATÁLOGO DE SESIONES
+        //  Cada sesión apunta al archivo HTML que ya tienes en la carpeta.
+        // ========================================================================
+        const SESSIONS = [
+            { id: '1',  title: 'Sesión 1: Razonamiento lógico matemático',
+              file: 'Sesion_1_Razonamiento_logico_matemático.html',
+              desc: 'Primera sesión del módulo.' },
+            { id: '2',  title: 'Sesión 2: Razonamiento lógico matemático',
+              file: 'Sesion_2_Razonamiento_logico_matemático.html',
+              desc: 'Segunda sesión del módulo.' },
+            { id: '3',  title: 'Sesión 3: Razonamiento lógico matemático',
+              file: 'Sesion_3_Razonamiento_logico_matemático.html',
+              desc: 'Tercera sesión del módulo.' },
+            { id: '4',  title: 'Sesión 4: Razonamiento lógico matemático',
+              file: 'Sesion_4_Razonamiento_logico_matemático.html',
+              desc: 'Cuarta sesión del módulo.' },
+            { id: '5',  title: 'Sesión 5: Razonamiento lógico matemático',
+              file: 'Sesion_5_Razonamiento_logico_matemático.html',
+              desc: 'Quinta sesión del módulo.' },
+            { id: '6',  title: 'Sesión 6: Razonamiento lógico matemático',
+              file: 'Sesion_6_Razonamiento_logico_matemático.html',
+              desc: 'Sexta sesión del módulo.' },
+            { id: '7',  title: 'Sesión 7: Razonamiento lógico matemático',
+              file: 'Sesion_7_Razonamiento_logico_matemático.html',
+              desc: 'Séptima sesión del módulo.' },
+            { id: '8',  title: 'Sesión 8: Razonamiento lógico matemático',
+              file: 'Sesion_8_Razonamiento_logico_matemático.html',
+              desc: 'Octava sesión del módulo.' },
+            { id: '9',  title: 'Sesión 9: Razonamiento lógico matemático',
+              file: 'Sesion_9_Razonamiento_logico_matemático.html',
+              desc: 'Novena sesión del módulo.' },
+            { id: '10', title: 'Sesión 10: Razonamiento lógico matemático',
+              file: 'Sesion_10_Razonamiento_logico_matemático.html',
+              desc: 'Décima sesión del módulo.' },
+            { id: '11', title: 'Sesión 11: Razonamiento lógico matemático',
+              file: 'Sesion_11_Razonamiento_logico_matemático.html',
+              desc: 'Undécima sesión del módulo.' },
+            { id: '12', title: 'Sesión 12: Razonamiento lógico matemático',
+              file: 'Sesion_12_Razonamiento_logico_matemático.html',
+              desc: 'Duodécima sesión del módulo.' },
+            { id: '13', title: 'Presentación RLM',
+              file: 'presentacion_Rlm.html',
+              desc: 'Presentación general del módulo.' }
+        ];
+
+        // ========================================================================
+        //  ESTADO DE DESBLOQUEO (persistente por navegador)
+        // ========================================================================
+        const STORAGE_KEY = 'rlmPortalUnlocked_v1';
+        let unlocked = new Set();
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) unlocked = new Set(JSON.parse(raw));
+        } catch (e) { /* localStorage no disponible */ }
+
+        function persistUnlocked() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify([...unlocked]));
+            } catch (e) { /* no disponible */ }
+        }
+
+        // ========================================================================
+        //  RENDER DE LA NAVEGACIÓN LATERAL
+        // ========================================================================
+        function renderNav() {
+            const nav = document.getElementById('nav');
+            nav.innerHTML = '';
+            SESSIONS.forEach(s => {
+                const btn = document.createElement('button');
+                const isUnlocked = unlocked.has(s.id);
+                btn.className = isUnlocked ? 'unlocked' : 'locked';
+                btn.dataset.id = s.id;
+                btn.innerHTML = (isUnlocked ? '🔓 ' : '🔒 ') + s.title;
+                btn.addEventListener('click', () => handleSessionClick(s));
+                nav.appendChild(btn);
+            });
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = SESSIONS.length;
+            const done = unlocked.size;
+            const pct = Math.round((done / total) * 100);
+            document.getElementById('progress').textContent =
+                `Progreso: ${done}/${total} sesiones desbloqueadas (${pct}%).`;
+        }
+
+        // ========================================================================
+        //  RENDER DE LA CUADRÍCULA DE SESIONES EN EL ÁREA PRINCIPAL
+        // ========================================================================
+        function renderSessionGrid() {
+            const grid = document.getElementById('sessionGrid');
+            grid.innerHTML = '';
+            SESSIONS.forEach(s => {
+                const isUnlocked = unlocked.has(s.id);
+                const card = document.createElement('div');
+                card.className = 'session-card';
+                card.innerHTML = `
+                    <div class="badge">Sesión ${s.id === '13' ? '— Presentación' : s.id}</div>
+                    <h3>${s.title}</h3>
+                    <div class="meta">${s.desc}</div>
+                    <div class="actions">
+                        <span class="lock-state ${isUnlocked ? 'unlocked' : ''}">
+                            ${isUnlocked ? '🔓 Desbloqueada' : '🔒 Bloqueada'}
+                        </span>
+                    </div>
+                `;
+                const actionsDiv = card.querySelector('.actions');
+                const btn = document.createElement('button');
+                btn.className = 'action' + (isUnlocked ? ' secondary' : '');
+                btn.textContent = isUnlocked ? 'Abrir sesión' : 'Solicitar clave';
+                btn.addEventListener('click', () => handleSessionClick(s));
+                actionsDiv.appendChild(btn);
+                grid.appendChild(card);
+            });
+        }
+
+        // ========================================================================
+        //  MANEJO DE CLIC EN SESIÓN
+        // ========================================================================
+        let pendingSession = null;
+
+        function handleSessionClick(session) {
+            if (unlocked.has(session.id)) {
+                // Abrir el archivo de la sesión en una nueva pestaña
+                window.open(session.file, '_blank');
+                return;
+            }
+            // Pedir clave
+            pendingSession = session;
+            const modalText = document.getElementById('passwordModalText');
+            modalText.innerHTML =
+                `Ingresa la clave proporcionada por el profesor para desbloquear <strong>${session.title}</strong>.`;
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            document.getElementById('passwordModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('passwordInput').focus(), 50);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            pendingSession = null;
+        }
+
+        function tryUnlock() {
+            if (!pendingSession) return;
+            const entered = document.getElementById('passwordInput').value.trim();
+            const expected = SESSION_PASSWORDS[pendingSession.id];
+            if (entered && entered === expected) {
+                unlocked.add(pendingSession.id);
+                persistUnlocked();
+                const session = pendingSession;
+                closePasswordModal();
+                renderNav();
+                renderSessionGrid();
+                // Abrir automáticamente la sesión recién desbloqueada
+                window.open(session.file, '_blank');
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('passwordInput').select();
+            }
+        }
+
+        // Permitir Enter en el campo de contraseña
+        document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') tryUnlock();
+            if (e.key === 'Escape') closePasswordModal();
+        });
+        // Click fuera del modal cierra
+        document.getElementById('passwordModal').addEventListener('click', (e) => {
+            if (e.target.id === 'passwordModal') closePasswordModal();
+        });
+
+        // ========================================================================
+        //  REPORTE / EVIDENCIA
+        // ========================================================================
+        function openReport() {
+            const name = document.getElementById('studentName').value.trim() || '(sin nombre)';
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('es-MX', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+            let rows = '';
+            SESSIONS.forEach(s => {
+                const ok = unlocked.has(s.id);
+                rows += `
+                    <div class="report-item">
+                        <span class="q">${s.title}</span>
+                        <span class="status ${ok ? 'status-ok' : 'status-locked'}">
+                            ${ok ? '🔓 Desbloqueada' : '🔒 Pendiente'}
+                        </span>
+                    </div>`;
+            });
+
+            const total = SESSIONS.length;
+            const done = unlocked.size;
+            const pct = Math.round((done / total) * 100);
+
+            const html = `
+                <div class="report-container">
+                    <h2>Evidencia de avance · Razonamiento Lógico Matemático</h2>
+                    <div class="student-info">Alumno: ${escapeHtml(name)}</div>
+                    <div class="student-info">Fecha de generación: ${dateStr} · ${timeStr}</div>
+                    <div class="student-info">
+                        Resumen: ${done} de ${total} sesiones desbloqueadas (${pct}%).
+                    </div>
+                    ${rows}
+                    <div style="margin-top:1.5rem;font-size:.85rem;color:var(--muted);">
+                        Reporte generado localmente. Las actividades no envían datos a internet.
+                    </div>
+                </div>`;
+            document.getElementById('reportContent').innerHTML = html;
+            document.getElementById('reportModal').style.display = 'flex';
+        }
+
+        function closeReport() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+        document.getElementById('btnOpenReport').addEventListener('click', openReport);
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'reportModal') closeReport();
+        });
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            })[c]);
+        }
+
+        // ========================================================================
+        //  INICIALIZACIÓN
+        // ========================================================================
+        renderNav();
+        renderSessionGrid();
+    </script>
 </body>
 </html>
